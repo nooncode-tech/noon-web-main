@@ -20,9 +20,9 @@
 
 - **Frontend:** Next.js 15 (App Router), React, TypeScript, Tailwind CSS, shadcn/ui
 - **Backend:** Next.js API Routes (nodejs runtime)
-- **Base de datos:** SQLite local (`node:sqlite` nativo) en `.data/noon.sqlite`
+- **Base de datos:** PostgreSQL en Supabase, consumido via `postgres.js` con `DATABASE_URL`
 - **IA:** OpenAI gpt-4.1 (via `openai` SDK), v0 SDK para prototipos
-- **Infra:** Sin cloud — local SQLite, sin AWS ni DB externa en este ciclo
+- **Infra:** App desplegable sobre Next.js con Postgres/Supabase; sin AWS dedicada en este ciclo
 
 ---
 
@@ -38,7 +38,7 @@
 - `components/landing/maxwell-chat-modal.tsx` — Degradar → eliminar
 - `app/_components/site/start-with-maxwell-flow.tsx` — Refactor → transición al Studio
 - `app/api/maxwell/` — Reescribir todos los routes
-- `lib/server/noon-storage.ts` — Ampliar con 7 nuevas entidades
+- `lib/server/noon-storage.ts` — Legacy SQLite; no usar para Maxwell Studio nuevo
 
 ### Por crear:
 - `components/maxwell/` — UI del Studio (shell, header, chat pane, preview pane, etc.)
@@ -50,10 +50,10 @@
 ## 4. Convenciones críticas
 
 - Todos los routes API son `runtime = "nodejs"`, `dynamic = "force-dynamic"`
-- SQLite vía `node:sqlite` (DatabaseSync) — no ORM, queries directas
+- Postgres vía `postgres.js` — no ORM, queries directas
 - Componentes client-side: `"use client"` explícito
 - Estilos: Tailwind + `siteTones` / `siteStatusTones` de `lib/site-tones.ts` — no hardcodear colores
-- No introducir AWS, Postgres, Redis ni dependencias cloud en este ciclo
+- No introducir AWS dedicada, Redis ni complejidad infra extra en este ciclo
 
 ---
 
@@ -78,19 +78,20 @@
 - `prototype/route.ts`: v0 create + update
 - `proposal/route.ts`: Genera propuesta (con contenido prohibido — pendiente reescritura)
 - `session/route.ts`: Captura prompt + cookie
-- `noon-storage.ts`: SQLite con `contact_leads` + `maxwell_sessions` (minimal)
+- `lib/server/db.ts`: conexión a Postgres/Supabase para Maxwell Studio
+- `noon-storage.ts`: SQLite legacy para flujos antiguos, no canónico para Studio
 
 ### Problemas críticos identificados:
 - `proposal/route.ts`: Contiene "full payment 5% discount" y "phase-based payments como principal" → **REESCRIBIR**
 - Toda la conversación, correcciones y prototipo son **estado frontend puro** — sin persistencia real
 - No existe máquina de estados en backend
-- No existen 6 de las 7 entidades del modelo de datos nuevo
+- El esquema Studio existe pero seguía blando: faltaban constraints, tipos fuertes y wiring parcial en runtime
 - No existe cola de revisión humana
 
 ### En construcción (Fase 1+):
 - `components/maxwell/` — pendiente crear
 - `lib/maxwell/` — pendiente crear
-- Nuevas entidades SQLite — pendiente migración
+- Hardening de esquema Supabase/Postgres — en curso
 
 ---
 
@@ -101,7 +102,7 @@
 | `proposal/route.ts` con contenido comercial prohibido en producción | ALTO | Reescribir en Fase 6 antes de go-live |
 | Estado de sesión perdido si cliente recarga (solo frontend) | ALTO | Fase 2 resuelve con persistencia real |
 | v0 SDK wrapper sin tipado fuerte | MEDIO | Mantener el cast actual hasta mejora |
-| SQLite local no escala a multi-servidor | BAJO | Aceptado para este ciclo |
+| Drift entre runtime y esquema real de Supabase | ALTO | Endurecer schema + alinear repositorios y rutas |
 
 ---
 
@@ -110,7 +111,7 @@
 | Supuesto | Riesgo si es falso |
 |----------|--------------------|
 | `V0_API_KEY` y `OPENAI_API_KEY` configurados en `.env` | Bloqueante para pruebas |
-| Un solo servidor (SQLite compatible) | Si escala, migrar a Postgres |
+| Supabase es la base canónica para Maxwell Studio | Si el entorno remoto difiere del repo, hay que validar antes de migrar |
 | PM de Noon revisa manualmente las propuestas | Sin PM, propuesta queda en pending indefinido |
 
 ---

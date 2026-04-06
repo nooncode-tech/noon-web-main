@@ -18,6 +18,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import {
+  getProposalRequest,
   getStudioSession,
   updateStudioSessionStatus,
   getClientWorkspaceBySession,
@@ -28,6 +29,7 @@ import {
   updateProposalExpiry,
 } from "@/lib/maxwell/repositories";
 import {
+  assertSessionAwaitingPayment,
   assertWorkspaceNotActive,
   MaxwellGuardError,
 } from "@/lib/maxwell/studio-guards";
@@ -162,15 +164,23 @@ export async function POST(request: Request) {
     // ── verify_payment ────────────────────────────────────────────────────────
 
     if (payload.action === "verify_payment") {
-      const proposal = await updateProposalRequestStatus(
-        payload.proposal_request_id,
-        "paid",
-        { reviewerId: payload.actor }
-      );
+      const proposal = await getProposalRequest(payload.proposal_request_id);
+      if (!proposal) {
+        return NextResponse.json({ message: "Proposal request not found." }, { status: 404 });
+      }
 
       const session = await getStudioSession(proposal.studioSessionId);
       if (!session) {
         return NextResponse.json({ message: "Associated session not found." }, { status: 404 });
+      }
+
+      try {
+        assertSessionAwaitingPayment(session);
+      } catch (err) {
+        if (err instanceof MaxwellGuardError) {
+          return NextResponse.json({ message: err.message, code: err.code }, { status: 409 });
+        }
+        throw err;
       }
 
       const existingWorkspace = await getClientWorkspaceBySession(session.id);
@@ -189,6 +199,9 @@ export async function POST(request: Request) {
         throw err;
       }
 
+      await updateProposalRequestStatus(payload.proposal_request_id, "paid", {
+        reviewerId: payload.actor,
+      });
       await updateStudioSessionStatus(session.id, "converted");
 
       const workspaceToActivate =
@@ -247,22 +260,20 @@ export async function POST(request: Request) {
       }
 
       if (payload.payment_status !== "confirmed") {
-        if (!existingWorkspace) {
-          const workspace = await createClientWorkspace({
-            studioSessionId: session.id,
-            paymentStatus: payload.payment_status,
-          });
-          return NextResponse.json({
-            message: `Payment recorded as ${payload.payment_status}.`,
-            workspace,
-            session_status: session.status,
-          });
-        }
         return NextResponse.json({
-          message: `Payment ${payload.payment_status}. No workspace activated.`,
-          workspace: existingWorkspace,
+          message: `Payment ${payload.payment_status}. Workspace remains unavailable until confirmation.`,
+          workspace: existingWorkspace ?? null,
           session_status: session.status,
         });
+      }
+
+      try {
+        assertSessionAwaitingPayment(session);
+      } catch (err) {
+        if (err instanceof MaxwellGuardError) {
+          return NextResponse.json({ message: err.message, code: err.code }, { status: 409 });
+        }
+        throw err;
       }
 
       await updateStudioSessionStatus(session.id, "converted");

@@ -91,10 +91,12 @@ export async function POST(request: Request) {
         session = await createStudioSession({ initialPrompt: userText });
       }
 
-      // Auto-recover sessions stuck in generating_prototype or revision_requested
-      // (happens when v0 fails mid-generation and the DB status was never reset)
-      if (session.status === "generating_prototype" || session.status === "revision_requested") {
+      // Auto-recover sessions stuck in generation-related states when the client
+      // comes back after a failed prototype step.
+      if (session.status === "generating_prototype") {
         session = await updateStudioSessionStatus(session.id, "clarifying");
+      } else if (session.status === "revision_requested") {
+        session = await updateStudioSessionStatus(session.id, "prototype_ready");
       }
 
       if (!canReceiveMessage(session.status)) {

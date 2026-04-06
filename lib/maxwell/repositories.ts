@@ -6,6 +6,7 @@
  */
 
 import { getDb } from "@/lib/server/db";
+import { assertValidTransition } from "./state-machine";
 
 // ============================================================================
 // Types
@@ -83,6 +84,23 @@ export type StudioMessage = {
   createdAt: string;
 };
 
+export type StudioBrief = {
+  id: string;
+  studioSessionId: string;
+  objective: string | null;
+  users: string | null;
+  coreFlow: string | null;
+  styleDirection: string | null;
+  integrations: string | null;
+  assumptions: string | null;
+  constraints: string | null;
+  platform: string | null;
+  primaryUser: string | null;
+  answersJson: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type StudioVersion = {
   id: string;
   studioSessionId: string;
@@ -91,6 +109,27 @@ export type StudioVersion = {
   v0ChatId: string;
   changeSummary: string | null;
   source: VersionSource;
+  createdAt: string;
+};
+
+export type StudioEventType =
+  | "session_created"
+  | "status_transition"
+  | "brief_updated"
+  | "system_recovery"
+  | "proposal_requested"
+  | "proposal_reviewed"
+  | "payment_recorded"
+  | "workspace_updated";
+
+export type StudioEvent = {
+  id: string;
+  studioSessionId: string;
+  eventType: StudioEventType;
+  fromStatus: StudioStatus | null;
+  toStatus: StudioStatus | null;
+  actor: string | null;
+  payloadJson: Record<string, unknown> | null;
   createdAt: string;
 };
 
@@ -163,48 +202,94 @@ type SessionRow = {
   project_type: string | null; goal_summary: string | null;
   complexity_hint: string | null; language: string;
   corrections_used: number; max_corrections: number;
-  proposal_requested_at: string | null; created_at: string; updated_at: string;
+  proposal_requested_at: string | Date | null; created_at: string | Date; updated_at: string | Date;
 };
 
 type MessageRow = {
   id: string; studio_session_id: string; role: string;
-  message_type: string; content: string; created_at: string;
+  message_type: string; content: string; created_at: string | Date;
+};
+
+type BriefRow = {
+  id: string; studio_session_id: string; objective: string | null;
+  users: string | null; core_flow: string | null;
+  style_direction: string | null; integrations: string | null;
+  assumptions: string | null; constraints: string | null;
+  platform: string | null; primary_user: string | null;
+  answers_json: unknown; created_at: string | Date; updated_at: string | Date;
 };
 
 type VersionRow = {
   id: string; studio_session_id: string; version_number: number;
   preview_url: string; v0_chat_id: string; change_summary: string | null;
-  source: string; created_at: string;
+  source: string; created_at: string | Date;
 };
 
 type ProposalRow = {
   id: string; studio_session_id: string; status: string;
-  review_required: number; reviewer_id: string | null;
-  draft_content: string | null; expires_at: string | null;
-  created_at: string; updated_at: string;
+  review_required: boolean | number; reviewer_id: string | null;
+  draft_content: string | null; expires_at: string | Date | null;
+  created_at: string | Date; updated_at: string | Date;
 };
 
 type WorkspaceRow = {
   id: string; studio_session_id: string; payment_status: string;
   workspace_status: string; latest_update_summary: string | null;
-  created_at: string; updated_at: string;
+  created_at: string | Date; updated_at: string | Date;
 };
 
 type UpdateRow = {
   id: string; client_workspace_id: string; title: string;
   content: string | null; update_type: string; material_url: string | null;
-  is_client_visible: number; created_by: string; created_at: string;
+  is_client_visible: boolean | number; created_by: string; created_at: string | Date;
 };
 
 type PaymentEventRow = {
   id: string; studio_session_id: string; event_type: string;
-  amount_usd: number | null; reference: string | null;
-  notes: string | null; created_by: string; created_at: string;
+  amount_usd: number | string | null; reference: string | null;
+  notes: string | null; created_by: string; created_at: string | Date;
+};
+
+type EventRow = {
+  id: string; studio_session_id: string; event_type: string;
+  from_status: string | null; to_status: string | null;
+  actor: string | null; payload_json: unknown; created_at: string | Date;
 };
 
 // ============================================================================
 // Mappers
 // ============================================================================
+
+const ACTIVE_PROPOSAL_STATUSES: ProposalStatus[] = [
+  "pending_review",
+  "under_review",
+  "approved",
+  "payment_pending",
+  "payment_under_verification",
+  "escalated",
+];
+
+function toIsoTimestamp(value: string | Date | null | undefined): string | null {
+  if (value == null) return null;
+  return value instanceof Date ? value.toISOString() : value;
+}
+
+function toBoolean(value: boolean | number | null | undefined): boolean {
+  if (typeof value === "boolean") return value;
+  return Number(value) === 1;
+}
+
+function toNumber(value: number | string | null | undefined): number | null {
+  if (value == null) return null;
+  return typeof value === "number" ? value : Number(value);
+}
+
+function toJsonObject(value: unknown): Record<string, unknown> {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return {};
+}
 
 function mapSession(r: SessionRow): StudioSession {
   return {
@@ -212,8 +297,9 @@ function mapSession(r: SessionRow): StudioSession {
     projectType: r.project_type, goalSummary: r.goal_summary,
     complexityHint: r.complexity_hint, language: r.language,
     correctionsUsed: Number(r.corrections_used), maxCorrections: Number(r.max_corrections),
-    proposalRequestedAt: r.proposal_requested_at,
-    createdAt: r.created_at, updatedAt: r.updated_at,
+    proposalRequestedAt: toIsoTimestamp(r.proposal_requested_at),
+    createdAt: toIsoTimestamp(r.created_at)!,
+    updatedAt: toIsoTimestamp(r.updated_at)!,
   };
 }
 
@@ -221,7 +307,26 @@ function mapMessage(r: MessageRow): StudioMessage {
   return {
     id: r.id, studioSessionId: r.studio_session_id,
     role: r.role as MessageRole, messageType: r.message_type as MessageType,
-    content: r.content, createdAt: r.created_at,
+    content: r.content, createdAt: toIsoTimestamp(r.created_at)!,
+  };
+}
+
+function mapBrief(r: BriefRow): StudioBrief {
+  return {
+    id: r.id,
+    studioSessionId: r.studio_session_id,
+    objective: r.objective,
+    users: r.users,
+    coreFlow: r.core_flow,
+    styleDirection: r.style_direction,
+    integrations: r.integrations,
+    assumptions: r.assumptions,
+    constraints: r.constraints,
+    platform: r.platform,
+    primaryUser: r.primary_user,
+    answersJson: toJsonObject(r.answers_json),
+    createdAt: toIsoTimestamp(r.created_at)!,
+    updatedAt: toIsoTimestamp(r.updated_at)!,
   };
 }
 
@@ -230,16 +335,18 @@ function mapVersion(r: VersionRow): StudioVersion {
     id: r.id, studioSessionId: r.studio_session_id,
     versionNumber: Number(r.version_number), previewUrl: r.preview_url,
     v0ChatId: r.v0_chat_id, changeSummary: r.change_summary,
-    source: r.source as VersionSource, createdAt: r.created_at,
+    source: r.source as VersionSource, createdAt: toIsoTimestamp(r.created_at)!,
   };
 }
 
 function mapProposal(r: ProposalRow): ProposalRequest {
   return {
     id: r.id, studioSessionId: r.studio_session_id,
-    status: r.status as ProposalStatus, reviewRequired: Number(r.review_required) === 1,
+    status: r.status as ProposalStatus, reviewRequired: toBoolean(r.review_required),
     reviewerId: r.reviewer_id, draftContent: r.draft_content,
-    expiresAt: r.expires_at, createdAt: r.created_at, updatedAt: r.updated_at,
+    expiresAt: toIsoTimestamp(r.expires_at),
+    createdAt: toIsoTimestamp(r.created_at)!,
+    updatedAt: toIsoTimestamp(r.updated_at)!,
   };
 }
 
@@ -249,7 +356,8 @@ function mapWorkspace(r: WorkspaceRow): ClientWorkspace {
     paymentStatus: r.payment_status as WorkspacePaymentStatus,
     workspaceStatus: r.workspace_status as WorkspaceStatus,
     latestUpdateSummary: r.latest_update_summary,
-    createdAt: r.created_at, updatedAt: r.updated_at,
+    createdAt: toIsoTimestamp(r.created_at)!,
+    updatedAt: toIsoTimestamp(r.updated_at)!,
   };
 }
 
@@ -257,17 +365,32 @@ function mapUpdate(r: UpdateRow): WorkspaceUpdate {
   return {
     id: r.id, clientWorkspaceId: r.client_workspace_id, title: r.title,
     content: r.content, updateType: r.update_type as WorkspaceUpdateType,
-    materialUrl: r.material_url, isClientVisible: Number(r.is_client_visible) === 1,
-    createdBy: r.created_by, createdAt: r.created_at,
+    materialUrl: r.material_url, isClientVisible: toBoolean(r.is_client_visible),
+    createdBy: r.created_by, createdAt: toIsoTimestamp(r.created_at)!,
   };
 }
 
 function mapPaymentEvent(r: PaymentEventRow): PaymentEvent {
   return {
     id: r.id, studioSessionId: r.studio_session_id,
-    eventType: r.event_type as PaymentEventType, amountUsd: r.amount_usd,
+    eventType: r.event_type as PaymentEventType, amountUsd: toNumber(r.amount_usd),
     reference: r.reference, notes: r.notes,
-    createdBy: r.created_by, createdAt: r.created_at,
+    createdBy: r.created_by, createdAt: toIsoTimestamp(r.created_at)!,
+  };
+}
+
+function mapEvent(r: EventRow): StudioEvent {
+  return {
+    id: r.id,
+    studioSessionId: r.studio_session_id,
+    eventType: r.event_type as StudioEventType,
+    fromStatus: (r.from_status as StudioStatus | null) ?? null,
+    toStatus: (r.to_status as StudioStatus | null) ?? null,
+    actor: r.actor,
+    payloadJson: r.payload_json && typeof r.payload_json === "object" && !Array.isArray(r.payload_json)
+      ? (r.payload_json as Record<string, unknown>)
+      : null,
+    createdAt: toIsoTimestamp(r.created_at)!,
   };
 }
 
@@ -307,6 +430,15 @@ export async function updateStudioSessionStatus(
   status: StudioStatus,
   extra?: Partial<Pick<StudioSession, "goalSummary" | "projectType" | "proposalRequestedAt">>
 ): Promise<StudioSession> {
+  const current = await getStudioSession(id);
+  if (!current) {
+    throw new Error(`Studio session not found: ${id}`);
+  }
+
+  if (current.status !== status) {
+    assertValidTransition(current.status, status);
+  }
+
   const sql = getDb();
   const now = new Date().toISOString();
 
@@ -380,6 +512,75 @@ export async function getStudioMessagesForOpenAI(
 }
 
 // ============================================================================
+// studio_brief
+// ============================================================================
+
+export async function getStudioBrief(studioSessionId: string): Promise<StudioBrief | null> {
+  const sql = getDb();
+  const rows = await sql<BriefRow[]>`
+    SELECT * FROM studio_brief
+    WHERE studio_session_id = ${studioSessionId}
+  `;
+  return rows[0] ? mapBrief(rows[0]) : null;
+}
+
+export async function upsertStudioBrief(input: {
+  studioSessionId: string;
+  objective?: string | null;
+  users?: string | null;
+  coreFlow?: string | null;
+  styleDirection?: string | null;
+  integrations?: string | null;
+  assumptions?: string | null;
+  constraints?: string | null;
+  platform?: string | null;
+  primaryUser?: string | null;
+  answersJson?: Record<string, unknown>;
+}): Promise<StudioBrief> {
+  const sql = getDb();
+  const existing = await getStudioBrief(input.studioSessionId);
+  const now = new Date().toISOString();
+
+  if (existing) {
+    const rows = await sql<BriefRow[]>`
+      UPDATE studio_brief
+      SET objective = COALESCE(${input.objective ?? null}, objective),
+          users = COALESCE(${input.users ?? null}, users),
+          core_flow = COALESCE(${input.coreFlow ?? null}, core_flow),
+          style_direction = COALESCE(${input.styleDirection ?? null}, style_direction),
+          integrations = COALESCE(${input.integrations ?? null}, integrations),
+          assumptions = COALESCE(${input.assumptions ?? null}, assumptions),
+          constraints = COALESCE(${input.constraints ?? null}, constraints),
+          platform = COALESCE(${input.platform ?? null}, platform),
+          primary_user = COALESCE(${input.primaryUser ?? null}, primary_user),
+          answers_json = CASE
+            WHEN ${JSON.stringify(input.answersJson ?? null)}::jsonb IS NULL THEN answers_json
+            ELSE answers_json || ${JSON.stringify(input.answersJson ?? {})}::jsonb
+          END,
+          updated_at = ${now}
+      WHERE studio_session_id = ${input.studioSessionId}
+      RETURNING *
+    `;
+    return mapBrief(rows[0]);
+  }
+
+  const id = crypto.randomUUID();
+  const rows = await sql<BriefRow[]>`
+    INSERT INTO studio_brief (
+      id, studio_session_id, objective, users, core_flow,
+      style_direction, integrations, assumptions, constraints,
+      platform, primary_user, answers_json, created_at, updated_at
+    ) VALUES (
+      ${id}, ${input.studioSessionId}, ${input.objective ?? null}, ${input.users ?? null}, ${input.coreFlow ?? null},
+      ${input.styleDirection ?? null}, ${input.integrations ?? null}, ${input.assumptions ?? null}, ${input.constraints ?? null},
+      ${input.platform ?? null}, ${input.primaryUser ?? null}, ${JSON.stringify(input.answersJson ?? {})}::jsonb, ${now}, ${now}
+    )
+    RETURNING *
+  `;
+  return mapBrief(rows[0]);
+}
+
+// ============================================================================
 // studio_version
 // ============================================================================
 
@@ -393,30 +594,32 @@ export async function createStudioVersion(input: {
   const sql = getDb();
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
+  const row = await sql.begin(async (tx) => {
+    await tx`SELECT pg_advisory_xact_lock(hashtext(${input.studioSessionId}))`;
 
-  const maxRows = await sql<{ max_version: number | null }[]>`
-    SELECT MAX(version_number) AS max_version
-    FROM studio_version
-    WHERE studio_session_id = ${input.studioSessionId}
-  `;
-  const versionNumber = (maxRows[0]?.max_version ?? 0) + 1;
+    const maxRows = await tx<{ max_version: number | null }[]>`
+      SELECT MAX(version_number) AS max_version
+      FROM studio_version
+      WHERE studio_session_id = ${input.studioSessionId}
+    `;
+    const versionNumber = (maxRows[0]?.max_version ?? 0) + 1;
 
-  await sql`
-    INSERT INTO studio_version (
-      id, studio_session_id, version_number,
-      preview_url, v0_chat_id, change_summary, source, created_at
-    ) VALUES (
-      ${id}, ${input.studioSessionId}, ${versionNumber},
-      ${input.previewUrl}, ${input.v0ChatId}, ${input.changeSummary ?? null},
-      ${input.source}, ${now}
-    )
-  `;
+    const rows = await tx<VersionRow[]>`
+      INSERT INTO studio_version (
+        id, studio_session_id, version_number,
+        preview_url, v0_chat_id, change_summary, source, created_at
+      ) VALUES (
+        ${id}, ${input.studioSessionId}, ${versionNumber},
+        ${input.previewUrl}, ${input.v0ChatId}, ${input.changeSummary ?? null},
+        ${input.source}, ${now}
+      )
+      RETURNING *
+    `;
 
-  return {
-    id, studioSessionId: input.studioSessionId, versionNumber,
-    previewUrl: input.previewUrl, v0ChatId: input.v0ChatId,
-    changeSummary: input.changeSummary ?? null, source: input.source, createdAt: now,
-  };
+    return rows[0];
+  });
+
+  return mapVersion(row);
 }
 
 export async function getStudioVersions(studioSessionId: string): Promise<StudioVersion[]> {
@@ -451,19 +654,32 @@ export async function createProposalRequest(input: {
   const sql = getDb();
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
+  const row = await sql.begin(async (tx) => {
+    await tx`SELECT pg_advisory_xact_lock(hashtext(${input.studioSessionId}))`;
 
-  await sql`
-    INSERT INTO proposal_request (
-      id, studio_session_id, status, review_required,
-      draft_content, created_at, updated_at
-    ) VALUES (${id}, ${input.studioSessionId}, 'pending_review', 1, ${input.draftContent}, ${now}, ${now})
-  `;
+    const existing = await tx<ProposalRow[]>`
+      SELECT * FROM proposal_request
+      WHERE studio_session_id = ${input.studioSessionId}
+        AND status = ANY(${tx.array(ACTIVE_PROPOSAL_STATUSES)})
+      ORDER BY created_at DESC
+      LIMIT 1
+    `;
+    if (existing[0]) {
+      return existing[0];
+    }
 
-  return {
-    id, studioSessionId: input.studioSessionId, status: "pending_review",
-    reviewRequired: true, reviewerId: null, draftContent: input.draftContent,
-    expiresAt: null, createdAt: now, updatedAt: now,
-  };
+    const rows = await tx<ProposalRow[]>`
+      INSERT INTO proposal_request (
+        id, studio_session_id, status,
+        draft_content, created_at, updated_at
+      ) VALUES (${id}, ${input.studioSessionId}, 'pending_review', ${input.draftContent}, ${now}, ${now})
+      RETURNING *
+    `;
+
+    return rows[0];
+  });
+
+  return mapProposal(row);
 }
 
 export async function getProposalRequest(id: string): Promise<ProposalRequest | null> {
@@ -588,18 +804,30 @@ export async function createClientWorkspace(input: {
   const sql = getDb();
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
+  const row = await sql.begin(async (tx) => {
+    await tx`SELECT pg_advisory_xact_lock(hashtext(${input.studioSessionId}))`;
 
-  await sql`
-    INSERT INTO client_workspace (
-      id, studio_session_id, payment_status, workspace_status, created_at, updated_at
-    ) VALUES (${id}, ${input.studioSessionId}, ${input.paymentStatus}, 'inactive', ${now}, ${now})
-  `;
+    const existing = await tx<WorkspaceRow[]>`
+      SELECT * FROM client_workspace
+      WHERE studio_session_id = ${input.studioSessionId}
+      ORDER BY created_at DESC
+      LIMIT 1
+    `;
+    if (existing[0]) {
+      return existing[0];
+    }
 
-  return {
-    id, studioSessionId: input.studioSessionId,
-    paymentStatus: input.paymentStatus, workspaceStatus: "inactive",
-    latestUpdateSummary: null, createdAt: now, updatedAt: now,
-  };
+    const rows = await tx<WorkspaceRow[]>`
+      INSERT INTO client_workspace (
+        id, studio_session_id, payment_status, workspace_status, created_at, updated_at
+      ) VALUES (${id}, ${input.studioSessionId}, ${input.paymentStatus}, 'inactive', ${now}, ${now})
+      RETURNING *
+    `;
+
+    return rows[0];
+  });
+
+  return mapWorkspace(row);
 }
 
 export async function getClientWorkspace(id: string): Promise<ClientWorkspace | null> {
@@ -665,7 +893,7 @@ export async function createWorkspaceUpdate(input: {
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
   const updateType = input.updateType ?? "status_update";
-  const isClientVisible = input.isClientVisible !== false ? 1 : 0;
+  const isClientVisible = input.isClientVisible !== false;
 
   await sql`
     INSERT INTO workspace_update (
@@ -693,7 +921,7 @@ export async function getWorkspaceUpdates(
   const rows = opts?.clientVisibleOnly
     ? await sql<UpdateRow[]>`
         SELECT * FROM workspace_update
-        WHERE client_workspace_id = ${clientWorkspaceId} AND is_client_visible = 1
+        WHERE client_workspace_id = ${clientWorkspaceId} AND is_client_visible IS TRUE
         ORDER BY created_at DESC
       `
     : await sql<UpdateRow[]>`
@@ -745,4 +973,45 @@ export async function getPaymentEvents(studioSessionId: string): Promise<Payment
     ORDER BY created_at ASC
   `;
   return rows.map(mapPaymentEvent);
+}
+
+// ============================================================================
+// studio_event
+// ============================================================================
+
+export async function appendStudioEvent(input: {
+  studioSessionId: string;
+  eventType: StudioEventType;
+  fromStatus?: StudioStatus | null;
+  toStatus?: StudioStatus | null;
+  actor?: string | null;
+  payloadJson?: Record<string, unknown> | null;
+}): Promise<StudioEvent> {
+  const sql = getDb();
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
+
+  const rows = await sql<EventRow[]>`
+    INSERT INTO studio_event (
+      id, studio_session_id, event_type,
+      from_status, to_status, actor, payload_json, created_at
+    ) VALUES (
+      ${id}, ${input.studioSessionId}, ${input.eventType},
+      ${input.fromStatus ?? null}, ${input.toStatus ?? null},
+      ${input.actor ?? null}, ${JSON.stringify(input.payloadJson ?? null)}::jsonb, ${now}
+    )
+    RETURNING *
+  `;
+
+  return mapEvent(rows[0]);
+}
+
+export async function getStudioEvents(studioSessionId: string): Promise<StudioEvent[]> {
+  const sql = getDb();
+  const rows = await sql<EventRow[]>`
+    SELECT * FROM studio_event
+    WHERE studio_session_id = ${studioSessionId}
+    ORDER BY created_at ASC
+  `;
+  return rows.map(mapEvent);
 }

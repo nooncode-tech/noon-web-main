@@ -163,7 +163,8 @@ export async function POST(request: Request) {
           messageType: "correction_request",
         });
 
-        // Transition → prototype_ready
+        // Transition → revision_applied → prototype_ready
+        await updateStudioSessionStatus(session.id, "revision_applied");
         await updateStudioSessionStatus(session.id, "prototype_ready");
 
         return NextResponse.json({

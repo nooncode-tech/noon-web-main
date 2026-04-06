@@ -7,7 +7,7 @@
  * Acciones disponibles:
  *   approve_and_send  → Aprueba el draft y lo marca como enviado al cliente.
  *   edit              → Actualiza el draft_content y pasa a under_review.
- *   return_to_draft   → Devuelve a pending_review con nota del PM.
+ *   return_to_draft   → Devuelve la sesión a approved_for_proposal con nota del PM.
  *   escalate          → Marca como escalado para revisión superior.
  *
  * Auth: requiere REVIEW_API_SECRET en la cabecera Authorization.
@@ -198,8 +198,10 @@ export async function POST(request: Request) {
         reviewerId: payload.actor,
       });
 
-      // Session stays in proposal_pending_review — PM will re-trigger generation
-      // or manually edit before re-submitting
+      // Move the session back to approved_for_proposal so PM can regenerate
+      // or manually edit before re-submitting.
+
+      await updateStudioSessionStatus(session.id, "approved_for_proposal");
 
       await appendProposalReviewEvent({
         proposalRequestId: proposal.id,
@@ -210,6 +212,7 @@ export async function POST(request: Request) {
 
       return NextResponse.json({
         proposal_request: updated,
+        session_status: "approved_for_proposal",
         message: "Proposal returned to draft for revision.",
       });
     }
