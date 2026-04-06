@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     .find((part) => part.startsWith(`${maxwellSessionCookieName}=`))
     ?.split("=")[1];
 
-  const session = getMaxwellSession(sessionId ?? null);
+  const session = await getMaxwellSession(sessionId ?? null);
 
   return NextResponse.json(
     {
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
       ?.split("=")[1];
     const body = await request.json();
     const payload = maxwellSessionSchema.parse(body);
-    const session = upsertMaxwellSession({
+    const session = await upsertMaxwellSession({
       ...payload,
       sessionId: cookieSessionId ?? null,
     });

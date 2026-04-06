@@ -34,13 +34,13 @@ export default async function ProposalReviewPage({ params }: Props) {
   if (!authorized) return <ReviewLogin />;
 
   const { id } = await params;
-  const proposal = getProposalRequest(id);
+  const proposal = await getProposalRequest(id);
   if (!proposal) notFound();
 
-  const session = getStudioSession(proposal.studioSessionId);
-  const messages = session ? getStudioMessages(session.id).filter((m) => m.messageType === "chat") : [];
-  const versions = session ? getStudioVersions(session.id) : [];
-  const workspace = session ? getClientWorkspaceBySession(session.id) : null;
+  const session = await getStudioSession(proposal.studioSessionId);
+  const messages = session ? (await getStudioMessages(session.id)).filter((m) => m.messageType === "chat") : [];
+  const versions = session ? await getStudioVersions(session.id) : [];
+  const workspace = session ? await getClientWorkspaceBySession(session.id) : null;
 
   const reviewToken = process.env.REVIEW_API_SECRET ?? "";
 

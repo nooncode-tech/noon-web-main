@@ -19,13 +19,13 @@ export async function GET(request: Request) {
     return NextResponse.json({ message: "session_id is required." }, { status: 400 });
   }
 
-  const session = getStudioSession(sessionId);
+  const session = await getStudioSession(sessionId);
   if (!session) {
     return NextResponse.json({ message: "Session not found." }, { status: 404 });
   }
 
-  const dbMessages = getStudioMessages(sessionId);
-  const dbVersions = getStudioVersions(sessionId);
+  const dbMessages = await getStudioMessages(sessionId);
+  const dbVersions = await getStudioVersions(sessionId);
 
   const messages = dbMessages
     .filter((m) => m.role !== "system")

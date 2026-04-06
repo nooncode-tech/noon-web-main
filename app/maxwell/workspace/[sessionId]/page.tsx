@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { sessionId } = await params;
-  const session = getStudioSession(sessionId);
+  const session = await getStudioSession(sessionId);
   const name = session?.goalSummary ?? "Your Project";
   return {
     title: `${name} — Workspace`,
@@ -102,13 +102,13 @@ type Props = { params: Promise<{ sessionId: string }> };
 export default async function WorkspacePage({ params }: Props) {
   const { sessionId } = await params;
 
-  const session = getStudioSession(sessionId);
+  const session = await getStudioSession(sessionId);
   if (!session) notFound();
 
-  const workspace = getClientWorkspaceBySession(sessionId);
+  const workspace = await getClientWorkspaceBySession(sessionId);
   if (!workspace || workspace.workspaceStatus === "inactive") notFound();
 
-  const updates = getWorkspaceUpdates(workspace.id, { clientVisibleOnly: true });
+  const updates = await getWorkspaceUpdates(workspace.id, { clientVisibleOnly: true });
   const materials = updates.filter((u) => u.updateType === "material");
   const timeline = updates.filter((u) => u.updateType !== "material");
 

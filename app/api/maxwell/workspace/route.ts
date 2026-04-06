@@ -78,20 +78,20 @@ export async function GET(request: Request) {
     return NextResponse.json({ message: "Missing session_id." }, { status: 400 });
   }
 
-  const session = getStudioSession(sessionId);
+  const session = await getStudioSession(sessionId);
   if (!session) {
     return NextResponse.json({ message: "Session not found." }, { status: 404 });
   }
 
-  const workspace = getClientWorkspaceBySession(sessionId);
+  const workspace = await getClientWorkspaceBySession(sessionId);
   if (!workspace) {
     return NextResponse.json({ message: "Workspace not found." }, { status: 404 });
   }
 
   // Solo actualizaciones visibles al cliente para el endpoint público
   const isInternal = isAuthorized(request);
-  const updates = getWorkspaceUpdates(workspace.id, { clientVisibleOnly: !isInternal });
-  const paymentEvents = isInternal ? getPaymentEvents(sessionId) : [];
+  const updates = await getWorkspaceUpdates(workspace.id, { clientVisibleOnly: !isInternal });
+  const paymentEvents = isInternal ? await getPaymentEvents(sessionId) : [];
 
   return NextResponse.json({
     workspace,
@@ -113,7 +113,7 @@ export async function POST(request: Request) {
     const payload = workspaceActionSchema.parse(body);
 
     if (payload.action === "add_update") {
-      const update = createWorkspaceUpdate({
+      const update = await createWorkspaceUpdate({
         clientWorkspaceId: payload.workspace_id,
         title: payload.title,
         content: payload.content,
@@ -126,7 +126,7 @@ export async function POST(request: Request) {
     }
 
     if (payload.action === "change_status") {
-      const updated = updateClientWorkspaceStatus(
+      const updated = await updateClientWorkspaceStatus(
         payload.workspace_id,
         payload.status as WorkspaceStatus,
         payload.summary
@@ -135,7 +135,7 @@ export async function POST(request: Request) {
     }
 
     if (payload.action === "log_payment") {
-      const event = appendPaymentEvent({
+      const event = await appendPaymentEvent({
         studioSessionId: payload.session_id,
         eventType: payload.event_type,
         amountUsd: payload.amount_usd,

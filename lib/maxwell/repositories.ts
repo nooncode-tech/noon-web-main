@@ -1,10 +1,11 @@
 /**
  * lib/maxwell/repositories.ts
  * Capa de persistencia para Maxwell Studio.
- * Todas las operaciones de DB de las entidades Studio pasan por aquí.
+ * Migrado de SQLite (node:sqlite) a PostgreSQL (postgres.js / Supabase).
+ * Todas las funciones son async.
  */
 
-import { getDatabase } from "@/lib/server/noon-storage";
+import { getDb } from "@/lib/server/db";
 
 // ============================================================================
 // Types
@@ -57,41 +58,6 @@ export type PaymentEventType =
   | "failed"
   | "refund_initiated"
   | "refunded";
-
-export type ClientWorkspace = {
-  id: string;
-  studioSessionId: string;
-  paymentStatus: WorkspacePaymentStatus;
-  workspaceStatus: WorkspaceStatus;
-  latestUpdateSummary: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type WorkspaceUpdate = {
-  id: string;
-  clientWorkspaceId: string;
-  title: string;
-  content: string | null;
-  updateType: WorkspaceUpdateType;
-  materialUrl: string | null;
-  isClientVisible: boolean;
-  createdBy: string;
-  createdAt: string;
-};
-
-export type PaymentEvent = {
-  id: string;
-  studioSessionId: string;
-  eventType: PaymentEventType;
-  amountUsd: number | null;
-  reference: string | null;
-  notes: string | null;
-  createdBy: string;
-  createdAt: string;
-};
-
-// ── Entity types ──────────────────────────────────────────────────────────────
 
 export type StudioSession = {
   id: string;
@@ -155,183 +121,153 @@ export type ProposalReviewEvent = {
   createdAt: string;
 };
 
-// ── Raw row types (SQLite returns plain objects) ──────────────────────────────
-
-type StudioSessionRow = {
+export type ClientWorkspace = {
   id: string;
-  initial_prompt: string;
-  status: string;
-  project_type: string | null;
-  goal_summary: string | null;
-  complexity_hint: string | null;
-  language: string;
-  corrections_used: number;
-  max_corrections: number;
-  proposal_requested_at: string | null;
-  created_at: string;
-  updated_at: string;
+  studioSessionId: string;
+  paymentStatus: WorkspacePaymentStatus;
+  workspaceStatus: WorkspaceStatus;
+  latestUpdateSummary: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
-type StudioMessageRow = {
+export type WorkspaceUpdate = {
   id: string;
-  studio_session_id: string;
-  role: string;
-  message_type: string;
-  content: string;
-  created_at: string;
-};
-
-type StudioVersionRow = {
-  id: string;
-  studio_session_id: string;
-  version_number: number;
-  preview_url: string;
-  v0_chat_id: string;
-  change_summary: string | null;
-  source: string;
-  created_at: string;
-};
-
-type ProposalRequestRow = {
-  id: string;
-  studio_session_id: string;
-  status: string;
-  review_required: number;
-  reviewer_id: string | null;
-  draft_content: string | null;
-  expires_at: string | null;
-  created_at: string;
-  updated_at: string;
-};
-
-type ClientWorkspaceRow = {
-  id: string;
-  studio_session_id: string;
-  payment_status: string;
-  workspace_status: string;
-  latest_update_summary: string | null;
-  created_at: string;
-  updated_at: string;
-};
-
-type WorkspaceUpdateRow = {
-  id: string;
-  client_workspace_id: string;
+  clientWorkspaceId: string;
   title: string;
   content: string | null;
-  update_type: string;
-  material_url: string | null;
-  is_client_visible: number;
-  created_by: string;
-  created_at: string;
+  updateType: WorkspaceUpdateType;
+  materialUrl: string | null;
+  isClientVisible: boolean;
+  createdBy: string;
+  createdAt: string;
+};
+
+export type PaymentEvent = {
+  id: string;
+  studioSessionId: string;
+  eventType: PaymentEventType;
+  amountUsd: number | null;
+  reference: string | null;
+  notes: string | null;
+  createdBy: string;
+  createdAt: string;
+};
+
+// ============================================================================
+// Raw row types (postgres.js returns snake_case)
+// ============================================================================
+
+type SessionRow = {
+  id: string; initial_prompt: string; status: string;
+  project_type: string | null; goal_summary: string | null;
+  complexity_hint: string | null; language: string;
+  corrections_used: number; max_corrections: number;
+  proposal_requested_at: string | null; created_at: string; updated_at: string;
+};
+
+type MessageRow = {
+  id: string; studio_session_id: string; role: string;
+  message_type: string; content: string; created_at: string;
+};
+
+type VersionRow = {
+  id: string; studio_session_id: string; version_number: number;
+  preview_url: string; v0_chat_id: string; change_summary: string | null;
+  source: string; created_at: string;
+};
+
+type ProposalRow = {
+  id: string; studio_session_id: string; status: string;
+  review_required: number; reviewer_id: string | null;
+  draft_content: string | null; expires_at: string | null;
+  created_at: string; updated_at: string;
+};
+
+type WorkspaceRow = {
+  id: string; studio_session_id: string; payment_status: string;
+  workspace_status: string; latest_update_summary: string | null;
+  created_at: string; updated_at: string;
+};
+
+type UpdateRow = {
+  id: string; client_workspace_id: string; title: string;
+  content: string | null; update_type: string; material_url: string | null;
+  is_client_visible: number; created_by: string; created_at: string;
 };
 
 type PaymentEventRow = {
-  id: string;
-  studio_session_id: string;
-  event_type: string;
-  amount_usd: number | null;
-  reference: string | null;
-  notes: string | null;
-  created_by: string;
-  created_at: string;
+  id: string; studio_session_id: string; event_type: string;
+  amount_usd: number | null; reference: string | null;
+  notes: string | null; created_by: string; created_at: string;
 };
 
 // ============================================================================
 // Mappers
 // ============================================================================
 
-function mapSession(row: StudioSessionRow): StudioSession {
+function mapSession(r: SessionRow): StudioSession {
   return {
-    id: row.id,
-    initialPrompt: row.initial_prompt,
-    status: row.status as StudioStatus,
-    projectType: row.project_type,
-    goalSummary: row.goal_summary,
-    complexityHint: row.complexity_hint,
-    language: row.language,
-    correctionsUsed: row.corrections_used,
-    maxCorrections: row.max_corrections,
-    proposalRequestedAt: row.proposal_requested_at,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
+    id: r.id, initialPrompt: r.initial_prompt, status: r.status as StudioStatus,
+    projectType: r.project_type, goalSummary: r.goal_summary,
+    complexityHint: r.complexity_hint, language: r.language,
+    correctionsUsed: Number(r.corrections_used), maxCorrections: Number(r.max_corrections),
+    proposalRequestedAt: r.proposal_requested_at,
+    createdAt: r.created_at, updatedAt: r.updated_at,
   };
 }
 
-function mapMessage(row: StudioMessageRow): StudioMessage {
+function mapMessage(r: MessageRow): StudioMessage {
   return {
-    id: row.id,
-    studioSessionId: row.studio_session_id,
-    role: row.role as MessageRole,
-    messageType: row.message_type as MessageType,
-    content: row.content,
-    createdAt: row.created_at,
+    id: r.id, studioSessionId: r.studio_session_id,
+    role: r.role as MessageRole, messageType: r.message_type as MessageType,
+    content: r.content, createdAt: r.created_at,
   };
 }
 
-function mapVersion(row: StudioVersionRow): StudioVersion {
+function mapVersion(r: VersionRow): StudioVersion {
   return {
-    id: row.id,
-    studioSessionId: row.studio_session_id,
-    versionNumber: row.version_number,
-    previewUrl: row.preview_url,
-    v0ChatId: row.v0_chat_id,
-    changeSummary: row.change_summary,
-    source: row.source as VersionSource,
-    createdAt: row.created_at,
+    id: r.id, studioSessionId: r.studio_session_id,
+    versionNumber: Number(r.version_number), previewUrl: r.preview_url,
+    v0ChatId: r.v0_chat_id, changeSummary: r.change_summary,
+    source: r.source as VersionSource, createdAt: r.created_at,
   };
 }
 
-function mapProposalRequest(row: ProposalRequestRow): ProposalRequest {
+function mapProposal(r: ProposalRow): ProposalRequest {
   return {
-    id: row.id,
-    studioSessionId: row.studio_session_id,
-    status: row.status as ProposalStatus,
-    reviewRequired: row.review_required === 1,
-    reviewerId: row.reviewer_id,
-    draftContent: row.draft_content,
-    expiresAt: row.expires_at ?? null,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
+    id: r.id, studioSessionId: r.studio_session_id,
+    status: r.status as ProposalStatus, reviewRequired: Number(r.review_required) === 1,
+    reviewerId: r.reviewer_id, draftContent: r.draft_content,
+    expiresAt: r.expires_at, createdAt: r.created_at, updatedAt: r.updated_at,
   };
 }
 
-function mapClientWorkspace(row: ClientWorkspaceRow): ClientWorkspace {
+function mapWorkspace(r: WorkspaceRow): ClientWorkspace {
   return {
-    id: row.id,
-    studioSessionId: row.studio_session_id,
-    paymentStatus: row.payment_status as WorkspacePaymentStatus,
-    workspaceStatus: row.workspace_status as WorkspaceStatus,
-    latestUpdateSummary: row.latest_update_summary,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
+    id: r.id, studioSessionId: r.studio_session_id,
+    paymentStatus: r.payment_status as WorkspacePaymentStatus,
+    workspaceStatus: r.workspace_status as WorkspaceStatus,
+    latestUpdateSummary: r.latest_update_summary,
+    createdAt: r.created_at, updatedAt: r.updated_at,
   };
 }
 
-function mapWorkspaceUpdate(row: WorkspaceUpdateRow): WorkspaceUpdate {
+function mapUpdate(r: UpdateRow): WorkspaceUpdate {
   return {
-    id: row.id,
-    clientWorkspaceId: row.client_workspace_id,
-    title: row.title,
-    content: row.content,
-    updateType: row.update_type as WorkspaceUpdateType,
-    materialUrl: row.material_url,
-    isClientVisible: row.is_client_visible === 1,
-    createdBy: row.created_by,
-    createdAt: row.created_at,
+    id: r.id, clientWorkspaceId: r.client_workspace_id, title: r.title,
+    content: r.content, updateType: r.update_type as WorkspaceUpdateType,
+    materialUrl: r.material_url, isClientVisible: Number(r.is_client_visible) === 1,
+    createdBy: r.created_by, createdAt: r.created_at,
   };
 }
 
-function mapPaymentEvent(row: PaymentEventRow): PaymentEvent {
+function mapPaymentEvent(r: PaymentEventRow): PaymentEvent {
   return {
-    id: row.id,
-    studioSessionId: row.studio_session_id,
-    eventType: row.event_type as PaymentEventType,
-    amountUsd: row.amount_usd,
-    reference: row.reference,
-    notes: row.notes,
-    createdBy: row.created_by,
-    createdAt: row.created_at,
+    id: r.id, studioSessionId: r.studio_session_id,
+    eventType: r.event_type as PaymentEventType, amountUsd: r.amount_usd,
+    reference: r.reference, notes: r.notes,
+    createdBy: r.created_by, createdAt: r.created_at,
   };
 }
 
@@ -339,133 +275,105 @@ function mapPaymentEvent(row: PaymentEventRow): PaymentEvent {
 // studio_session
 // ============================================================================
 
-export function createStudioSession(input: {
+export async function createStudioSession(input: {
   initialPrompt: string;
   language?: string;
-}): StudioSession {
-  const db = getDatabase();
+}): Promise<StudioSession> {
+  const sql = getDb();
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
+  const lang = input.language ?? "en";
 
-  db.prepare(`
+  await sql`
     INSERT INTO studio_session (
       id, initial_prompt, status, language,
       corrections_used, max_corrections, created_at, updated_at
-    ) VALUES (?, ?, 'intake', ?, 0, 2, ?, ?)
-  `).run(id, input.initialPrompt.trim(), input.language ?? "en", now, now);
+    ) VALUES (
+      ${id}, ${input.initialPrompt.trim()}, 'intake', ${lang}, 0, 2, ${now}, ${now}
+    )
+  `;
 
-  return getStudioSessionOrThrow(id);
+  return (await getStudioSession(id))!;
 }
 
-export function getStudioSession(id: string): StudioSession | null {
-  const db = getDatabase();
-  const row = db
-    .prepare(`SELECT * FROM studio_session WHERE id = ?`)
-    .get(id) as StudioSessionRow | undefined;
-  return row ? mapSession(row) : null;
+export async function getStudioSession(id: string): Promise<StudioSession | null> {
+  const sql = getDb();
+  const rows = await sql<SessionRow[]>`SELECT * FROM studio_session WHERE id = ${id}`;
+  return rows[0] ? mapSession(rows[0]) : null;
 }
 
-function getStudioSessionOrThrow(id: string): StudioSession {
-  const session = getStudioSession(id);
-  if (!session) throw new Error(`studio_session ${id} not found`);
-  return session;
-}
-
-export function updateStudioSessionStatus(
+export async function updateStudioSessionStatus(
   id: string,
   status: StudioStatus,
   extra?: Partial<Pick<StudioSession, "goalSummary" | "projectType" | "proposalRequestedAt">>
-): StudioSession {
-  const db = getDatabase();
+): Promise<StudioSession> {
+  const sql = getDb();
   const now = new Date().toISOString();
 
-  db.prepare(`
+  await sql`
     UPDATE studio_session
-    SET status = ?,
-        goal_summary = COALESCE(?, goal_summary),
-        project_type = COALESCE(?, project_type),
-        proposal_requested_at = COALESCE(?, proposal_requested_at),
-        updated_at = ?
-    WHERE id = ?
-  `).run(
-    status,
-    extra?.goalSummary ?? null,
-    extra?.projectType ?? null,
-    extra?.proposalRequestedAt ?? null,
-    now,
-    id
-  );
+    SET status = ${status},
+        goal_summary      = COALESCE(${extra?.goalSummary ?? null}, goal_summary),
+        project_type      = COALESCE(${extra?.projectType ?? null}, project_type),
+        proposal_requested_at = COALESCE(${extra?.proposalRequestedAt ?? null}, proposal_requested_at),
+        updated_at = ${now}
+    WHERE id = ${id}
+  `;
 
-  return getStudioSessionOrThrow(id);
+  return (await getStudioSession(id))!;
 }
 
-export function incrementCorrectionsUsed(id: string): StudioSession {
-  const db = getDatabase();
+export async function incrementCorrectionsUsed(id: string): Promise<StudioSession> {
+  const sql = getDb();
   const now = new Date().toISOString();
-
-  db.prepare(`
+  await sql`
     UPDATE studio_session
-    SET corrections_used = corrections_used + 1,
-        updated_at = ?
-    WHERE id = ?
-  `).run(now, id);
-
-  return getStudioSessionOrThrow(id);
+    SET corrections_used = corrections_used + 1, updated_at = ${now}
+    WHERE id = ${id}
+  `;
+  return (await getStudioSession(id))!;
 }
 
 // ============================================================================
 // studio_message
 // ============================================================================
 
-export function appendStudioMessage(input: {
+export async function appendStudioMessage(input: {
   studioSessionId: string;
   role: MessageRole;
   content: string;
   messageType?: MessageType;
-}): StudioMessage {
-  const db = getDatabase();
+}): Promise<StudioMessage> {
+  const sql = getDb();
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
+  const messageType = input.messageType ?? "chat";
 
-  db.prepare(`
+  await sql`
     INSERT INTO studio_message (id, studio_session_id, role, message_type, content, created_at)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `).run(
-    id,
-    input.studioSessionId,
-    input.role,
-    input.messageType ?? "chat",
-    input.content,
-    now
-  );
+    VALUES (${id}, ${input.studioSessionId}, ${input.role}, ${messageType}, ${input.content}, ${now})
+  `;
 
   return {
-    id,
-    studioSessionId: input.studioSessionId,
-    role: input.role,
-    messageType: input.messageType ?? "chat",
-    content: input.content,
-    createdAt: now,
+    id, studioSessionId: input.studioSessionId,
+    role: input.role, messageType, content: input.content, createdAt: now,
   };
 }
 
-export function getStudioMessages(studioSessionId: string): StudioMessage[] {
-  const db = getDatabase();
-  const rows = db
-    .prepare(`
-      SELECT * FROM studio_message
-      WHERE studio_session_id = ?
-      ORDER BY created_at ASC
-    `)
-    .all(studioSessionId) as StudioMessageRow[];
+export async function getStudioMessages(studioSessionId: string): Promise<StudioMessage[]> {
+  const sql = getDb();
+  const rows = await sql<MessageRow[]>`
+    SELECT * FROM studio_message
+    WHERE studio_session_id = ${studioSessionId}
+    ORDER BY created_at ASC
+  `;
   return rows.map(mapMessage);
 }
 
-/** Returns messages formatted for OpenAI: only user/assistant chat messages. */
-export function getStudioMessagesForOpenAI(
+export async function getStudioMessagesForOpenAI(
   studioSessionId: string
-): { role: "user" | "assistant"; content: string }[] {
-  const messages = getStudioMessages(studioSessionId);
+): Promise<{ role: "user" | "assistant"; content: string }[]> {
+  const messages = await getStudioMessages(studioSessionId);
   return messages
     .filter((m) => m.role !== "system" && m.messageType === "chat")
     .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
@@ -475,257 +383,197 @@ export function getStudioMessagesForOpenAI(
 // studio_version
 // ============================================================================
 
-export function createStudioVersion(input: {
+export async function createStudioVersion(input: {
   studioSessionId: string;
   previewUrl: string;
   v0ChatId: string;
   changeSummary?: string;
   source: VersionSource;
-}): StudioVersion {
-  const db = getDatabase();
+}): Promise<StudioVersion> {
+  const sql = getDb();
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
 
-  // Determine next version number
-  const lastVersion = db
-    .prepare(`
-      SELECT MAX(version_number) as max_version
-      FROM studio_version
-      WHERE studio_session_id = ?
-    `)
-    .get(input.studioSessionId) as { max_version: number | null };
+  const maxRows = await sql<{ max_version: number | null }[]>`
+    SELECT MAX(version_number) AS max_version
+    FROM studio_version
+    WHERE studio_session_id = ${input.studioSessionId}
+  `;
+  const versionNumber = (maxRows[0]?.max_version ?? 0) + 1;
 
-  const versionNumber = (lastVersion.max_version ?? 0) + 1;
-
-  db.prepare(`
+  await sql`
     INSERT INTO studio_version (
       id, studio_session_id, version_number,
       preview_url, v0_chat_id, change_summary, source, created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    id,
-    input.studioSessionId,
-    versionNumber,
-    input.previewUrl,
-    input.v0ChatId,
-    input.changeSummary ?? null,
-    input.source,
-    now
-  );
+    ) VALUES (
+      ${id}, ${input.studioSessionId}, ${versionNumber},
+      ${input.previewUrl}, ${input.v0ChatId}, ${input.changeSummary ?? null},
+      ${input.source}, ${now}
+    )
+  `;
 
   return {
-    id,
-    studioSessionId: input.studioSessionId,
-    versionNumber,
-    previewUrl: input.previewUrl,
-    v0ChatId: input.v0ChatId,
-    changeSummary: input.changeSummary ?? null,
-    source: input.source,
-    createdAt: now,
+    id, studioSessionId: input.studioSessionId, versionNumber,
+    previewUrl: input.previewUrl, v0ChatId: input.v0ChatId,
+    changeSummary: input.changeSummary ?? null, source: input.source, createdAt: now,
   };
 }
 
-export function getStudioVersions(studioSessionId: string): StudioVersion[] {
-  const db = getDatabase();
-  const rows = db
-    .prepare(`
-      SELECT * FROM studio_version
-      WHERE studio_session_id = ?
-      ORDER BY version_number ASC
-    `)
-    .all(studioSessionId) as StudioVersionRow[];
+export async function getStudioVersions(studioSessionId: string): Promise<StudioVersion[]> {
+  const sql = getDb();
+  const rows = await sql<VersionRow[]>`
+    SELECT * FROM studio_version
+    WHERE studio_session_id = ${studioSessionId}
+    ORDER BY version_number ASC
+  `;
   return rows.map(mapVersion);
 }
 
-export function getLatestStudioVersion(studioSessionId: string): StudioVersion | null {
-  const db = getDatabase();
-  const row = db
-    .prepare(`
-      SELECT * FROM studio_version
-      WHERE studio_session_id = ?
-      ORDER BY version_number DESC
-      LIMIT 1
-    `)
-    .get(studioSessionId) as StudioVersionRow | undefined;
-  return row ? mapVersion(row) : null;
+export async function getLatestStudioVersion(studioSessionId: string): Promise<StudioVersion | null> {
+  const sql = getDb();
+  const rows = await sql<VersionRow[]>`
+    SELECT * FROM studio_version
+    WHERE studio_session_id = ${studioSessionId}
+    ORDER BY version_number DESC
+    LIMIT 1
+  `;
+  return rows[0] ? mapVersion(rows[0]) : null;
 }
 
 // ============================================================================
 // proposal_request
 // ============================================================================
 
-export function createProposalRequest(input: {
+export async function createProposalRequest(input: {
   studioSessionId: string;
   draftContent: string;
-}): ProposalRequest {
-  const db = getDatabase();
+}): Promise<ProposalRequest> {
+  const sql = getDb();
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
 
-  db.prepare(`
+  await sql`
     INSERT INTO proposal_request (
       id, studio_session_id, status, review_required,
       draft_content, created_at, updated_at
-    ) VALUES (?, ?, 'pending_review', 1, ?, ?, ?)
-  `).run(id, input.studioSessionId, input.draftContent, now, now);
+    ) VALUES (${id}, ${input.studioSessionId}, 'pending_review', 1, ${input.draftContent}, ${now}, ${now})
+  `;
 
   return {
-    id,
-    studioSessionId: input.studioSessionId,
-    status: "pending_review",
-    reviewRequired: true,
-    reviewerId: null,
-    draftContent: input.draftContent,
-    expiresAt: null,
-    createdAt: now,
-    updatedAt: now,
+    id, studioSessionId: input.studioSessionId, status: "pending_review",
+    reviewRequired: true, reviewerId: null, draftContent: input.draftContent,
+    expiresAt: null, createdAt: now, updatedAt: now,
   };
 }
 
-export function getProposalRequest(id: string): ProposalRequest | null {
-  const db = getDatabase();
-  const row = db
-    .prepare(`SELECT * FROM proposal_request WHERE id = ?`)
-    .get(id) as ProposalRequestRow | undefined;
-  return row ? mapProposalRequest(row) : null;
+export async function getProposalRequest(id: string): Promise<ProposalRequest | null> {
+  const sql = getDb();
+  const rows = await sql<ProposalRow[]>`SELECT * FROM proposal_request WHERE id = ${id}`;
+  return rows[0] ? mapProposal(rows[0]) : null;
 }
 
-export function updateProposalDraftContent(id: string, draftContent: string): ProposalRequest {
-  const db = getDatabase();
+export async function updateProposalDraftContent(id: string, draftContent: string): Promise<ProposalRequest> {
+  const sql = getDb();
   const now = new Date().toISOString();
-
-  db.prepare(`
-    UPDATE proposal_request
-    SET draft_content = ?, updated_at = ?
-    WHERE id = ?
-  `).run(draftContent, now, id);
-
-  const row = db
-    .prepare(`SELECT * FROM proposal_request WHERE id = ?`)
-    .get(id) as ProposalRequestRow | undefined;
-  if (!row) throw new Error(`proposal_request ${id} not found`);
-  return mapProposalRequest(row);
+  await sql`UPDATE proposal_request SET draft_content = ${draftContent}, updated_at = ${now} WHERE id = ${id}`;
+  return (await getProposalRequest(id))!;
 }
 
-/**
- * Returns all proposal requests joined with their session, newest first.
- * Optionally filtered by status.
- */
-export function getProposalRequestsWithSession(opts?: {
+export async function getLatestProposalRequest(studioSessionId: string): Promise<ProposalRequest | null> {
+  const sql = getDb();
+  const rows = await sql<ProposalRow[]>`
+    SELECT * FROM proposal_request
+    WHERE studio_session_id = ${studioSessionId}
+    ORDER BY created_at DESC
+    LIMIT 1
+  `;
+  return rows[0] ? mapProposal(rows[0]) : null;
+}
+
+export async function updateProposalRequestStatus(
+  id: string,
+  status: ProposalStatus,
+  extra?: { reviewerId?: string }
+): Promise<ProposalRequest> {
+  const sql = getDb();
+  const now = new Date().toISOString();
+  await sql`
+    UPDATE proposal_request
+    SET status = ${status},
+        reviewer_id = COALESCE(${extra?.reviewerId ?? null}, reviewer_id),
+        updated_at = ${now}
+    WHERE id = ${id}
+  `;
+  return (await getProposalRequest(id))!;
+}
+
+export async function updateProposalExpiry(id: string, expiresAt: string): Promise<ProposalRequest> {
+  const sql = getDb();
+  const now = new Date().toISOString();
+  await sql`UPDATE proposal_request SET expires_at = ${expiresAt}, updated_at = ${now} WHERE id = ${id}`;
+  return (await getProposalRequest(id))!;
+}
+
+export async function getProposalRequestsWithSession(opts?: {
   statuses?: ProposalStatus[];
   limit?: number;
-}): ProposalWithSession[] {
-  const db = getDatabase();
+}): Promise<ProposalWithSession[]> {
+  const sql = getDb();
   const limit = opts?.limit ?? 100;
+  const statuses = opts?.statuses;
 
-  const statusFilter =
-    opts?.statuses && opts.statuses.length > 0
-      ? `AND pr.status IN (${opts.statuses.map(() => "?").join(",")})`
-      : "";
+  type JoinedRow = ProposalRow & {
+    session_goal_summary: string | null;
+    session_initial_prompt: string;
+    session_status: string;
+  };
 
-  const params: unknown[] = opts?.statuses ?? [];
-  params.push(limit);
-
-  const rows = db
-    .prepare(`
-      SELECT
-        pr.*,
-        ss.goal_summary  AS session_goal_summary,
-        ss.initial_prompt AS session_initial_prompt,
-        ss.status        AS session_status
-      FROM proposal_request pr
-      JOIN studio_session ss ON ss.id = pr.studio_session_id
-      WHERE 1=1 ${statusFilter}
-      ORDER BY pr.created_at DESC
-      LIMIT ?
-    `)
-    .all(...(params as Parameters<typeof db.prepare>[0][])) as (ProposalRequestRow & {
-      session_goal_summary: string | null;
-      session_initial_prompt: string;
-      session_status: string;
-    })[];
+  const rows = statuses && statuses.length > 0
+    ? await sql<JoinedRow[]>`
+        SELECT pr.*, ss.goal_summary AS session_goal_summary,
+               ss.initial_prompt AS session_initial_prompt, ss.status AS session_status
+        FROM proposal_request pr
+        JOIN studio_session ss ON ss.id = pr.studio_session_id
+        WHERE pr.status = ANY(${sql.array(statuses)})
+        ORDER BY pr.created_at DESC
+        LIMIT ${limit}
+      `
+    : await sql<JoinedRow[]>`
+        SELECT pr.*, ss.goal_summary AS session_goal_summary,
+               ss.initial_prompt AS session_initial_prompt, ss.status AS session_status
+        FROM proposal_request pr
+        JOIN studio_session ss ON ss.id = pr.studio_session_id
+        ORDER BY pr.created_at DESC
+        LIMIT ${limit}
+      `;
 
   return rows.map((row) => ({
-    ...mapProposalRequest(row),
+    ...mapProposal(row),
     sessionGoalSummary: row.session_goal_summary,
     sessionInitialPrompt: row.session_initial_prompt,
     sessionStatus: row.session_status as StudioStatus,
   }));
 }
 
-/**
- * Sets expires_at on a proposal request.
- */
-export function updateProposalExpiry(id: string, expiresAt: string): ProposalRequest {
-  const db = getDatabase();
-  const now = new Date().toISOString();
-  db.prepare(`UPDATE proposal_request SET expires_at = ?, updated_at = ? WHERE id = ?`).run(
-    expiresAt, now, id
-  );
-  const row = db.prepare(`SELECT * FROM proposal_request WHERE id = ?`).get(id) as ProposalRequestRow | undefined;
-  if (!row) throw new Error(`proposal_request ${id} not found`);
-  return mapProposalRequest(row);
-}
-
-export function getLatestProposalRequest(studioSessionId: string): ProposalRequest | null {
-  const db = getDatabase();
-  const row = db
-    .prepare(`
-      SELECT * FROM proposal_request
-      WHERE studio_session_id = ?
-      ORDER BY created_at DESC
-      LIMIT 1
-    `)
-    .get(studioSessionId) as ProposalRequestRow | undefined;
-  return row ? mapProposalRequest(row) : null;
-}
-
-export function updateProposalRequestStatus(
-  id: string,
-  status: ProposalStatus,
-  extra?: { reviewerId?: string; notes?: string }
-): ProposalRequest {
-  const db = getDatabase();
-  const now = new Date().toISOString();
-
-  db.prepare(`
-    UPDATE proposal_request
-    SET status = ?,
-        reviewer_id = COALESCE(?, reviewer_id),
-        updated_at = ?
-    WHERE id = ?
-  `).run(status, extra?.reviewerId ?? null, now, id);
-
-  const row = db
-    .prepare(`SELECT * FROM proposal_request WHERE id = ?`)
-    .get(id) as ProposalRequestRow | undefined;
-
-  if (!row) throw new Error(`proposal_request ${id} not found`);
-  return mapProposalRequest(row);
-}
-
-export function appendProposalReviewEvent(input: {
+export async function appendProposalReviewEvent(input: {
   proposalRequestId: string;
   action: string;
   actor: string;
   notes?: string;
-}): ProposalReviewEvent {
-  const db = getDatabase();
+}): Promise<ProposalReviewEvent> {
+  const sql = getDb();
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
 
-  db.prepare(`
+  await sql`
     INSERT INTO proposal_review_event (id, proposal_request_id, action, actor, notes, created_at)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `).run(id, input.proposalRequestId, input.action, input.actor, input.notes ?? null, now);
+    VALUES (${id}, ${input.proposalRequestId}, ${input.action}, ${input.actor}, ${input.notes ?? null}, ${now})
+  `;
 
   return {
-    id,
-    proposalRequestId: input.proposalRequestId,
-    action: input.action,
-    actor: input.actor,
-    notes: input.notes ?? null,
-    createdAt: now,
+    id, proposalRequestId: input.proposalRequestId,
+    action: input.action, actor: input.actor,
+    notes: input.notes ?? null, createdAt: now,
   };
 }
 
@@ -733,112 +581,78 @@ export function appendProposalReviewEvent(input: {
 // client_workspace
 // ============================================================================
 
-/**
- * Creates a workspace record. Must only be called after payment is confirmed.
- * The session must be in `converted` status (enforced at the API layer).
- */
-export function createClientWorkspace(input: {
+export async function createClientWorkspace(input: {
   studioSessionId: string;
   paymentStatus: WorkspacePaymentStatus;
-}): ClientWorkspace {
-  const db = getDatabase();
+}): Promise<ClientWorkspace> {
+  const sql = getDb();
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
 
-  db.prepare(`
+  await sql`
     INSERT INTO client_workspace (
-      id, studio_session_id, payment_status, workspace_status,
-      created_at, updated_at
-    ) VALUES (?, ?, ?, 'inactive', ?, ?)
-  `).run(id, input.studioSessionId, input.paymentStatus, now, now);
+      id, studio_session_id, payment_status, workspace_status, created_at, updated_at
+    ) VALUES (${id}, ${input.studioSessionId}, ${input.paymentStatus}, 'inactive', ${now}, ${now})
+  `;
 
   return {
-    id,
-    studioSessionId: input.studioSessionId,
-    paymentStatus: input.paymentStatus,
-    workspaceStatus: "inactive",
-    latestUpdateSummary: null,
-    createdAt: now,
-    updatedAt: now,
+    id, studioSessionId: input.studioSessionId,
+    paymentStatus: input.paymentStatus, workspaceStatus: "inactive",
+    latestUpdateSummary: null, createdAt: now, updatedAt: now,
   };
 }
 
-export function getClientWorkspace(id: string): ClientWorkspace | null {
-  const db = getDatabase();
-  const row = db
-    .prepare(`SELECT * FROM client_workspace WHERE id = ?`)
-    .get(id) as ClientWorkspaceRow | undefined;
-  return row ? mapClientWorkspace(row) : null;
+export async function getClientWorkspace(id: string): Promise<ClientWorkspace | null> {
+  const sql = getDb();
+  const rows = await sql<WorkspaceRow[]>`SELECT * FROM client_workspace WHERE id = ${id}`;
+  return rows[0] ? mapWorkspace(rows[0]) : null;
 }
 
-export function getClientWorkspaceBySession(
-  studioSessionId: string
-): ClientWorkspace | null {
-  const db = getDatabase();
-  const row = db
-    .prepare(`
-      SELECT * FROM client_workspace
-      WHERE studio_session_id = ?
-      ORDER BY created_at DESC
-      LIMIT 1
-    `)
-    .get(studioSessionId) as ClientWorkspaceRow | undefined;
-  return row ? mapClientWorkspace(row) : null;
+export async function getClientWorkspaceBySession(studioSessionId: string): Promise<ClientWorkspace | null> {
+  const sql = getDb();
+  const rows = await sql<WorkspaceRow[]>`
+    SELECT * FROM client_workspace
+    WHERE studio_session_id = ${studioSessionId}
+    ORDER BY created_at DESC LIMIT 1
+  `;
+  return rows[0] ? mapWorkspace(rows[0]) : null;
 }
 
-/**
- * Activates a workspace: sets payment_status = 'confirmed', workspace_status = 'active'.
- * Only valid when called after payment confirmation — enforced at the API layer.
- */
-export function activateClientWorkspace(
-  id: string,
-  latestUpdateSummary?: string
-): ClientWorkspace {
-  const db = getDatabase();
+export async function activateClientWorkspace(id: string, latestUpdateSummary?: string): Promise<ClientWorkspace> {
+  const sql = getDb();
   const now = new Date().toISOString();
-
-  db.prepare(`
+  await sql`
     UPDATE client_workspace
-    SET payment_status = 'confirmed',
-        workspace_status = 'active',
-        latest_update_summary = COALESCE(?, latest_update_summary),
-        updated_at = ?
-    WHERE id = ?
-  `).run(latestUpdateSummary ?? null, now, id);
-
-  const row = db
-    .prepare(`SELECT * FROM client_workspace WHERE id = ?`)
-    .get(id) as ClientWorkspaceRow | undefined;
-  if (!row) throw new Error(`client_workspace ${id} not found`);
-  return mapClientWorkspace(row);
+    SET payment_status = 'confirmed', workspace_status = 'active',
+        latest_update_summary = COALESCE(${latestUpdateSummary ?? null}, latest_update_summary),
+        updated_at = ${now}
+    WHERE id = ${id}
+  `;
+  return (await getClientWorkspace(id))!;
 }
 
-export function updateClientWorkspaceStatus(
+export async function updateClientWorkspaceStatus(
   id: string,
   status: WorkspaceStatus,
   latestUpdateSummary?: string
-): ClientWorkspace {
-  const db = getDatabase();
+): Promise<ClientWorkspace> {
+  const sql = getDb();
   const now = new Date().toISOString();
-  db.prepare(`
+  await sql`
     UPDATE client_workspace
-    SET workspace_status = ?,
-        latest_update_summary = COALESCE(?, latest_update_summary),
-        updated_at = ?
-    WHERE id = ?
-  `).run(status, latestUpdateSummary ?? null, now, id);
-  const row = db
-    .prepare(`SELECT * FROM client_workspace WHERE id = ?`)
-    .get(id) as ClientWorkspaceRow | undefined;
-  if (!row) throw new Error(`client_workspace ${id} not found`);
-  return mapClientWorkspace(row);
+    SET workspace_status = ${status},
+        latest_update_summary = COALESCE(${latestUpdateSummary ?? null}, latest_update_summary),
+        updated_at = ${now}
+    WHERE id = ${id}
+  `;
+  return (await getClientWorkspace(id))!;
 }
 
 // ============================================================================
 // workspace_update
 // ============================================================================
 
-export function createWorkspaceUpdate(input: {
+export async function createWorkspaceUpdate(input: {
   clientWorkspaceId: string;
   title: string;
   content?: string;
@@ -846,109 +660,89 @@ export function createWorkspaceUpdate(input: {
   materialUrl?: string;
   isClientVisible?: boolean;
   createdBy: string;
-}): WorkspaceUpdate {
-  const db = getDatabase();
+}): Promise<WorkspaceUpdate> {
+  const sql = getDb();
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
+  const updateType = input.updateType ?? "status_update";
+  const isClientVisible = input.isClientVisible !== false ? 1 : 0;
 
-  db.prepare(`
+  await sql`
     INSERT INTO workspace_update (
       id, client_workspace_id, title, content,
       update_type, material_url, is_client_visible, created_by, created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    id,
-    input.clientWorkspaceId,
-    input.title,
-    input.content ?? null,
-    input.updateType ?? "status_update",
-    input.materialUrl ?? null,
-    input.isClientVisible !== false ? 1 : 0,
-    input.createdBy,
-    now
-  );
+    ) VALUES (
+      ${id}, ${input.clientWorkspaceId}, ${input.title}, ${input.content ?? null},
+      ${updateType}, ${input.materialUrl ?? null}, ${isClientVisible}, ${input.createdBy}, ${now}
+    )
+  `;
 
   return {
-    id,
-    clientWorkspaceId: input.clientWorkspaceId,
-    title: input.title,
-    content: input.content ?? null,
-    updateType: input.updateType ?? "status_update",
-    materialUrl: input.materialUrl ?? null,
-    isClientVisible: input.isClientVisible !== false,
-    createdBy: input.createdBy,
-    createdAt: now,
+    id, clientWorkspaceId: input.clientWorkspaceId, title: input.title,
+    content: input.content ?? null, updateType,
+    materialUrl: input.materialUrl ?? null, isClientVisible: input.isClientVisible !== false,
+    createdBy: input.createdBy, createdAt: now,
   };
 }
 
-export function getWorkspaceUpdates(
+export async function getWorkspaceUpdates(
   clientWorkspaceId: string,
   opts?: { clientVisibleOnly?: boolean }
-): WorkspaceUpdate[] {
-  const db = getDatabase();
-  const visibilityClause = opts?.clientVisibleOnly ? "AND is_client_visible = 1" : "";
-  const rows = db
-    .prepare(`
-      SELECT * FROM workspace_update
-      WHERE client_workspace_id = ? ${visibilityClause}
-      ORDER BY created_at DESC
-    `)
-    .all(clientWorkspaceId) as WorkspaceUpdateRow[];
-  return rows.map(mapWorkspaceUpdate);
+): Promise<WorkspaceUpdate[]> {
+  const sql = getDb();
+  const rows = opts?.clientVisibleOnly
+    ? await sql<UpdateRow[]>`
+        SELECT * FROM workspace_update
+        WHERE client_workspace_id = ${clientWorkspaceId} AND is_client_visible = 1
+        ORDER BY created_at DESC
+      `
+    : await sql<UpdateRow[]>`
+        SELECT * FROM workspace_update
+        WHERE client_workspace_id = ${clientWorkspaceId}
+        ORDER BY created_at DESC
+      `;
+  return rows.map(mapUpdate);
 }
 
 // ============================================================================
 // payment_event
 // ============================================================================
 
-export function appendPaymentEvent(input: {
+export async function appendPaymentEvent(input: {
   studioSessionId: string;
   eventType: PaymentEventType;
   amountUsd?: number;
   reference?: string;
   notes?: string;
   createdBy: string;
-}): PaymentEvent {
-  const db = getDatabase();
+}): Promise<PaymentEvent> {
+  const sql = getDb();
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
 
-  db.prepare(`
+  await sql`
     INSERT INTO payment_event (
       id, studio_session_id, event_type, amount_usd,
       reference, notes, created_by, created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    id,
-    input.studioSessionId,
-    input.eventType,
-    input.amountUsd ?? null,
-    input.reference ?? null,
-    input.notes ?? null,
-    input.createdBy,
-    now
-  );
+    ) VALUES (
+      ${id}, ${input.studioSessionId}, ${input.eventType}, ${input.amountUsd ?? null},
+      ${input.reference ?? null}, ${input.notes ?? null}, ${input.createdBy}, ${now}
+    )
+  `;
 
   return {
-    id,
-    studioSessionId: input.studioSessionId,
-    eventType: input.eventType,
-    amountUsd: input.amountUsd ?? null,
-    reference: input.reference ?? null,
-    notes: input.notes ?? null,
-    createdBy: input.createdBy,
-    createdAt: now,
+    id, studioSessionId: input.studioSessionId, eventType: input.eventType,
+    amountUsd: input.amountUsd ?? null, reference: input.reference ?? null,
+    notes: input.notes ?? null, createdBy: input.createdBy, createdAt: now,
   };
 }
 
-export function getPaymentEvents(studioSessionId: string): PaymentEvent[] {
-  const db = getDatabase();
-  const rows = db
-    .prepare(`
-      SELECT * FROM payment_event
-      WHERE studio_session_id = ?
-      ORDER BY created_at ASC
-    `)
-    .all(studioSessionId) as PaymentEventRow[];
+export async function getPaymentEvents(studioSessionId: string): Promise<PaymentEvent[]> {
+  const sql = getDb();
+  const rows = await sql<PaymentEventRow[]>`
+    SELECT * FROM payment_event
+    WHERE studio_session_id = ${studioSessionId}
+    ORDER BY created_at ASC
+  `;
   return rows.map(mapPaymentEvent);
 }

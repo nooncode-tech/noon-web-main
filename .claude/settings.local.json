@@ -22,7 +22,8 @@
       "Bash(node -e \"const {v0} = require\\('v0-sdk'\\); console.log\\(Object.keys\\(v0\\)\\)\")",
       "Bash(node -e \"const {V0} = require\\('v0-sdk'\\); console.log\\(typeof V0\\)\")",
       "Bash(node -e ':*)",
-      "Bash(npx vitest:*)"
+      "Bash(npx vitest:*)",
+      "Bash(npx next:*)"
     ]
   }
 }

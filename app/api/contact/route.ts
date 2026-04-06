@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   try {
     const payload = contactSubmissionSchema.parse(await request.json());
-    const lead = saveContactLead(payload);
+    const lead = await saveContactLead(payload);
 
     return NextResponse.json(
       {

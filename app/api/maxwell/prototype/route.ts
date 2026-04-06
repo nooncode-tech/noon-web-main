@@ -48,9 +48,9 @@ export async function POST(request: Request) {
       // Studio path: transition to generating_prototype before calling v0
       const sessionIdForCreate = payload.session_id;
       if (sessionIdForCreate) {
-        const sessionPre = getStudioSession(sessionIdForCreate);
+        const sessionPre = await getStudioSession(sessionIdForCreate);
         if (sessionPre) {
-          updateStudioSessionStatus(sessionPre.id, "generating_prototype");
+          await updateStudioSessionStatus(sessionPre.id, "generating_prototype");
         }
       }
 
@@ -64,9 +64,9 @@ export async function POST(request: Request) {
         console.error("v0 prototype creation failed:", v0Error);
         // Reset session to clarifying so the client can continue chatting
         if (sessionIdForCreate) {
-          const stuckSession = getStudioSession(sessionIdForCreate);
+          const stuckSession = await getStudioSession(sessionIdForCreate);
           if (stuckSession && stuckSession.status === "generating_prototype") {
-            updateStudioSessionStatus(stuckSession.id, "clarifying");
+            await updateStudioSessionStatus(stuckSession.id, "clarifying");
           }
         }
         return NextResponse.json(
@@ -77,9 +77,9 @@ export async function POST(request: Request) {
 
       // Studio path: persist version if session provided
       if (sessionIdForCreate) {
-        const session = getStudioSession(sessionIdForCreate);
+        const session = await getStudioSession(sessionIdForCreate);
         if (session) {
-          const version = createStudioVersion({
+          const version = await createStudioVersion({
             studioSessionId: session.id,
             previewUrl: result.demoUrl,
             v0ChatId: result.chatId,
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
           });
 
           // Log prototype announcement message
-          appendStudioMessage({
+          await appendStudioMessage({
             studioSessionId: session.id,
             role: "assistant",
             content: `Prototype Version ${version.versionNumber} generated.`,
@@ -95,7 +95,7 @@ export async function POST(request: Request) {
           });
 
           // Transition → prototype_ready
-          updateStudioSessionStatus(session.id, "prototype_ready");
+          await updateStudioSessionStatus(session.id, "prototype_ready");
 
           return NextResponse.json({
             chatId: result.chatId,
@@ -117,7 +117,7 @@ export async function POST(request: Request) {
 
     // Studio path with guard
     if (payload.session_id) {
-      const session = getStudioSession(payload.session_id);
+      const session = await getStudioSession(payload.session_id);
 
       if (session) {
         try {
@@ -130,7 +130,7 @@ export async function POST(request: Request) {
         }
 
         // Transition → revision_requested
-        updateStudioSessionStatus(session.id, "revision_requested");
+        await updateStudioSessionStatus(session.id, "revision_requested");
 
         let result: Awaited<ReturnType<typeof updateV0Prototype>>;
         try {
@@ -138,7 +138,7 @@ export async function POST(request: Request) {
         } catch (v0Error) {
           console.error("v0 prototype update failed:", v0Error);
           // Reset session back to prototype_ready so client can retry or approve
-          updateStudioSessionStatus(session.id, "prototype_ready");
+          await updateStudioSessionStatus(session.id, "prototype_ready");
           return NextResponse.json(
             { message: "Could not apply the adjustment right now. Please try again." },
             { status: 500 }
@@ -146,8 +146,8 @@ export async function POST(request: Request) {
         }
 
         // Persist correction version
-        const updatedSession = incrementCorrectionsUsed(session.id);
-        const version = createStudioVersion({
+        const updatedSession = await incrementCorrectionsUsed(session.id);
+        const version = await createStudioVersion({
           studioSessionId: session.id,
           previewUrl: result.demoUrl,
           v0ChatId: result.chatId,
@@ -156,7 +156,7 @@ export async function POST(request: Request) {
         });
 
         // Log correction message
-        appendStudioMessage({
+        await appendStudioMessage({
           studioSessionId: session.id,
           role: "user",
           content: payload.prompt,
@@ -164,7 +164,7 @@ export async function POST(request: Request) {
         });
 
         // Transition → prototype_ready
-        updateStudioSessionStatus(session.id, "prototype_ready");
+        await updateStudioSessionStatus(session.id, "prototype_ready");
 
         return NextResponse.json({
           chatId: result.chatId,

@@ -108,7 +108,7 @@ export default async function ReviewPage({ searchParams }: Props) {
     return <ReviewLogin error={error === "invalid"} />;
   }
 
-  const proposals = getProposalRequestsWithSession({ limit: 200 });
+  const proposals = await getProposalRequestsWithSession({ limit: 200 });
   const { needsAttention, inProgress, closed } = groupProposals(proposals);
 
   return (

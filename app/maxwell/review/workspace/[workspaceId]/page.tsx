@@ -70,12 +70,12 @@ export default async function WorkspaceManagePage({ params }: Props) {
   if (!authorized) return <ReviewLogin />;
 
   const { workspaceId } = await params;
-  const workspace = getClientWorkspace(workspaceId);
+  const workspace = await getClientWorkspace(workspaceId);
   if (!workspace) notFound();
 
-  const session = getStudioSession(workspace.studioSessionId);
-  const updates = getWorkspaceUpdates(workspaceId);
-  const paymentEvents = getPaymentEvents(workspace.studioSessionId);
+  const session = await getStudioSession(workspace.studioSessionId);
+  const updates = await getWorkspaceUpdates(workspaceId);
+  const paymentEvents = await getPaymentEvents(workspace.studioSessionId);
   const reviewToken = process.env.REVIEW_API_SECRET ?? "";
 
   const workspaceUrl = `/maxwell/workspace/${workspace.studioSessionId}`;

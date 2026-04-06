@@ -97,12 +97,12 @@ export async function GET(request: Request) {
     );
   }
 
-  const proposal = getProposalRequest(proposalRequestId);
+  const proposal = await getProposalRequest(proposalRequestId);
   if (!proposal) {
     return NextResponse.json({ message: "Proposal request not found." }, { status: 404 });
   }
 
-  const session = getStudioSession(proposal.studioSessionId);
+  const session = await getStudioSession(proposal.studioSessionId);
 
   return NextResponse.json({
     proposal_request: proposal,
@@ -121,7 +121,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const payload = reviewSchema.parse(body);
 
-    const proposal = getProposalRequest(payload.proposal_request_id);
+    const proposal = await getProposalRequest(payload.proposal_request_id);
     if (!proposal) {
       return NextResponse.json({ message: "Proposal request not found." }, { status: 404 });
     }
@@ -136,7 +136,7 @@ export async function POST(request: Request) {
       throw err;
     }
 
-    const session = getStudioSession(proposal.studioSessionId);
+    const session = await getStudioSession(proposal.studioSessionId);
     if (!session) {
       return NextResponse.json({ message: "Associated session not found." }, { status: 404 });
     }
@@ -145,15 +145,15 @@ export async function POST(request: Request) {
 
     if (payload.action === "approve_and_send") {
       // Mark proposal as sent
-      const updated = updateProposalRequestStatus(proposal.id, "sent", {
+      const updated = await updateProposalRequestStatus(proposal.id, "sent", {
         reviewerId: payload.actor,
       });
 
       // Transition session → proposal_sent
-      updateStudioSessionStatus(session.id, "proposal_sent");
+      await updateStudioSessionStatus(session.id, "proposal_sent");
 
       // Record the review event
-      appendProposalReviewEvent({
+      await appendProposalReviewEvent({
         proposalRequestId: proposal.id,
         action: "approve_and_send",
         actor: payload.actor,
@@ -171,14 +171,14 @@ export async function POST(request: Request) {
 
     if (payload.action === "edit") {
       // Update draft content
-      updateProposalDraftContent(proposal.id, payload.draft_content);
+      await updateProposalDraftContent(proposal.id, payload.draft_content);
 
       // Mark as under_review
-      const updated = updateProposalRequestStatus(proposal.id, "under_review", {
+      const updated = await updateProposalRequestStatus(proposal.id, "under_review", {
         reviewerId: payload.actor,
       });
 
-      appendProposalReviewEvent({
+      await appendProposalReviewEvent({
         proposalRequestId: proposal.id,
         action: "edit",
         actor: payload.actor,
@@ -194,14 +194,14 @@ export async function POST(request: Request) {
     // ── return_to_draft ────────────────────────────────────────────────────
 
     if (payload.action === "return_to_draft") {
-      const updated = updateProposalRequestStatus(proposal.id, "returned", {
+      const updated = await updateProposalRequestStatus(proposal.id, "returned", {
         reviewerId: payload.actor,
       });
 
       // Session stays in proposal_pending_review — PM will re-trigger generation
       // or manually edit before re-submitting
 
-      appendProposalReviewEvent({
+      await appendProposalReviewEvent({
         proposalRequestId: proposal.id,
         action: "return_to_draft",
         actor: payload.actor,
@@ -217,11 +217,11 @@ export async function POST(request: Request) {
     // ── escalate ───────────────────────────────────────────────────────────
 
     if (payload.action === "escalate") {
-      const updated = updateProposalRequestStatus(proposal.id, "escalated", {
+      const updated = await updateProposalRequestStatus(proposal.id, "escalated", {
         reviewerId: payload.actor,
       });
 
-      appendProposalReviewEvent({
+      await appendProposalReviewEvent({
         proposalRequestId: proposal.id,
         action: "escalate",
         actor: payload.actor,

@@ -104,13 +104,13 @@ export async function GET(request: Request) {
     return NextResponse.json({ message: "Missing required query parameter: session_id" }, { status: 400 });
   }
 
-  const session = getStudioSession(sessionId);
+  const session = await getStudioSession(sessionId);
   if (!session) {
     return NextResponse.json({ message: "Session not found." }, { status: 404 });
   }
 
-  const workspace = getClientWorkspaceBySession(sessionId);
-  const proposal = getLatestProposalRequest(sessionId);
+  const workspace = await getClientWorkspaceBySession(sessionId);
+  const proposal = await getLatestProposalRequest(sessionId);
 
   return NextResponse.json({
     session_id: session.id,
@@ -131,14 +131,14 @@ export async function POST(request: Request) {
     const body = await request.json();
     const payload = paymentSchema.parse(body);
 
-    // ── mark_payment_pending ─────────────────────────────────────��───────────
+    // ── mark_payment_pending ──────────────────────────────────────────────────
 
     if (payload.action === "mark_payment_pending") {
-      const proposal = updateProposalRequestStatus(payload.proposal_request_id, "payment_pending");
+      const proposal = await updateProposalRequestStatus(payload.proposal_request_id, "payment_pending");
       const expiresAt = new Date(
         Date.now() + (payload.expires_in_days ?? 14) * 24 * 60 * 60 * 1000
       ).toISOString();
-      updateProposalExpiry(proposal.id, expiresAt);
+      await updateProposalExpiry(proposal.id, expiresAt);
       return NextResponse.json({
         message: "Proposal marked as payment pending.",
         proposal_status: "payment_pending",
@@ -149,7 +149,7 @@ export async function POST(request: Request) {
     // ── submit_payment_evidence ───────────────────────────────────────────────
 
     if (payload.action === "submit_payment_evidence") {
-      const proposal = updateProposalRequestStatus(
+      const proposal = await updateProposalRequestStatus(
         payload.proposal_request_id,
         "payment_under_verification"
       );
@@ -162,18 +162,18 @@ export async function POST(request: Request) {
     // ── verify_payment ────────────────────────────────────────────────────────
 
     if (payload.action === "verify_payment") {
-      const proposal = updateProposalRequestStatus(
+      const proposal = await updateProposalRequestStatus(
         payload.proposal_request_id,
         "paid",
         { reviewerId: payload.actor }
       );
 
-      const session = getStudioSession(proposal.studioSessionId);
+      const session = await getStudioSession(proposal.studioSessionId);
       if (!session) {
         return NextResponse.json({ message: "Associated session not found." }, { status: 404 });
       }
 
-      const existingWorkspace = getClientWorkspaceBySession(session.id);
+      const existingWorkspace = await getClientWorkspaceBySession(session.id);
 
       try {
         assertWorkspaceNotActive(existingWorkspace);
@@ -189,13 +189,13 @@ export async function POST(request: Request) {
         throw err;
       }
 
-      updateStudioSessionStatus(session.id, "converted");
+      await updateStudioSessionStatus(session.id, "converted");
 
       const workspaceToActivate =
         existingWorkspace ??
-        createClientWorkspace({ studioSessionId: session.id, paymentStatus: "confirmed" });
+        await createClientWorkspace({ studioSessionId: session.id, paymentStatus: "confirmed" });
 
-      const activeWorkspace = activateClientWorkspace(
+      const activeWorkspace = await activateClientWorkspace(
         workspaceToActivate.id,
         payload.summary ?? `Payment verified. Reference: ${payload.payment_reference ?? "N/A"}`
       );
@@ -211,7 +211,7 @@ export async function POST(request: Request) {
     // ── expire_proposal ───────────────────────────────────────────────────────
 
     if (payload.action === "expire_proposal") {
-      const proposal = updateProposalRequestStatus(
+      const proposal = await updateProposalRequestStatus(
         payload.proposal_request_id,
         "expired",
         { reviewerId: payload.actor }
@@ -225,12 +225,12 @@ export async function POST(request: Request) {
     // ── confirm_payment (legacy) ──────────────────────────────────────────────
 
     if (payload.action === "confirm_payment") {
-      const session = getStudioSession(payload.session_id);
+      const session = await getStudioSession(payload.session_id);
       if (!session) {
         return NextResponse.json({ message: "Session not found." }, { status: 404 });
       }
 
-      const existingWorkspace = getClientWorkspaceBySession(session.id);
+      const existingWorkspace = await getClientWorkspaceBySession(session.id);
 
       try {
         assertWorkspaceNotActive(existingWorkspace);
@@ -248,7 +248,7 @@ export async function POST(request: Request) {
 
       if (payload.payment_status !== "confirmed") {
         if (!existingWorkspace) {
-          const workspace = createClientWorkspace({
+          const workspace = await createClientWorkspace({
             studioSessionId: session.id,
             paymentStatus: payload.payment_status,
           });
@@ -265,11 +265,11 @@ export async function POST(request: Request) {
         });
       }
 
-      updateStudioSessionStatus(session.id, "converted");
+      await updateStudioSessionStatus(session.id, "converted");
       const workspaceToActivate =
         existingWorkspace ??
-        createClientWorkspace({ studioSessionId: session.id, paymentStatus: "confirmed" });
-      const activeWorkspace = activateClientWorkspace(
+        await createClientWorkspace({ studioSessionId: session.id, paymentStatus: "confirmed" });
+      const activeWorkspace = await activateClientWorkspace(
         workspaceToActivate.id,
         payload.summary ?? `Project activated. Reference: ${payload.payment_reference ?? "N/A"}`
       );

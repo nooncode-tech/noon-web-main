@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     // ── Studio path ────────────────────────────────────────────────────────
 
     if (session_id) {
-      const session = getStudioSession(session_id);
+      const session = await getStudioSession(session_id);
 
       if (!session) {
         return NextResponse.json({ message: "Session not found." }, { status: 404 });
@@ -60,17 +60,17 @@ export async function POST(request: Request) {
 
       // Auto-approve if coming from prototype_ready (skip-to-proposal shortcut)
       if (session.status === "prototype_ready") {
-        updateStudioSessionStatus(session.id, "approved_for_proposal");
+        await updateStudioSessionStatus(session.id, "approved_for_proposal");
       }
 
       // Transition → proposal_pending_review
-      updateStudioSessionStatus(session.id, "proposal_pending_review", {
+      await updateStudioSessionStatus(session.id, "proposal_pending_review", {
         proposalRequestedAt: new Date().toISOString(),
       });
 
       // Load conversation history and version history from DB
-      const dbMessages = getStudioMessagesForOpenAI(session.id);
-      const dbVersions = getStudioVersions(session.id);
+      const dbMessages = await getStudioMessagesForOpenAI(session.id);
+      const dbVersions = await getStudioVersions(session.id);
 
       // Build rich context for the AI
       const richContext = buildProposalContext(session, dbMessages, dbVersions);
@@ -97,13 +97,13 @@ export async function POST(request: Request) {
           : draftContent;
 
       // Persist proposal request (draft goes to PM review, never sent directly)
-      const proposalRequest = createProposalRequest({
+      const proposalRequest = await createProposalRequest({
         studioSessionId: session.id,
         draftContent: draftWithFlags,
       });
 
       // Log proposal request message in conversation
-      appendStudioMessage({
+      await appendStudioMessage({
         studioSessionId: session.id,
         role: "user",
         content: "Formal proposal requested.",

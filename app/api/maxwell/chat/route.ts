@@ -85,16 +85,16 @@ export async function POST(request: Request) {
     // ── Studio path: session-aware, new prompt ──────────────────────────────
 
     if (isStudioRequest) {
-      let session = parsed.session_id ? getStudioSession(parsed.session_id) : null;
+      let session = parsed.session_id ? await getStudioSession(parsed.session_id) : null;
 
       if (!session) {
-        session = createStudioSession({ initialPrompt: userText });
+        session = await createStudioSession({ initialPrompt: userText });
       }
 
       // Auto-recover sessions stuck in generating_prototype or revision_requested
       // (happens when v0 fails mid-generation and the DB status was never reset)
       if (session.status === "generating_prototype" || session.status === "revision_requested") {
-        session = updateStudioSessionStatus(session.id, "clarifying");
+        session = await updateStudioSessionStatus(session.id, "clarifying");
       }
 
       if (!canReceiveMessage(session.status)) {
@@ -105,17 +105,17 @@ export async function POST(request: Request) {
       }
 
       if (session.status === "intake") {
-        session = updateStudioSessionStatus(session.id, "clarifying");
+        session = await updateStudioSessionStatus(session.id, "clarifying");
       }
 
-      appendStudioMessage({
+      await appendStudioMessage({
         studioSessionId: session.id,
         role: "user",
         content: userText,
         messageType: "chat",
       });
 
-      const dbHistory = getStudioMessagesForOpenAI(session.id);
+      const dbHistory = await getStudioMessagesForOpenAI(session.id);
       const historyForOpenAI = dbHistory.slice(0, -1);
 
       const { reply: rawReply } = await chatWithOpenAI({
@@ -127,7 +127,7 @@ export async function POST(request: Request) {
       const { clean, readyForPrototype, projectName, thinkingHint } = extractSignals(rawReply);
 
       // Persist clean reply
-      appendStudioMessage({
+      await appendStudioMessage({
         studioSessionId: session.id,
         role: "assistant",
         content: clean,
@@ -136,7 +136,7 @@ export async function POST(request: Request) {
 
       // Persist thinking hint if present
       if (thinkingHint) {
-        appendStudioMessage({
+        await appendStudioMessage({
           studioSessionId: session.id,
           role: "assistant",
           content: thinkingHint,
@@ -146,14 +146,14 @@ export async function POST(request: Request) {
 
       // Update project name if Maxwell extracted one
       if (projectName) {
-        session = updateStudioSessionStatus(session.id, session.status, {
+        session = await updateStudioSessionStatus(session.id, session.status, {
           goalSummary: projectName,
         });
       }
 
       // Transition clarifying → generating_prototype
       if (readyForPrototype && session.status === "clarifying") {
-        session = updateStudioSessionStatus(session.id, "generating_prototype");
+        session = await updateStudioSessionStatus(session.id, "generating_prototype");
       }
 
       return NextResponse.json({
