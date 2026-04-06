@@ -103,7 +103,7 @@ export function ReviewActions({ proposal, reviewToken }: Props) {
     <div className="space-y-4">
       {/* Primary actions by status */}
       <div className="flex flex-wrap gap-2">
-        {(status === "pending_review" || status === "under_review") && (
+        {(status === "pending_review" || status === "under_review" || status === "approved") && (
           <>
             <ActionButton
               label="Approve & send"

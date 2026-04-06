@@ -57,6 +57,22 @@ Do NOT include it prematurely. Do NOT mention it to the client by name.
 When you extract a project name or short goal summary, include:
 [PROJECT_NAME: Short descriptive name]
 
+When emitting READY_FOR_PROTOTYPE, also include these two classification signals on separate lines:
+[PROJECT_TYPE: one of: web_landing | ecommerce | webapp_system | mobile | saas_ai_automation]
+[COMPLEXITY: one of: bajo | medio | alto]
+
+Guidelines for PROJECT_TYPE:
+- web_landing → landing page, corporate site, portfolio, brochure, blog (no app logic)
+- ecommerce → online store, shop, marketplace, checkout, cart
+- webapp_system → web app, dashboard, portal, internal tool, system, platform (non-AI)
+- mobile → native mobile app, iOS, Android, React Native
+- saas_ai_automation → SaaS product, AI feature, automation, chatbot, LLM integration
+
+Guidelines for COMPLEXITY:
+- bajo → simple scope, few screens, standard patterns, solo user type, no complex integrations
+- medio → moderate scope, multiple user roles or views, some integrations, typical business logic
+- alto → enterprise scope, many integrations, advanced features, multi-tenant, high custom logic
+
 ## After the prototype is shown
 If the client requests adjustments:
 - Acknowledge what will change, specifically.

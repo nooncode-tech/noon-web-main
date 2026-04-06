@@ -138,7 +138,7 @@ export async function POST(request: Request) {
     if (payload.action === "mark_payment_pending") {
       const proposal = await updateProposalRequestStatus(payload.proposal_request_id, "payment_pending");
       const expiresAt = new Date(
-        Date.now() + (payload.expires_in_days ?? 14) * 24 * 60 * 60 * 1000
+        Date.now() + (payload.expires_in_days ?? 15) * 24 * 60 * 60 * 1000
       ).toISOString();
       await updateProposalExpiry(proposal.id, expiresAt);
       return NextResponse.json({

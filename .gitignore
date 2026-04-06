@@ -33,6 +33,9 @@ yarn-error.log*
 .dev-home.html
 .data/
 
+# zip archives (build/handoff artifacts — never commit)
+*.zip
+
 # sqlite (wal-mode side files)
 *.sqlite-shm
 *.sqlite-wal

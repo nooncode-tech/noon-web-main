@@ -669,21 +669,14 @@ function SolutionCard({
           ))}
         </div>
 
-        {/* Bottom progress */}
+        {/* Bottom fit label */}
         <div className={`mt-4 pt-4 border-t border-border transition-all duration-500 ${isHovered ? "opacity-100" : "opacity-0"}`}>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-muted-foreground">Match score</span>
-            <div className="flex-1 h-1 bg-secondary rounded-full overflow-hidden">
-              <div 
-                className="h-full rounded-full transition-all duration-700"
-                style={{
-                  width: isHovered ? `${70 + index * 8}%` : "0%",
-                  backgroundColor: tone.accent,
-                }}
-              />
-            </div>
-            <span className="text-[10px] font-mono" style={{ color: isHovered ? tone.accent : undefined }}>{70 + index * 8}%</span>
-          </div>
+          <span
+            className="inline-block rounded-full px-2.5 py-0.5 text-[10px] font-medium"
+            style={{ backgroundColor: `${tone.accent}18`, color: tone.accent }}
+          >
+            {(["Best fit", "Strong fit", "Likely fit", "Custom fit"] as const)[Math.min(index, 3)]}
+          </span>
         </div>
       </div>
     </div>
@@ -866,7 +859,7 @@ export default function ServicesPage() {
               href={siteRoutes.maxwell}
               className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
             >
-              Open Maxwell
+              Start with Maxwell
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link

@@ -17,18 +17,35 @@ export const dynamic = "force-dynamic";
 // ── Internal signal parsers ──────────────────────────────────────────────────
 
 const READY_TOKEN = "[READY_FOR_PROTOTYPE]";
-const PROJECT_NAME_REGEX = /\[PROJECT_NAME:\s*([^\]]+)\]/;
+const PROJECT_NAME_REGEX  = /\[PROJECT_NAME:\s*([^\]]+)\]/;
+const PROJECT_TYPE_REGEX  = /\[PROJECT_TYPE:\s*(web_landing|ecommerce|webapp_system|mobile|saas_ai_automation)\s*\]/i;
+const COMPLEXITY_REGEX    = /\[COMPLEXITY:\s*(bajo|medio|alto)\s*\]/i;
+
+type ValidProjectType  = "web_landing" | "ecommerce" | "webapp_system" | "mobile" | "saas_ai_automation";
+type ValidComplexity   = "bajo" | "medio" | "alto";
 
 function extractSignals(raw: string): {
   clean: string;
   readyForPrototype: boolean;
   projectName: string | null;
+  projectType: ValidProjectType | null;
+  complexityHint: ValidComplexity | null;
   thinkingHint: string | null;
 } {
   const readyForPrototype = raw.includes(READY_TOKEN);
 
   const projectNameMatch = PROJECT_NAME_REGEX.exec(raw);
   const projectName = projectNameMatch ? projectNameMatch[1].trim() : null;
+
+  const projectTypeMatch = PROJECT_TYPE_REGEX.exec(raw);
+  const projectType = projectTypeMatch
+    ? (projectTypeMatch[1].toLowerCase() as ValidProjectType)
+    : null;
+
+  const complexityMatch = COMPLEXITY_REGEX.exec(raw);
+  const complexityHint = complexityMatch
+    ? (complexityMatch[1].toLowerCase() as ValidComplexity)
+    : null;
 
   // Extract <think>...</think> block if present (some models emit this)
   let thinkingHint: string | null = null;
@@ -44,10 +61,12 @@ function extractSignals(raw: string): {
   clean = clean
     .replace(READY_TOKEN, "")
     .replace(PROJECT_NAME_REGEX, "")
+    .replace(PROJECT_TYPE_REGEX, "")
+    .replace(COMPLEXITY_REGEX, "")
     .replace(/\s{2,}/g, " ")
     .trim();
 
-  return { clean, readyForPrototype, projectName, thinkingHint };
+  return { clean, readyForPrototype, projectName, projectType, complexityHint, thinkingHint };
 }
 
 // ── Schema ───────────────────────────────────────────────────────────────────
@@ -126,7 +145,7 @@ export async function POST(request: Request) {
         systemPrompt: MAXWELL_CHAT_SYSTEM_PROMPT,
       });
 
-      const { clean, readyForPrototype, projectName, thinkingHint } = extractSignals(rawReply);
+      const { clean, readyForPrototype, projectName, projectType, complexityHint, thinkingHint } = extractSignals(rawReply);
 
       // Persist clean reply
       await appendStudioMessage({
@@ -146,11 +165,14 @@ export async function POST(request: Request) {
         });
       }
 
-      // Update project name if Maxwell extracted one
-      if (projectName) {
-        session = await updateStudioSessionStatus(session.id, session.status, {
-          goalSummary: projectName,
-        });
+      // Update classification signals if Maxwell extracted them
+      const sessionUpdate: Record<string, string> = {};
+      if (projectName)    sessionUpdate.goalSummary    = projectName;
+      if (projectType)    sessionUpdate.projectType    = projectType;
+      if (complexityHint) sessionUpdate.complexityHint = complexityHint;
+
+      if (Object.keys(sessionUpdate).length > 0) {
+        session = await updateStudioSessionStatus(session.id, session.status, sessionUpdate);
       }
 
       // Transition clarifying → generating_prototype
@@ -181,6 +203,7 @@ export async function POST(request: Request) {
     const { clean, readyForPrototype } = extractSignals(rawReply);
 
     return NextResponse.json({ reply: clean, readyForPrototype });
+
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

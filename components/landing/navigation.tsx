@@ -140,7 +140,7 @@ export function Navigation() {
               }`}
               style={{ boxShadow: `inset 0 0 0 1px ${navigationTone.border}` }}
             >
-              <Link href={getStartWithMaxwellHref()}>Start building with Maxwell</Link>
+              <Link href={getStartWithMaxwellHref()}>Start with Maxwell</Link>
             </Button>
           </div>
 
@@ -204,7 +204,7 @@ export function Navigation() {
               className="flex-1 bg-primary text-primary-foreground rounded-full h-14 text-base hover:bg-primary/90"
             >
               <Link href={getStartWithMaxwellHref()} onClick={() => setIsMobileMenuOpen(false)}>
-                Start building with Maxwell
+                Start with Maxwell
               </Link>
             </Button>
           </div>

@@ -36,6 +36,25 @@ const notNoon = [
   "Product theater hiding weak delivery behind polish",
 ];
 
+const optimizeFor = [
+  {
+    title: "Alcance antes de ejecutar",
+    description: "La dirección se define y acuerda antes de escribir código en producción. La ambigüedad se resuelve desde el inicio, no durante el desarrollo.",
+  },
+  {
+    title: "Software funcionando, no documentación",
+    description: "Cada proyecto termina con código desplegado y ejecutable — no con especificaciones, wireframes o prototipos entregados como producto final.",
+  },
+  {
+    title: "Exclusiones explícitas",
+    description: "Lo que no está incluido se declara con claridad. El alcance vago es la causa principal de expectativas desalineadas; lo eliminamos por diseño.",
+  },
+  {
+    title: "Criterio, no ejecución ciega",
+    description: "La pregunta correcta es qué se debe construir, no solo qué se pidió. El juicio de producto es parte de cada proyecto.",
+  },
+];
+
 const technologyGroups = [
   { title: "Frontend", items: ["Next.js", "React", "TypeScript", "Tailwind"], tone: siteTones.client },
   { title: "Backend", items: ["Node.js", "Python", "PostgreSQL"], tone: siteTones.brandDeep },
@@ -283,7 +302,7 @@ export default function AboutPage() {
                 href={siteRoutes.maxwell}
                 className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
               >
-                Start building
+                Start with Maxwell
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
@@ -464,6 +483,27 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* What we optimize for */}
+      <section className="site-section-lg">
+        <div className="site-shell">
+          <div className="max-w-2xl mb-10">
+            <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
+              <span className="w-8 h-px" style={{ backgroundColor: siteTones.brand.accent }} />
+              Criterios
+            </span>
+            <h2 className="text-2xl lg:text-3xl font-display tracking-tight">
+              En qué nos enfocamos
+            </h2>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {optimizeFor.map((item, index) => (
+              <OptimizeCard key={item.title} item={item} index={index} />
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Technology Stack */}
       <section id="technology" className="site-section-lg">
         <div className="site-shell">
@@ -508,7 +548,7 @@ export default function AboutPage() {
               href={siteRoutes.maxwell}
               className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
             >
-              Open Maxwell
+              Start with Maxwell
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
@@ -561,6 +601,24 @@ function NotNoonItem({ text, index }: { text: string; index: number }) {
         <X className="w-3 h-3 text-muted-foreground" />
       </div>
       <p className="text-sm text-muted-foreground leading-relaxed">{text}</p>
+    </div>
+  );
+}
+
+function OptimizeCard({ item, index }: { item: typeof optimizeFor[0]; index: number }) {
+  const { ref, isVisible } = useRevealOnView<HTMLDivElement>({ threshold: 0.2 });
+
+  return (
+    <div
+      ref={ref}
+      className={`rounded-xl border border-border bg-card p-6 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+      style={{ transitionDelay: `${index * 100}ms` }}
+    >
+      <span className="text-xs font-mono text-muted-foreground mb-3 block">
+        {String(index + 1).padStart(2, "0")}
+      </span>
+      <h3 className="text-base font-display mb-2">{item.title}</h3>
+      <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
     </div>
   );
 }

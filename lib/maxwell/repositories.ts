@@ -428,7 +428,7 @@ export async function getStudioSession(id: string): Promise<StudioSession | null
 export async function updateStudioSessionStatus(
   id: string,
   status: StudioStatus,
-  extra?: Partial<Pick<StudioSession, "goalSummary" | "projectType" | "proposalRequestedAt">>
+  extra?: Partial<Pick<StudioSession, "goalSummary" | "projectType" | "complexityHint" | "proposalRequestedAt">>
 ): Promise<StudioSession> {
   const current = await getStudioSession(id);
   if (!current) {
@@ -447,6 +447,7 @@ export async function updateStudioSessionStatus(
     SET status = ${status},
         goal_summary      = COALESCE(${extra?.goalSummary ?? null}, goal_summary),
         project_type      = COALESCE(${extra?.projectType ?? null}, project_type),
+        complexity_hint   = COALESCE(${extra?.complexityHint ?? null}, complexity_hint),
         proposal_requested_at = COALESCE(${extra?.proposalRequestedAt ?? null}, proposal_requested_at),
         updated_at = ${now}
     WHERE id = ${id}

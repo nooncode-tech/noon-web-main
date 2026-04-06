@@ -148,7 +148,7 @@ export function StartWithMaxwellFlow({ initialPrompt }: StartWithMaxwellFlowProp
               onClick={openMaxwell}
               disabled={!trimmedPrompt}
             >
-              Start building with Maxwell
+              Start with Maxwell
               <ArrowRight className="h-4 w-4" />
             </Button>
             <Button asChild size="lg" variant="outline" className="h-11 rounded-full px-6 text-sm">

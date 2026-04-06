@@ -6,6 +6,12 @@ import { FloatingTechElements } from "@/components/landing/floating-tech-element
 const ExploreBuildsSection = dynamic(() =>
   import("@/components/landing/explore-builds-section").then((mod) => mod.ExploreBuildsSection)
 );
+const HowItWorksSection = dynamic(() =>
+  import("@/components/landing/how-it-works-section").then((mod) => mod.HowItWorksSection)
+);
+const FaqSection = dynamic(() =>
+  import("@/components/landing/faq-section").then((mod) => mod.FaqSection)
+);
 const FooterSection = dynamic(() =>
   import("@/components/landing/footer-section").then((mod) => mod.FooterSection)
 );
@@ -35,6 +41,10 @@ export default function Home() {
       <HeroSection />
       <SectionDivider />
       <ExploreBuildsSection />
+      <SectionDivider />
+      <HowItWorksSection />
+      <SectionDivider />
+      <FaqSection />
       <SectionDivider />
       <FooterSection />
     </main>
