@@ -23,7 +23,9 @@
       "Bash(node -e \"const {V0} = require\\('v0-sdk'\\); console.log\\(typeof V0\\)\")",
       "Bash(node -e ':*)",
       "Bash(npx vitest:*)",
-      "Bash(npx next:*)"
+      "Bash(npx next:*)",
+      "Bash(vercel whoami:*)",
+      "Bash(vercel --prod --debug)"
     ]
   }
 }
