@@ -1,0 +1,106 @@
+                                                                                                 Noon — Cookies Policy
+
+
+
+
+Cookies Policy
+Website policy for Noon’s public website and related web experiences that link to this notice.
+
+     At a glance. As of the effective date of this policy, Noon uses only cookies and similar
+     technologies that are necessary to operate the website and limited functional tools that
+     remember basic user choices or preserve interaction state where relevant. Noon does not use
+     analytics or advertising cookies on the website at this time. If that changes, this policy will be
+     updated before those tools are enabled where required.
+
+
+
+1. Scope of this Policy
+ • This policy explains how Noon uses cookies and similar technologies on its website and related web
+   experiences that link to this policy.
+ • It should be read together with Noon’s Privacy Policy. If there is any inconsistency between this
+   Cookies Policy and the Privacy Policy, the more specific statement about cookies and similar
+   technologies controls for that topic.
+
+2. What cookies and similar technologies are
+ • Cookies are small text files placed on your device by a website. Similar technologies may include local
+   storage, session storage, pixels, tags, SDK-like tools, or comparable browser-based mechanisms that
+   help a website function properly or remember information between visits.
+ • For simplicity, this policy refers to all of these tools collectively as “cookies,” unless a distinction
+   matters.
+
+3. What Noon currently uses
+ • Strictly necessary cookies or equivalent technologies. These are used to operate the website, maintain
+   basic security, support core navigation, and keep essential features working.
+ • Functional cookies or equivalent technologies. These may be used to remember limited user choices or
+   preserve interaction state where relevant, such as language preferences, partially completed forms, or
+   continuity within a website feature if that feature is available.
+ • As of the effective date of this policy, Noon does not use analytics, measurement, advertising, or cross-
+   context behavioral advertising cookies on the website. If Noon later enables any such tools, this policy
+   will be updated accordingly before use where required.
+
+4. What Noon does not use at this time
+ • Noon does not currently use cookies for ad targeting, retargeting, or cross-context behavioral
+   advertising on the website.
+ • Noon does not currently use website analytics or performance-tracking cookies on the website.
+ • Noon does not currently use a cookie consent preference center because only essential and limited
+   functional technologies are used at this time. If future tracking or optional cookies are introduced,
+   Noon may implement additional controls and update this policy accordingly.
+
+5. Why Noon uses cookies
+ • To keep the website working correctly and securely.
+
+
+                                        Noon — Cookies Policy Effective March 31, 2026
+                                                                                          Noon — Cookies Policy
+
+
+ • To remember limited site preferences or interaction state where relevant.
+ • To support core website experiences such as forms, navigation, login continuity, or session continuity
+   if and when those features are available.
+
+6. Third-party services
+ • Noon may use third-party services to support hosting, infrastructure, authentication, databases, AI
+   functionality, email delivery, or similar operational needs. If those services place cookies or similar
+   technologies required for the website or a related feature to function, Noon treats them as part of the
+   website’s operational use.
+ • If Noon enables third-party analytics, advertising, embedded media, or comparable non-essential tools
+   in the future, this policy will be updated to reflect that change before those tools are used where
+   required.
+ • Third-party websites or services linked from Noon’s website are governed by their own policies, not
+   this one.
+
+7. How long cookies stay on your device
+ • Some cookies last only while your browser session is open and are deleted when you close it.
+ • Other cookies or similar technologies may remain for a limited period so the website can remember a
+   preference or preserve continuity between visits.
+ • Actual duration depends on the purpose of the cookie, the way the relevant feature is implemented,
+   and your browser or device settings.
+
+8. Your choices
+ • Most browsers let you block, restrict, or delete cookies through browser settings.
+ • If you block strictly necessary cookies, parts of the website may not work properly.
+ • Because Noon does not currently use analytics or advertising cookies on the website, there is no
+   analytics or advertising cookie opt-out tool to manage at this time. If that changes, Noon will update
+   this policy and provide any required controls or notices.
+
+9. Children
+ • Noon does not knowingly use cookies to collect personal information from children under 13 through
+   the website.
+ • If you believe a child under 13 has provided personal information through the website, contact Noon
+   at noon.message@gmail.com so the issue can be reviewed.
+
+10. Changes to this Policy
+ • Noon may update this Cookies Policy from time to time to reflect operational, legal, or website changes.
+ • When Noon makes material changes, the updated version will be posted with a new effective date.
+
+11. Contact
+ • If you have questions about this Cookies Policy, you may contact:
+Noon
+Wilmington, Delaware, USA
+Email: noon.message@gmail.com
+
+
+
+
+                                   Noon — Cookies Policy Effective March 31, 2026
+

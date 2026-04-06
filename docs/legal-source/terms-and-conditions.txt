@@ -1,0 +1,261 @@
+Terms and Conditions
+Noon
+Effective date: March 31, 2026
+Governing law: Delaware, USA
+Contact: noon.message@gmail.com
+
+These Terms and Conditions govern access to and use of Noon’s website, intake flows, contact forms,
+templates, prototype references, communications, and related development services.
+
+1. Scope and Acceptance
+These Terms and Conditions (“Terms”) govern your access to and use of Noon’s websites, pages, forms,
+intake flows, template references, communications, and related software development services (collectively,
+the “Services”) provided by Noon (“Noon,” “we,” “our,” or “us”).
+
+By accessing or using the Services, submitting an inquiry, starting a conversation through Maxwell,
+requesting a proposal, or otherwise engaging with Noon, you agree to these Terms. If you do not agree, do
+not use the Services.
+
+These Terms apply to the public website and to pre-contract interactions. Project-specific deliverables,
+pricing, acceptance criteria, support scope, and commercial details may also be governed by a written
+proposal, statement of work, invoice, order form, or similar written agreement (each, a “Project
+Agreement”). If there is a conflict between these Terms and a Project Agreement signed or accepted by the
+parties, the Project Agreement will control for that project.
+
+2. Eligibility
+You must be at least 13 years old to use the Services. If you are between 13 and 17 years old, you may use
+the Services only with the involvement and consent of a parent or legal guardian. The Services are not
+directed to children under 13.
+
+3. What Noon Provides
+Noon provides custom technology services and related pre-contract tools, which may include software
+discovery, project intake, prototypes, template references, web solutions, mobile solutions, AI and
+automation solutions, internal tools, dashboards, custom platforms, support arrangements, and related
+implementation services.
+
+Materials shown on the website — including templates, example builds, category pages, intake guidance,
+concept outputs, and responses produced through Maxwell or similar tools — are provided to help define
+needs and evaluate possible solutions. Unless expressly included in a Project Agreement, these materials are
+illustrative, informational, or pre-contractual and do not by themselves constitute a final deliverable,
+production deployment, or binding commitment to build a particular scope.
+
+
+
+
+                                        Noon — Terms and Conditions
+4. Proposals, Project Start, and Activation
+Noon may provide estimates, proposals, scopes, prototypes, or other preliminary materials before a project
+begins. Unless otherwise stated in writing, these materials are non-binding and may be revised by Noon
+before acceptance.
+
+A project does not begin merely because a user submitted a form, exchanged messages, received a prototype,
+or requested a proposal. A project begins only when: (a) the relevant scope and commercial terms are
+accepted in writing or through an approved commercial flow, and (b) any required initial payment or
+activation amount identified by Noon has been received.
+
+Any proposal or commercial offer remains valid only for the period stated in that proposal or offer. If no
+validity period is stated, Noon may withdraw, revise, or reprice the proposal before it is accepted.
+
+5. Client Responsibilities
+To allow Noon to perform efficiently, the client is responsible for providing accurate information, timely
+feedback, required content, approvals, credentials, accesses, and other dependencies reasonably needed for
+the work. Delays, rework, or additional costs resulting from missing, inaccurate, or late inputs are outside
+Noon's responsibility and may affect timelines, sequencing, or fees.
+
+The client is also responsible for reviewing deliverables, drafts, prototypes, and project communications
+within a reasonable time. Silence or delay may impact schedule and delivery sequencing.
+
+6. Fees, Billing, and Payment
+Fees, payment structure, taxes, and billing cadence will be defined in the applicable Project Agreement,
+invoice, or proposal. Noon may invoice directly or use a third-party payment processor. Noon does not need
+to store full payment card numbers in order to process payments.
+
+Unless otherwise stated in writing:
+
+   fees are quoted exclusive of applicable taxes, duties, bank charges, and processor fees;
+   payments are due according to the schedule stated in the applicable proposal or invoice;
+   Noon may pause or withhold work, delivery, deployment, access, or transfer until due amounts are paid;
+   the client is responsible for costs arising from failed payments, reversals, chargebacks, or payment
+    disputes initiated by or attributable to the client.
+If a project is structured in phases, each phase may carry its own payment and delivery milestone. Noon is
+not required to begin a later phase before the prior required payment has been received.
+
+7. Cancellations, Refunds, and Project Pauses
+Refund eligibility, if any, will be governed by the applicable Project Agreement. Unless otherwise stated in
+writing or required by law, fees already earned for work performed, reserved production time, accepted
+scoping work, approved creative or technical work, and non-recoverable third-party costs are non-refundable.
+
+If a client pauses a project, Noon may reschedule the remaining work based on team availability. If a project
+remains inactive for an extended period, Noon may require a revised timeline, updated scope, updated
+pricing, or a restart fee before resuming.
+
+
+
+                                         Noon — Terms and Conditions
+Where a project depends on phased payment, Noon may pause further work if the next required payment is
+not made. Any such pause does not waive amounts already due.
+
+8. Intellectual Property, Ownership, and Licenses
+Except as expressly transferred under a Project Agreement, Noon and its licensors retain all rights, title, and
+interest in and to the Services, the website, Maxwell, templates, framework elements, pre-existing tools,
+libraries, systems, know-how, internal methods, utilities, and all other pre-existing or independently
+developed Noon materials (“Noon Materials”).
+
+Ownership of project deliverables is determined by the commercial model:
+
+(a) Full-payment projects. Where a project is sold and paid in full for the agreed deliverable, ownership of
+the final agreed deliverable transfers to the client once the relevant deliverable has been completed,
+delivered, and fully paid.
+
+(b) Phased projects. Where a project is delivered and paid in phases, ownership transfers only to the scope
+that has actually been paid for and delivered. Unpaid scope, incomplete scope, unreleased internal work, and
+Noon Materials remain with Noon unless otherwise agreed in writing.
+
+(c) Memberships, support, and continuing service arrangements. A membership, support plan, retainer,
+hosting arrangement, or other continuing service relationship does not by itself transfer additional ownership.
+In those models, the relevant system or portions of it may continue operating as part of an ongoing Noon
+service for the client, subject to the agreed service terms.
+
+(d) Client data. As between Noon and the client, the client retains ownership of the client’s own business
+data, content, records, and information submitted to or generated for the client’s project (“Client Data”).
+Noon receives only the rights reasonably necessary to host, access, process, back up, maintain, support,
+secure, and deliver the Services for the client.
+
+Noon Materials and any third-party or open-source components remain subject to their own ownership and
+license terms. To the extent Noon Materials are embedded in a final deliverable transferred to a client, Noon
+grants the client a non-exclusive, perpetual license to use those Noon Materials only as incorporated into that
+deliverable and only as reasonably necessary to operate it, unless a different arrangement is stated in writing.
+
+9. Prototypes, Templates, and AI-Assisted Outputs
+Noon may use AI-assisted workflows, internal tools, templates, and rapid prototyping methods to accelerate
+scoping, design, implementation, or support. Such use does not reduce Noon's right to determine its delivery
+methods and does not, by itself, change ownership, payment, support, or acceptance terms.
+
+Outputs generated through Maxwell, AI tools, prototype systems, or template references may require
+validation, refinement, additional engineering, design work, or written approval before becoming final
+deliverables. The client is responsible for reviewing outputs and confirming that they meet the intended
+business need before relying on them in production.
+
+Unless expressly stated in a Project Agreement, Noon is not obligated to implement every feature, concept,
+or assumption reflected in an early prototype, example, or AI-assisted output.
+
+
+
+
+                                         Noon — Terms and Conditions
+10. Third-Party Services, Integrations, and Open Source
+The Services may rely on third-party providers for infrastructure, hosting, cloud services, AI APIs,
+communications, authentication, payment processing, analytics, integrations, and other operational functions.
+Third-party services may also be recommended, embedded, or integrated into a client solution.
+
+Noon is not responsible for the products or services of third parties, for downtime or policy changes caused
+by those providers, or for obligations that arise directly under third-party terms. Open-source components are
+governed by their respective licenses. Clients are responsible for complying with third-party usage
+restrictions, subscription terms, or vendor policies that apply to their chosen stack or integrations.
+
+11. Accounts, Access, and Security
+Certain parts of the Services may involve user accounts, authentication, restricted routes, or saved sessions.
+You are responsible for safeguarding credentials under your control and for notifying Noon promptly of
+suspected unauthorized use.
+
+Noon may suspend or rotate credentials, revoke access, or require additional verification where reasonably
+necessary to protect users, systems, deliverables, or client data.
+
+12. Acceptable Use
+You may not use the Services to:
+
+   violate law or third-party rights;
+   upload, transmit, or distribute malicious code, abusive content, or unlawful material;
+   probe, scan, overload, disrupt, or attempt unauthorized access to systems, accounts, or data;
+   use the Services to build or train competing tools, datasets, or products in a manner that misuses Noon's
+    website, content, or systems;
+   misrepresent your identity, authority, budget, or project intent in a material way.
+Noon may restrict access, refuse inquiries, or suspend activity that reasonably appears unlawful, abusive,
+deceptive, high-risk, or incompatible with the Services.
+
+13. Confidentiality and Use of Information
+Each party may receive non-public information from the other in the course of a project or inquiry. A
+receiving party must use reasonable care to protect the disclosing party’s non-public information and may
+use it only for the purpose for which it was shared, except where disclosure is required by law, professional
+obligation, or legitimate operational need under appropriate controls.
+
+The obligation above does not apply to information that is already public without breach, was lawfully
+known without confidentiality duty, is lawfully received from a third party without restriction, or is
+independently developed without use of the protected information.
+
+14. Support, Maintenance, and Post-Delivery Arrangements
+Unless expressly included in a Project Agreement, Noon is not required to provide ongoing maintenance,
+hosting, monitoring, updates, or support after delivery. Such services may be offered under a separate
+support plan, maintenance arrangement, retainer, or continuing service model.
+
+
+                                         Noon — Terms and Conditions
+Where support or maintenance is purchased, scope, response expectations, coverage hours, infrastructure
+responsibility, and escalation handling will be governed by the applicable support arrangement rather than
+implied from the public website alone.
+
+15. Publicity and Portfolio Use
+Unless the parties agree otherwise in writing, and subject to any confidentiality commitments, Noon may
+identify the client by name and refer generally to the nature of the work in Noon's portfolio, credential
+materials, or case studies after the relevant work is publicly launched or otherwise no longer confidential.
+
+16. Warranties and Disclaimers
+The Services are provided on an “as is” and “as available” basis to the maximum extent permitted by law.
+Noon disclaims all implied warranties, including warranties of merchantability, fitness for a particular
+purpose, title, non-infringement, and any warranty arising from course of dealing or usage of trade.
+
+Noon does not guarantee that the website, Maxwell, contact flows, templates, deliverables, or third-party
+integrations will be uninterrupted, error-free, or suitable for every intended use. Unless expressly agreed in
+writing, the client is responsible for final business review, legal review, compliance review, and acceptance
+of deliverables before live deployment.
+
+17. Limitation of Liability
+To the maximum extent permitted by law, Noon will not be liable for any indirect, incidental, special,
+consequential, exemplary, or punitive damages, or for lost profits, lost revenue, lost business opportunity,
+loss of goodwill, or loss of data, even if advised of the possibility of such damages.
+
+To the maximum extent permitted by law, Noon's total aggregate liability arising out of or relating to the
+Services will not exceed the total amounts actually paid by the client to Noon for the specific Services giving
+rise to the claim during the twelve (12) months immediately preceding the event that gave rise to the claim.
+
+Nothing in these Terms limits liability to the extent such limitation is prohibited by applicable law.
+
+18. Indemnification
+You agree to indemnify, defend, and hold harmless Noon and its personnel from claims, liabilities, damages,
+losses, and reasonable costs (including legal fees) arising out of or related to: (a) your unlawful use of the
+Services; (b) your content, instructions, materials, or data supplied by you in violation of law or third-party
+rights; or (c) your breach of these Terms or a Project Agreement.
+
+19. Suspension and Termination
+Noon may suspend, restrict, or terminate access to all or part of the Services where reasonably necessary to
+protect systems, comply with law, enforce these Terms, address non-payment, prevent abuse, or mitigate
+security or operational risk.
+
+You may stop using the public website at any time. Termination of access does not affect accrued payment
+obligations, rights regarding completed work, intellectual property provisions, confidentiality obligations, or
+any other clause that by its nature should survive termination.
+
+
+                                          Noon — Terms and Conditions
+20. Changes to the Services or These Terms
+Noon may update the website, Maxwell, intake flows, offerings, and these Terms from time to time. The
+current version will be posted on the website with its effective date. Material changes will apply
+prospectively unless otherwise required by law. Continued use of the Services after the effective date of
+revised Terms constitutes acceptance of the updated Terms.
+
+21. Governing Law and Venue
+These Terms are governed by the laws of the State of Delaware, USA, without regard to conflict-of-law
+rules. Any dispute arising out of or relating to these Terms or the Services that is not otherwise resolved by
+the parties will be brought exclusively in the state or federal courts located in Delaware, and each party
+consents to the jurisdiction and venue of those courts.
+
+22. Contact
+Noon
+Wilmington, Delaware, USA
+Email: noon.message@gmail.com
+
+
+
+
+                                         Noon — Terms and Conditions
+

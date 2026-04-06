@@ -1,0 +1,424 @@
+Noon Website
+Implementation Content Pack
+Execution pack for Codex / developer — aligned to the approved Noon website definitions, using
+1.zip as the current source base.
+
+
+                                                   Provide exact implementation instructions plus
+Scope
+                                                   the approved content needed to execute them.
+
+                                                   Do not redesign or restructure the homepage.
+Constraint                                         Work only within the current 1.zip
+                                                   architecture.
+
+                                                   Anything that depends on the pending Noon
+                                                   app: final template inventory, fine
+Out of scope
+                                                   seller/developer flows, investor form details,
+                                                   Maxwell backend logic.
+
+
+
+This pack is meant to be used together with:
+
+   • the current 1.zip source project,
+
+   • the latest gap / roadmap PDF,
+
+   • the legal documents already rewritten, and
+
+   • the previously approved Noon continuity definitions.
+
+
+1. Maxwell
+Execution objective: replace the current temporary /start-with-maxwell experience with the
+approved /maxwell flow without redesigning the homepage.
+
+What to change
+   • Replace every public reference to /start-with-maxwell with /maxwell.
+   • Remove all wording that frames the flow as temporary, provisional, a bridge, or a placeholder.
+   • Keep the functional rule already approved: the user can start without login, the first prompt is
+   preserved, and login can happen after the first prompt.
+   • Do not route the primary Maxwell flow back into Contact as a substitute for a real session flow.
+
+Approved content
+Item                                            Content / value
+
+Route                                           /maxwell
+
+Primary CTA                                     Start building with Maxwell
+
+Hero lower link                                 View all templates
+
+Page title                                      Start building with Maxwell
+
+                                                Describe what you want to build, and Maxwell
+Intro                                           will help turn your idea into a clearer software
+                                                direction.
+
+                                                Start with your idea. Maxwell helps structure
+                                                the request, clarify what needs to be built, and
+Body copy
+                                                move the conversation toward the right next
+                                                step.
+
+                                                You can begin without signing in. After your
+                                                first prompt, we may ask you to continue with
+Support copy
+                                                login so your session and context can be
+                                                preserved.
+
+                                                temporary intake flow
+                                                bridge
+Copy to remove
+                                                wire the real assistant next
+                                                until the full integration is implemented
+
+
+
+
+2. Why Noon ownership block
+Execution objective: replace the current absolute ownership claim with wording that matches
+Noon’s approved ownership model.
+
+Approved replacement copy
+
+Element                                         Content
+
+                                                Ownership aligned with your engagement
+Preferred title
+                                                model
+
+                                                Ownership and delivery structure depend on
+                                                the engagement model. For custom work, final
+Preferred body                                  deliverables transfer according to what has
+                                                been paid for and delivered. Client data
+                                                remains the client’s.
+
+Shorter alternative title                       Clear ownership structure
+
+                                                Ownership depends on the engagement model
+Shorter alternative body
+                                                and delivered scope. Client data always remains
+Element                                            Content
+
+                                                   the client’s.
+
+Do not use                                         Your code, your repo / Full ownership always
+
+
+
+
+3. How it works
+Execution objective: keep the section structure, but replace the current simplified flow with content
+that better reflects the approved Noon process.
+
+Approved step copy
+
+Step                                               Approved content
+
+                                                   Start with your idea. We use that first input to
+Step 01 — Share what you want to build             understand the goal, the type of product, and
+                                                   the core need behind it.
+
+                                                   Maxwell helps turn the idea into a clearer
+Step 02 — We shape the first direction             software direction and, when appropriate, a
+                                                   first prototype path.
+
+                                                   You can review the initial direction and request
+Step 03 — Refine the concept                       up to two rounds of refinements before moving
+                                                   forward.
+
+                                                   Once the direction is approved, Noon prepares
+Step 04 — Receive a structured proposal            a formal proposal with scope, deliverables,
+                                                   timing, and payment structure.
+
+                                                   Work begins once the project is activated
+Step 05 — Activate the project                     through payment. For larger scopes, execution
+                                                   can move in phases.
+
+                                                   We execute, review internally, and deliver with
+Step 06 — Build, review, and deliver               a production-minded process and post-delivery
+                                                   continuity options when needed.
+
+
+
+Developer note: if the current UI only supports four or five blocks comfortably, condense the flow
+without losing these ideas: initial idea, refinement, proposal, payment activation, phased execution,
+internal review, and delivery.
+
+
+4. Contact
+Execution objective: replace the current mailto-only behavior with the approved institutional
+Contact structure and messaging.
+Approved page copy
+
+Element                                           Content
+
+Page title                                        Contact Noon
+
+                                                  Tell us what you need, and we’ll route it
+                                                  correctly. For project requests, we usually
+Intro
+                                                  review the inquiry first and then continue with
+                                                  the right next step.
+
+Response line                                     We usually respond within 1–2 business days.
+
+Visible email                                     noon.message@gmail.com
+
+Primary CTA                                       Send inquiry
+
+Optional secondary CTA                            Continue with Maxwell
+
+Success title                                     Inquiry received
+
+                                                  Your message has been sent to Noon. We’ll
+Success body                                      review it and get back to you as soon as
+                                                  possible.
+
+Error title                                       Something went wrong
+
+                                                  Your inquiry could not be sent right now. Please
+Error body                                        try again in a moment or contact us directly at
+                                                  noon.message@gmail.com.
+
+
+
+Approved field structure
+
+Field group                                       Approved fields
+
+                                                  Full name
+Base fields                                       Email
+                                                  What do you need?
+
+                                                  Project request
+Contact type selector                             General question
+                                                  Partnership or collaboration
+
+Secondary action                                  View advanced options
+
+                                                  Budget range
+Advanced options
+                                                  Timeline
+
+
+
+Implementation note: the final behavior should support real submission, lead persistence, and the
+existing Noon email destination, instead of relying on mailto as the final mechanism.
+5. Inquiry mapping
+Execution objective: ensure section-specific calls to action land in the correct inquiry type instead of
+collapsing into a generic inquiry.
+
+Recommended final inquiry types
+
+Inquiry type                                        Label / meaning
+
+general                                             General question
+
+new-project                                         Project request
+
+seller                                              Seller application
+
+developer                                           Developer application
+
+investor                                            Investor or next product interest
+
+next-product                                        Investor or next product interest
+
+solutions                                           Solutions inquiry
+
+capabilities                                        Capabilities inquiry
+
+what-we-build                                       What we build inquiry
+
+technology                                          Technology inquiry
+
+templates                                           Templates inquiry
+
+about                                               Company inquiry
+
+legal                                               Legal inquiry
+
+
+
+
+6. Footer
+Execution objective: align the footer with the approved final labels, public social links, and bottom-
+line copy.
+
+Approved footer content
+
+Element                                             Content
+
+                                                    Noon — Custom software built in real code.
+Brand copy                                          From idea to production-ready applications,
+                                                    powered by AI.
+
+                                                    About Noon
+                                                    Next product
+Company group
+                                                    Work with Noon
+                                                    Contact
+Element                                            Content
+
+                                                   What we build
+                                                   How it works
+Solutions group
+                                                   Technology we use
+                                                   Templates
+
+                                                   Privacy Policy
+                                                   Terms and Conditions
+Legal group
+                                                   Cookies Policy
+                                                   Legal Notice
+
+Bottom line                                        © 2026 Noon. All rights reserved.
+
+
+
+Approved social links
+
+Platform                                           URL / action
+
+TikTok                                             https://www.tiktok.com/@nooncode.dev
+
+                                                   https://www.facebook.com/people/Noon-
+Facebook
+                                                   Development-Agency/61571938881520/
+
+Instagram                                          https://www.instagram.com/nooncode.dev
+
+X                                                  Remove from the website.
+
+
+
+
+7. Technology we use
+Execution objective: keep the page aligned with the approved technology list and CTA without
+reopening the whole page design.
+
+Technologies that must remain visible
+    • Next.js
+    • TypeScript
+    • Python
+    • OpenAI
+    • Vercel
+    • Supabase
+    • Stripe
+    • Flutter
+Approved CTA: Discuss your project with Maxwell
+Practical rule: if the current page is more developed than the original definition, the developer can
+keep the stronger structure, but should avoid turning the page into an essay or adding marketing-
+heavy claims.
+8. Hero controls
+Execution objective: do not leave microphone and file-upload controls looking functional when they
+are not.
+
+Approved fallback content if controls remain visible but disabled
+
+Control                                             Tooltip / message
+
+Microphone                                          Voice input is not available yet.
+
+File upload                                         File upload is not available yet.
+
+
+
+Preferred rule: if these controls are not being implemented now, either disable them clearly with
+feedback or remove them. They should not remain as fake affordances.
+
+
+9. Header behavior
+Execution objective: implement the approved interaction rule without redesigning the header.
+   • On scroll down: hide the header.
+   • On scroll up: reveal the header.
+   • The current compaction behavior can remain if it still improves the experience.
+
+
+10. Legal vs analytics consistency
+Execution objective: resolve the mismatch between Vercel Analytics in the codebase and legal text
+that suggests the site currently does not use analytics.
+
+Decision paths
+
+Option                                              Action
+
+                                                    Remove Vercel Analytics from the layout and
+Option A — remove analytics                         keep the legal documents framed around no
+                                                    analytics currently being used.
+
+                                                    Keep Vercel Analytics and update Privacy Policy
+                                                    and Cookies Policy so they clearly state that
+Option B — keep analytics
+                                                    basic analytics may be used to understand site
+                                                    usage and performance.
+
+
+
+Approved fallback legal wording if analytics remain enabled
+
+Document                                            Suggested clause
+
+                                                    We may use basic analytics tools to understand
+Privacy Policy
+                                                    website usage, improve performance, and
+Document                                           Suggested clause
+
+                                                   maintain service quality. These tools help us
+                                                   measure traffic and interaction patterns at an
+                                                   aggregate or device level.
+
+                                                   If analytics are enabled, certain cookies or
+Cookies Policy                                     similar technologies may be used to measure
+                                                   site performance and general usage patterns.
+
+
+
+
+11. Project cleanup
+Execution objective: leave the repository in a clean and professional handoff state.
+  • Rename the project from my-v0-project to a production-appropriate name such as noon-website.
+  • Remove metadata.generator set to v0.app.
+  • Keep only one package manager and one lockfile.
+  • Remove .next from the deliverable package.
+  • Remove node_modules from the deliverable package.
+  • Package the repository as source, not as build output.
+
+
+12. Explicit out-of-scope items for now
+These items should not be forced into the website before the pending Noon app and related
+operational decisions are ready.
+  • Final exact inventory of public templates.
+  • Fine-grained Seller flow inside the Noon app ecosystem.
+  • Fine-grained Developer flow inside the Noon app ecosystem.
+  • Specific Investor / Next product form details that depend on the app or future product
+  operations.
+  • Final backend logic for Maxwell beyond the approved front-end behavior and route.
+  • Final backend logic for Contact beyond the approved structure, labels, and expected behavior.
+
+
+13. What the developer can execute immediately
+The developer can execute the following now, without reopening strategy or redesigning the
+homepage.
+
+Ready now                                          Depends on the pending app / later decisions
+
+Move Maxwell to /maxwell                           Final public template inventory
+Replace temporary Maxwell copy                     Seller operational flow
+Fix Why Noon ownership wording                     Developer operational flow
+Update How it works content                        Investor form detail
+Adjust Contact fields and messaging                Final Maxwell backend implementation
+Ready now                                     Depends on the pending app / later decisions
+
+Expand inquiry mapping
+Update footer labels and real social links
+Resolve legal vs analytics mismatch
+                                              Final Contact backend implementation
+Clean the project package
+Disable or remove fake hero controls
+Implement header hide/show if still desired
+
