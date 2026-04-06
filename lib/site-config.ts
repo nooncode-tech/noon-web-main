@@ -104,8 +104,12 @@ type ContactHrefOptions =
       source?: string;
     };
 
+/**
+ * CTA con texto (hero, templates) → /maxwell?prompt=...
+ * El gate en /maxwell redirige automáticamente al Studio cuando hay prompt.
+ */
 export function getStartWithMaxwellHref(prompt?: string) {
-  return withSearchParams(siteRoutes.maxwellStudio, { prompt });
+  return withSearchParams(siteRoutes.maxwell, { prompt });
 }
 
 export function getContactHref(options?: ContactHrefOptions) {

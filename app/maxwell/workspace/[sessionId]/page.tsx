@@ -29,18 +29,27 @@ function formatDate(iso: string) {
   }).format(new Date(iso));
 }
 
-const STATUS_LABEL: Record<WorkspaceStatus, string> = {
-  inactive: "Setting up",
-  active:   "Active",
-  paused:   "On hold",
-  closed:   "Closed",
-};
-
-const STATUS_COLOR: Record<WorkspaceStatus, string> = {
-  inactive: "bg-yellow-500/15 text-yellow-600 border-yellow-500/30",
-  active:   "bg-emerald-500/15 text-emerald-600 border-emerald-500/30",
-  paused:   "bg-orange-500/15 text-orange-600 border-orange-500/30",
-  closed:   "bg-zinc-500/15 text-zinc-500 border-zinc-500/30",
+const STATUS_CONFIG: Record<WorkspaceStatus, { label: string; color: string; description: string }> = {
+  inactive: {
+    label:       "Setting up",
+    color:       "bg-yellow-500/10 text-yellow-600 border-yellow-500/25",
+    description: "Your project is being configured.",
+  },
+  active: {
+    label:       "Active",
+    color:       "bg-emerald-500/10 text-emerald-600 border-emerald-500/25",
+    description: "Your project is underway.",
+  },
+  paused: {
+    label:       "On hold",
+    color:       "bg-orange-500/10 text-orange-600 border-orange-500/25",
+    description: "Work is temporarily paused.",
+  },
+  closed: {
+    label:       "Closed",
+    color:       "bg-zinc-500/10 text-zinc-500 border-zinc-500/25",
+    description: "This project has been completed or closed.",
+  },
 };
 
 const UPDATE_ICON: Record<string, string> = {
@@ -62,21 +71,19 @@ const UPDATE_LABEL: Record<string, string> = {
 function UpdateCard({ update }: { update: WorkspaceUpdate }) {
   return (
     <div className="relative pl-6">
-      {/* Timeline dot */}
-      <span className="absolute left-0 top-1 text-xs text-muted-foreground select-none">
+      <span className="absolute left-0 top-1.5 text-xs text-muted-foreground/60 select-none">
         {UPDATE_ICON[update.updateType] ?? "●"}
       </span>
-
       <div className="rounded-xl border border-border bg-card p-4">
-        <div className="mb-2 flex items-center gap-2">
+        <div className="mb-2 flex items-center gap-2.5">
           <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
             {UPDATE_LABEL[update.updateType] ?? update.updateType}
           </span>
-          <span className="text-[10px] text-muted-foreground/60">{formatDate(update.createdAt)}</span>
+          <span className="text-[10px] text-muted-foreground/50">{formatDate(update.createdAt)}</span>
         </div>
-        <p className="text-sm font-medium">{update.title}</p>
+        <p className="text-sm font-medium leading-snug">{update.title}</p>
         {update.content && (
-          <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
             {update.content}
           </p>
         )}
@@ -85,7 +92,7 @@ function UpdateCard({ update }: { update: WorkspaceUpdate }) {
             href={update.materialUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-2 inline-flex items-center gap-1.5 text-xs text-blue-500 hover:underline"
+            className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg border border-border bg-secondary/30 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-secondary"
           >
             Open link ↗
           </a>
@@ -108,14 +115,16 @@ export default async function WorkspacePage({ params }: Props) {
   const workspace = await getClientWorkspaceBySession(sessionId);
   if (!workspace || workspace.workspaceStatus === "inactive") notFound();
 
-  const updates = await getWorkspaceUpdates(workspace.id, { clientVisibleOnly: true });
+  const updates   = await getWorkspaceUpdates(workspace.id, { clientVisibleOnly: true });
   const materials = updates.filter((u) => u.updateType === "material");
-  const timeline = updates.filter((u) => u.updateType !== "material");
+  const timeline  = updates.filter((u) => u.updateType !== "material");
+
+  const statusCfg = STATUS_CONFIG[workspace.workspaceStatus];
 
   const contactHref = getContactHref({
     inquiry: "project-update",
-    source: "workspace",
-    draft: session.goalSummary ?? undefined,
+    source:  "workspace",
+    draft:   session.goalSummary ?? undefined,
   });
 
   return (
@@ -124,27 +133,24 @@ export default async function WorkspacePage({ params }: Props) {
       {/* Header */}
       <div className="border-b border-border bg-card px-6 py-5">
         <div className="mx-auto max-w-3xl">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="mb-1 text-xs font-mono text-muted-foreground">
-                noon / workspace
-              </p>
+          <div className="mb-4 flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="mb-1 text-xs font-mono text-muted-foreground">noon / workspace</p>
               <h1 className="text-xl font-display leading-tight">
                 {session.goalSummary ?? session.initialPrompt}
               </h1>
             </div>
-            <span
-              className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium ${STATUS_COLOR[workspace.workspaceStatus]}`}
-            >
-              {STATUS_LABEL[workspace.workspaceStatus]}
+            <span className={`shrink-0 rounded-full border px-3 py-1 text-xs font-medium ${statusCfg.color}`}>
+              {statusCfg.label}
             </span>
           </div>
 
-          {workspace.latestUpdateSummary && (
-            <p className="mt-3 text-sm text-muted-foreground">
-              {workspace.latestUpdateSummary}
+          {/* Status description + latest update */}
+          <div className="rounded-xl border border-border bg-secondary/30 px-4 py-3">
+            <p className="text-sm text-muted-foreground">
+              {workspace.latestUpdateSummary ?? statusCfg.description}
             </p>
-          )}
+          </div>
         </div>
       </div>
 
@@ -163,13 +169,13 @@ export default async function WorkspacePage({ params }: Props) {
                   href={m.materialUrl!}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 transition-colors hover:border-foreground/20 hover:bg-secondary/30"
+                  className="flex items-start gap-3 rounded-xl border border-border bg-card p-4 transition-all hover:border-foreground/20 hover:bg-secondary/30"
                 >
-                  <span className="text-lg">↗</span>
-                  <div>
-                    <p className="text-sm font-medium">{m.title}</p>
+                  <span className="mt-0.5 shrink-0 text-sm">↗</span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium leading-snug">{m.title}</p>
                     {m.content && (
-                      <p className="text-xs text-muted-foreground line-clamp-1">{m.content}</p>
+                      <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{m.content}</p>
                     )}
                   </div>
                 </a>
@@ -184,12 +190,12 @@ export default async function WorkspacePage({ params }: Props) {
             Project updates
           </h2>
           {timeline.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
+            <p className="rounded-xl border border-dashed border-border px-4 py-10 text-center text-sm text-muted-foreground">
               Updates will appear here as your project progresses.
             </p>
           ) : (
             <div className="space-y-4">
-              {timeline.map((u) => (
+              {[...timeline].reverse().map((u) => (
                 <UpdateCard key={u.id} update={u} />
               ))}
             </div>
@@ -199,7 +205,7 @@ export default async function WorkspacePage({ params }: Props) {
         {/* Contact */}
         <section className="rounded-xl border border-border bg-card p-6">
           <h2 className="mb-1 text-sm font-medium">Need to reach us?</h2>
-          <p className="mb-4 text-sm text-muted-foreground">
+          <p className="mb-4 text-sm text-muted-foreground leading-relaxed">
             Your project manager is available for questions, feedback, or schedule changes.
           </p>
           <Link

@@ -196,10 +196,10 @@ We will build a booking and scheduling platform for yoga studios.
 - Phase 3 — Testing & Launch: 1 week
 
 **Investment**
-- Single payment: $8,000 – $12,000 USD
-- Membership: Activation fee $2,500 USD + $700 USD/month
+Pago único: $179 USD
 
-Flexible payment available upon request — contact the team for details.
+Membresía — Recomendado: $179 USD activación + $69 USD/mes
+Incluye hosting, base de datos básica, soporte, actualizaciones menores y avance gradual del proyecto.
 
 **Activation Conditions**
 The project activates exclusively upon confirmed payment.

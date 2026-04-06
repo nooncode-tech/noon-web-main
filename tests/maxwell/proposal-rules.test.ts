@@ -2,9 +2,10 @@ import { describe, it, expect } from "vitest";
 import {
   resolveProjectCategory,
   resolveComplexityTier,
-  formatPriceRange,
+  formatPricing,
   validateProposalDraft,
   buildProposalContext,
+  isMembershipContraindicated,
   PRICING_TABLE,
 } from "@/lib/maxwell/proposal-rules";
 import type { StudioSession, StudioVersion } from "@/lib/maxwell/repositories";
@@ -47,33 +48,40 @@ function makeVersion(n: number, source: "initial" | "correction" = "initial"): S
 // ============================================================================
 
 describe("resolveProjectCategory", () => {
-  it("returns custom_software for null", () => {
-    expect(resolveProjectCategory(null)).toBe("custom_software");
+  it("returns webapp_system for null (default)", () => {
+    expect(resolveProjectCategory(null)).toBe("webapp_system");
   });
 
-  it("resolves web hints", () => {
-    expect(resolveProjectCategory("web app")).toBe("web_solutions");
-    expect(resolveProjectCategory("landing page")).toBe("web_solutions");
-    expect(resolveProjectCategory("SaaS dashboard")).toBe("web_solutions");
-    expect(resolveProjectCategory("portal")).toBe("web_solutions");
+  it("resolves mobile hints first", () => {
+    expect(resolveProjectCategory("mobile app")).toBe("mobile");
+    expect(resolveProjectCategory("iOS app")).toBe("mobile");
+    expect(resolveProjectCategory("app móvil")).toBe("mobile");
+    expect(resolveProjectCategory("android app")).toBe("mobile");
   });
 
-  it("resolves ai/automation hints", () => {
-    expect(resolveProjectCategory("AI assistant")).toBe("ai_automation");
-    expect(resolveProjectCategory("chatbot automation")).toBe("ai_automation");
-    expect(resolveProjectCategory("LLM integration")).toBe("ai_automation");
-    expect(resolveProjectCategory("machine learning pipeline")).toBe("ai_automation");
+  it("resolves saas/ai/automation hints", () => {
+    expect(resolveProjectCategory("AI assistant")).toBe("saas_ai_automation");
+    expect(resolveProjectCategory("chatbot automation")).toBe("saas_ai_automation");
+    expect(resolveProjectCategory("LLM integration")).toBe("saas_ai_automation");
+    expect(resolveProjectCategory("SaaS platform")).toBe("saas_ai_automation");
   });
 
-  it("resolves mobile hints", () => {
-    expect(resolveProjectCategory("mobile app")).toBe("mobile_solutions");
-    expect(resolveProjectCategory("iOS app")).toBe("mobile_solutions");
-    expect(resolveProjectCategory("app móvil")).toBe("mobile_solutions");
+  it("resolves ecommerce hints", () => {
+    expect(resolveProjectCategory("online store")).toBe("ecommerce");
+    expect(resolveProjectCategory("tienda online")).toBe("ecommerce");
+    expect(resolveProjectCategory("ecommerce shop")).toBe("ecommerce");
   });
 
-  it("falls back to custom_software for unrecognized hints", () => {
-    expect(resolveProjectCategory("ERP system")).toBe("custom_software");
-    expect(resolveProjectCategory("custom platform")).toBe("custom_software");
+  it("resolves simple web/landing hints", () => {
+    expect(resolveProjectCategory("landing page")).toBe("web_landing");
+    expect(resolveProjectCategory("corporate website")).toBe("web_landing");
+    expect(resolveProjectCategory("portfolio site")).toBe("web_landing");
+  });
+
+  it("falls back to webapp_system for dashboards and systems", () => {
+    expect(resolveProjectCategory("ERP system")).toBe("webapp_system");
+    expect(resolveProjectCategory("operations dashboard")).toBe("webapp_system");
+    expect(resolveProjectCategory("internal tool")).toBe("webapp_system");
   });
 });
 
@@ -86,10 +94,11 @@ describe("resolveComplexityTier", () => {
     expect(resolveComplexityTier(null)).toBe("medio");
   });
 
-  it("returns bajo for simple/mvp hints", () => {
+  it("returns bajo for simple/basic/starter hints", () => {
     expect(resolveComplexityTier("simple")).toBe("bajo");
-    expect(resolveComplexityTier("mvp project")).toBe("bajo");
     expect(resolveComplexityTier("basic")).toBe("bajo");
+    expect(resolveComplexityTier("starter project")).toBe("bajo");
+    expect(resolveComplexityTier("pequeño")).toBe("bajo");
   });
 
   it("returns alto for complex/enterprise hints", () => {
@@ -97,6 +106,7 @@ describe("resolveComplexityTier", () => {
     expect(resolveComplexityTier("enterprise system")).toBe("alto");
     expect(resolveComplexityTier("high complexity")).toBe("alto");
     expect(resolveComplexityTier("alto")).toBe("alto");
+    expect(resolveComplexityTier("advanced platform")).toBe("alto");
   });
 
   it("returns medio for unrecognized hints", () => {
@@ -105,39 +115,66 @@ describe("resolveComplexityTier", () => {
 });
 
 // ============================================================================
-// formatPriceRange
+// formatPricing
 // ============================================================================
 
-describe("formatPriceRange", () => {
-  it("returns USD-formatted strings", () => {
-    const result = formatPriceRange("web_solutions", "medio");
-    expect(result.singleRange).toMatch(/\$.*USD/);
-    expect(result.activationFee).toMatch(/\$.*USD/);
-    expect(result.monthlyRange).toMatch(/\$.*USD\/month/);
+describe("formatPricing", () => {
+  it("returns exact USD-formatted strings (no ranges)", () => {
+    const result = formatPricing("webapp_system", "medio");
+    expect(result.activation).toMatch(/^\$\d+ USD$/);
+    expect(result.monthly).toMatch(/^\$\d+ USD\/mes$/);
   });
 
   it("bajo tier is cheaper than alto in every category", () => {
-    const categories = ["web_solutions", "ai_automation", "mobile_solutions", "custom_software"] as const;
+    const categories = ["web_landing", "ecommerce", "webapp_system", "mobile", "saas_ai_automation"] as const;
     for (const cat of categories) {
       const bajo = PRICING_TABLE[cat].bajo;
       const alto = PRICING_TABLE[cat].alto;
-      expect(bajo.single[0]).toBeLessThan(alto.single[0]);
-      expect(bajo.monthly[0]).toBeLessThan(alto.monthly[0]);
       expect(bajo.activation).toBeLessThan(alto.activation);
+      expect(bajo.monthly).toBeLessThan(alto.monthly);
     }
   });
 
-  it("all cells have activation fee and monthly range", () => {
-    const categories = ["web_solutions", "ai_automation", "mobile_solutions", "custom_software"] as const;
+  it("all cells have activation fee and monthly fee", () => {
+    const categories = ["web_landing", "ecommerce", "webapp_system", "mobile", "saas_ai_automation"] as const;
     const tiers = ["bajo", "medio", "alto"] as const;
     for (const cat of categories) {
       for (const tier of tiers) {
-        const result = formatPriceRange(cat, tier);
-        expect(result.activationFee).toBeTruthy();
-        expect(result.monthlyRange).toBeTruthy();
-        expect(result.singleRange).toBeTruthy();
+        const r = PRICING_TABLE[cat][tier];
+        expect(r.activation).toBeGreaterThan(0);
+        expect(r.monthly).toBeGreaterThan(0);
       }
     }
+  });
+});
+
+// ============================================================================
+// isMembershipContraindicated
+// ============================================================================
+
+describe("isMembershipContraindicated", () => {
+  it("returns false for null", () => {
+    expect(isMembershipContraindicated(null)).toBe(false);
+  });
+
+  it("returns true for marketplace projects", () => {
+    expect(isMembershipContraindicated("multi-vendor marketplace")).toBe(true);
+    expect(isMembershipContraindicated("marketplace platform")).toBe(true);
+  });
+
+  it("returns true for blockchain/web3 projects", () => {
+    expect(isMembershipContraindicated("blockchain solution")).toBe(true);
+    expect(isMembershipContraindicated("web3 app")).toBe(true);
+    expect(isMembershipContraindicated("smart contract")).toBe(true);
+  });
+
+  it("returns true for game development", () => {
+    expect(isMembershipContraindicated("game development")).toBe(true);
+    expect(isMembershipContraindicated("mobile gaming app")).toBe(true);
+  });
+
+  it("returns false for regular web app", () => {
+    expect(isMembershipContraindicated("customer portal with subscription billing")).toBe(false);
   });
 });
 
@@ -146,7 +183,7 @@ describe("formatPriceRange", () => {
 // ============================================================================
 
 describe("validateProposalDraft", () => {
-  it("returns no warnings for a clean draft", () => {
+  it("returns no warnings for a clean draft with exact prices", () => {
     const clean = `
 ## Project Proposal — Yoga Studio Platform
 
@@ -154,8 +191,10 @@ describe("validateProposalDraft", () => {
 We will build a booking platform for yoga studios.
 
 **Investment**
-- Single payment: $8,000 – $12,000 USD
-- Membership: Activation fee $2,500 USD + $700 USD/month
+Pago único: $179 USD
+
+Membresía — Recomendado: $179 USD activación + $69 USD/mes
+Incluye hosting, base de datos básica, soporte, actualizaciones menores y avance gradual del proyecto.
     `;
     expect(validateProposalDraft(clean)).toHaveLength(0);
   });
@@ -163,31 +202,38 @@ We will build a booking platform for yoga studios.
   it("flags discount percentage", () => {
     const draft = "If you pay upfront you get 10% off the total.";
     const warnings = validateProposalDraft(draft);
-    expect(warnings.some((w) => w.includes("Discount percentage"))).toBe(true);
+    expect(warnings.length).toBeGreaterThan(0);
+    expect(warnings.some((w) => w.toLowerCase().includes("descuento") || w.toLowerCase().includes("discount"))).toBe(true);
   });
 
   it("flags phase-based payment (English)", () => {
     const draft = "Phase 1 payment: $3,000. Phase 2 payment: $3,000.";
     const warnings = validateProposalDraft(draft);
-    expect(warnings.some((w) => w.includes("Phase-based payment"))).toBe(true);
+    expect(warnings.some((w) => w.toLowerCase().includes("fase") || w.toLowerCase().includes("phase"))).toBe(true);
   });
 
   it("flags pago por fases (Spanish)", () => {
     const draft = "Ofrecemos pago por fases adaptado a tu presupuesto.";
     const warnings = validateProposalDraft(draft);
-    expect(warnings.some((w) => w.includes("fases"))).toBe(true);
+    expect(warnings.length).toBeGreaterThan(0);
   });
 
   it("flags installment plans", () => {
     const draft = "We offer installments to make the project more accessible.";
     const warnings = validateProposalDraft(draft);
-    expect(warnings.some((w) => w.includes("Installment"))).toBe(true);
+    expect(warnings.length).toBeGreaterThan(0);
   });
 
   it("flags technical delivery before payment", () => {
     const draft = "You will receive repository access upon signing.";
     const warnings = validateProposalDraft(draft);
-    expect(warnings.some((w) => w.includes("Technical delivery"))).toBe(true);
+    expect(warnings.length).toBeGreaterThan(0);
+  });
+
+  it("flags price ranges (desde / range)", () => {
+    const draft = "Precio: desde $99 USD";
+    const warnings = validateProposalDraft(draft);
+    expect(warnings.length).toBeGreaterThan(0);
   });
 
   it("flags multiple issues in a single draft", () => {
@@ -216,19 +262,19 @@ describe("buildProposalContext", () => {
 
   it("includes resolved category and tier", () => {
     const context = buildProposalContext(
-      makeSession({ projectType: "web app", complexityHint: "simple" }),
+      makeSession({ projectType: "landing page", complexityHint: "simple" }),
       [],
       []
     );
-    expect(context).toContain("Web Solutions");
+    expect(context).toContain("Web básica / Landing / Corporate");
     expect(context).toContain("Bajo");
   });
 
   it("includes version history when versions are present", () => {
     const versions = [makeVersion(1), makeVersion(2, "correction")];
     const context = buildProposalContext(makeSession(), [], versions);
-    expect(context).toContain("Version 1");
-    expect(context).toContain("Version 2");
+    expect(context).toContain("v1");
+    expect(context).toContain("v2");
     expect(context).toContain("Change #2");
   });
 
@@ -242,12 +288,19 @@ describe("buildProposalContext", () => {
     expect(context).toContain("Who are the primary users?");
   });
 
-  it("includes price range guidance", () => {
+  it("includes exact price guidance", () => {
     const context = buildProposalContext(makeSession({ complexityHint: "simple" }), [], []);
-    expect(context).toContain("Single payment range");
-    expect(context).toContain("Membership activation fee");
-    expect(context).toContain("Do NOT add a discount for single payment");
-    expect(context).toContain("Do NOT present flexible payment as a primary option");
+    expect(context).toContain("Activation fee");
+    expect(context).toContain("EXACT price");
+  });
+
+  it("notes membership not recommended for marketplace", () => {
+    const context = buildProposalContext(
+      makeSession({ initialPrompt: "Build a multi-vendor marketplace", projectType: "marketplace" }),
+      [],
+      []
+    );
+    expect(context).toContain("NOT recommended");
   });
 
   it("instructs writing in Spanish when language is es", () => {

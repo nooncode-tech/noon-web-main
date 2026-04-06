@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import type { Metadata } from "next";
 import { isReviewAuthorized } from "./_actions/auth";
 import { ReviewLogin } from "./_components/review-login";
@@ -13,11 +15,20 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
+// ── Logout action ─────────────────────────────────────────────────────────────
+
+async function logoutAction() {
+  "use server";
+  const jar = await cookies();
+  jar.delete("noon_review_token");
+  redirect("/maxwell/review");
+}
+
 // ── Status grouping ───────────────────────────────────────────────────────────
 
 const NEEDS_ATTENTION: ProposalStatus[] = ["pending_review", "payment_under_verification"];
-const IN_PROGRESS: ProposalStatus[] = ["under_review", "sent", "payment_pending"];
-const CLOSED: ProposalStatus[] = ["paid", "expired", "returned", "escalated"];
+const IN_PROGRESS: ProposalStatus[]     = ["under_review", "sent", "payment_pending"];
+const CLOSED: ProposalStatus[]          = ["paid", "expired", "returned", "escalated"];
 
 function groupProposals(proposals: ProposalWithSession[]) {
   return {
@@ -34,25 +45,40 @@ function formatDate(iso: string) {
   }).format(new Date(iso));
 }
 
+function formatDateShort(iso: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short", day: "numeric",
+  }).format(new Date(iso));
+}
+
 // ── Proposal card ─────────────────────────────────────────────────────────────
 
 function ProposalCard({ proposal }: { proposal: ProposalWithSession }) {
+  const isUrgent = NEEDS_ATTENTION.includes(proposal.status);
+  const title = proposal.sessionGoalSummary ?? proposal.sessionInitialPrompt;
+
   return (
     <Link
       href={`/maxwell/review/${proposal.id}`}
-      className="block rounded-xl border border-border bg-card p-5 transition-colors hover:border-foreground/20 hover:bg-secondary/30"
+      className={`group block rounded-xl border bg-card p-5 transition-all hover:border-foreground/20 hover:bg-secondary/20 ${
+        isUrgent ? "border-orange-500/30" : "border-border"
+      }`}
     >
+      {/* Title row */}
       <div className="mb-3 flex items-start justify-between gap-3">
-        <p className="text-sm font-medium leading-snug line-clamp-2">
-          {proposal.sessionGoalSummary ?? proposal.sessionInitialPrompt}
-        </p>
+        <p className="text-sm font-medium leading-snug line-clamp-2 flex-1">{title}</p>
         <StatusBadge status={proposal.status} />
       </div>
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-        <span>ID: <code className="font-mono">{proposal.id.slice(0, 8)}</code></span>
-        <span>{formatDate(proposal.createdAt)}</span>
-        {proposal.expiresAt && (
-          <span className="text-orange-500">
+
+      {/* Meta row */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        <span className="font-mono">{proposal.id.slice(0, 8)}</span>
+        <span>{formatDateShort(proposal.createdAt)}</span>
+        <span className="rounded bg-secondary/60 px-1.5 py-0.5 font-mono text-[10px]">
+          {proposal.sessionStatus}
+        </span>
+        {proposal.expiresAt && new Date(proposal.expiresAt) < new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) && (
+          <span className="text-orange-500 font-medium">
             Expires {formatDate(proposal.expiresAt)}
           </span>
         )}
@@ -74,12 +100,12 @@ function Section({
 }) {
   return (
     <section>
-      <h2 className="mb-3 text-xs font-mono uppercase tracking-widest text-muted-foreground">
-        {title}
-        <span className="ml-2 rounded-full bg-secondary px-1.5 py-0.5 text-[10px]">
+      <div className="mb-3 flex items-center gap-2">
+        <h2 className="text-xs font-mono uppercase tracking-widest text-muted-foreground">{title}</h2>
+        <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-mono text-muted-foreground">
           {proposals.length}
         </span>
-      </h2>
+      </div>
       {proposals.length === 0 ? (
         <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
           {emptyMessage}
@@ -110,6 +136,7 @@ export default async function ReviewPage({ searchParams }: Props) {
 
   const proposals = await getProposalRequestsWithSession({ limit: 200 });
   const { needsAttention, inProgress, closed } = groupProposals(proposals);
+  const pendingCount = needsAttention.length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -118,11 +145,28 @@ export default async function ReviewPage({ searchParams }: Props) {
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div>
             <p className="text-xs font-mono text-muted-foreground">noon / maxwell</p>
-            <h1 className="text-lg font-display">Review Panel</h1>
+            <h1 className="text-lg font-display">
+              Review Panel
+              {pendingCount > 0 && (
+                <span className="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-[10px] font-bold text-white">
+                  {pendingCount}
+                </span>
+              )}
+            </h1>
           </div>
-          <span className="text-sm text-muted-foreground">
-            {proposals.length} proposal{proposals.length !== 1 ? "s" : ""}
-          </span>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-muted-foreground">
+              {proposals.length} proposal{proposals.length !== 1 ? "s" : ""}
+            </span>
+            <form action={logoutAction}>
+              <button
+                type="submit"
+                className="rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+              >
+                Log out
+              </button>
+            </form>
+          </div>
         </div>
       </div>
 
