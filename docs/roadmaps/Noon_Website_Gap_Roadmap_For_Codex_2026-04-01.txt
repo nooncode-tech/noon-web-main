@@ -1,0 +1,308 @@
+Noon Website
+Gap Analysis + Roadmap for Codex
+Proyecto revisado: 1.zip (source real)
+Fecha del análisis: 1 de abril de 2026
+
+                                Base sólida y ya cercana a versión final. Lo que falta no es rehacer la
+        Estado                  website: es cerrar Maxwell, Contact, wording de ownership, inquiry
+                                mapping, footer/socials, consistencia legal vs analytics y limpieza
+        84–89%                  final del proyecto.
+
+
+Premisa cerrada
+   La home del .zip no se rediseña y no se reestructura.
+   El análisis se enfoca solo en lo que falta para dejar la website al 100%, respetando la base actual.
+
+
+
+Veredicto ejecutivo
+La website ya está construida y tiene una base seria. Las rutas principales existen, la arquitectura
+general funciona y las páginas internas ya reflejan bastante bien la lógica de Noon. Los huecos
+relevantes son puntuales, pero sí bloquean el cierre final porque afectan experiencia, credibilidad,
+consistencia legal y handoff técnico.
+
+
+
+Lo que ya está bien o bastante bien
+   Home y estructura general del sitio.
+   Navegación principal y jerarquía base de páginas.
+   Solutions, Capabilities, What we build, Templates, Template detail pages y About Noon.
+   Work with Noon y Next product como rutas reales.
+   Páginas legales integradas en la website.
+   CTA general y dirección narrativa de Noon.
+
+
+
+Lo que falta exactamente
+1. Maxwell final
+                       Maxwell todavía vive en /start-with-maxwell y se presenta como flujo temporal. El
+Hallazgo               CTA principal sigue funcionando como puente hacia Contact, no como entrada real a
+                       Maxwell.
+
+                       lib/site-config.ts; app/start-with-maxwell/page.tsx; app/_components/site/start-with-
+Archivos clave
+                       maxwell-flow.tsx
+                     Mover la ruta final a /maxwell, eliminar el lenguaje temporal y dejar la experiencia
+Qué falta
+                     alineada con el flujo ya aprobado: prompt precargado, login después del primer
+exactamente
+                     prompt y continuidad del draft.
+
+
+
+
+2. Contact real
+                     Contact existe, pero aún depende de mailto y el propio copy dice que falta backend
+Hallazgo
+                     support. El formulario tampoco coincide con la versión aprobada para Noon.
+
+Archivos clave       app/contact/page.tsx; app/_components/site/contact-intake-form.tsx; lib/contact.ts
+
+                     Implementar submit real, guardar lead en DB, mantener email institucional si aplica,
+Qué falta            agregar estados success/error y ajustar campos a la versión aprobada: Full name,
+exactamente          Email, What do you need?, selector de tipo, Budget range y Timeline como advanced
+                     options.
+
+
+
+
+3. Inquiry mapping
+                     El sistema solo soporta algunos inquiry types y deja fuera rutas ya usadas por la
+Hallazgo
+                     website.
+
+Archivos clave       lib/contact.ts; páginas internas que generan Contact hrefs
+
+Qué falta            Agregar o remapear technology, capabilities, what-we-build y templates para evitar
+exactamente          que todo caiga como general inquiry.
+
+
+
+
+4. Footer final
+                     El footer sigue sin href reales en redes, aún incluye X y su agrupación no está 100%
+Hallazgo
+                     alineada con lo aprobado.
+
+Archivos clave       lib/site-config.ts; components/landing/footer-section.tsx
+
+Qué falta            Agregar URLs reales de TikTok, Facebook e Instagram; eliminar X; revisar si el grupo
+exactamente          debe quedar como Solutions en vez de Capabilities.
+
+
+
+
+5. Ownership wording
+                     La home sigue mostrando “Your code, your repo” y “Full ownership always”, lo que
+Hallazgo
+                     contradice el modelo real de Noon.
+
+Archivos clave       components/landing/why-noon-section.tsx
+Qué falta               Sustituirlo por wording compatible con pago completo, pago por fases,
+exactamente             membresía/soporte y Client Data como propiedad del cliente.
+
+
+
+
+6. How it works
+Hallazgo                La sección existe, pero todavía no refleja completo el flujo real de Noon.
+
+Archivos clave          components/landing/how-it-works-section.tsx
+
+                        Incluir de forma clara: hasta 2 correcciones del prototipo, pago/activación, portal del
+Qué falta
+                        cliente, trabajo por fases, pausa si no se paga la siguiente fase y QA interno antes de
+exactamente
+                        entrega.
+
+
+
+
+7. Legal vs analytics
+                        El layout usa @vercel/analytics, mientras que los textos legales actuales siguen
+Hallazgo
+                        planteando que no hay analytics/measurement en la website.
+
+Archivos clave          app/layout.tsx; data/legal-documents.ts
+
+Qué falta               Definir una sola realidad: o quitar Vercel Analytics, o actualizar los textos legales
+exactamente             para reflejarlo correctamente.
+
+
+
+
+8. Limpieza técnica
+                        El proyecto sigue sucio para handoff: nombre genérico, generator de v0, lockfiles
+Hallazgo
+                        duplicados y artefactos de build incluidos.
+
+                        package.json; app/layout.tsx; .next/; node_modules/; package-lock.json; pnpm-
+Archivos clave
+                        lock.yaml
+
+Qué falta               Renombrar el proyecto, quitar rastro de v0.app, dejar un solo package manager y
+exactamente             empaquetar limpio sin .next ni node_modules.
+
+
+
+
+9. Header behavior
+                        El header se compacta, pero no cumple todavía la conducta de ocultarse al bajar y
+Hallazgo
+                        reaparecer al subir.
+
+Archivos clave          components/landing/navigation.tsx
+
+Qué falta
+                        Implementar hide/show on scroll si esa regla sigue vigente para la versión final.
+exactamente
+10. Hero controls
+                       Micrófono y adjuntar archivo siguen aparentando funciones reales sin tener lógica
+Hallazgo
+                       asociada.
+
+Archivos clave         components/landing/hero-section.tsx
+
+Qué falta
+                       Implementarlos, quitarlos o dejarlos disabled de forma explícita.
+exactamente
+
+
+
+
+11. Technology page
+                       La página está bien construida, pero no coincide exactamente con la definición
+Hallazgo
+                       previa de solo nombre/logo + CTA discreto.
+
+Archivos clave         app/technology-we-use/page.tsx; data/technologies.ts
+
+Qué falta              Decidir si se simplifica para respetar la definición cerrada o si la versión actual pasa
+exactamente            a ser la nueva definición oficial.
+
+
+
+
+12. Seller / Developer / Investor fine flow
+                       La estructura ya existe, pero el flujo fino depende de la app pendiente y no debe
+Hallazgo
+                       forzarse ahora.
+
+Archivos clave         app/work-with-noon/page.tsx; app/next-product/page.tsx
+
+Qué falta              Dejarlo marcado como dependencia de la app de Noon, no como bloqueo inmediato
+exactamente            de la website.
+
+
+
+
+Roadmap recomendado para Codex / developer
+Fase 1 — Bloqueadores reales
+Objetivo: quitar lo que hoy impide llamar “final” a la website.
+
+   Cambiar /start-with-maxwell por /maxwell.
+   Eliminar el copy temporal y dejar Maxwell como flujo real.
+   Implementar Contact real: submit, DB, email institucional si aplica y estados de confirmación.
+   Corregir el claim de ownership en Why Noon.
+   Añadir socials reales y quitar X.
+   Arreglar inquiry mapping.
+Salida esperada: la website deja de sentirse provisional.
+
+Fase 2 — Alineación con lo ya definido
+Objetivo: corregir lo que todavía contradice decisiones ya cerradas.
+
+   Actualizar How it works al flujo real de Noon.
+   Alinear Contact con los campos aprobados.
+   Definir si Technology we use se simplifica o se oficializa tal como está.
+   Ajustar el footer si el grupo final debe ser Solutions.
+   Limpiar cualquier copy residual viejo.
+
+Salida esperada: la website representa a Noon real, no una versión híbrida.
+
+Fase 3 — Consistencia legal y técnica
+Objetivo: evitar contradicciones entre implementación y legales.
+
+   Definir si Vercel Analytics se queda o se quita.
+   Actualizar data/legal-documents.ts si analytics permanece activo.
+   Revisar que Contact, Maxwell y legales describan lo que el sitio realmente hace.
+
+Salida esperada: no hay choque entre código, UX y textos legales.
+
+Fase 4 — Limpieza del proyecto
+Objetivo: dejar el repo en estado profesional para handoff o deploy.
+
+   Renombrar my-v0-project.
+   Quitar generator: v0.app.
+   Dejar un solo lockfile/package manager.
+   Excluir .next y node_modules del paquete final.
+
+Salida esperada: proyecto limpio, serio y listo para revisión final.
+
+Fase 5 — Pulido final
+Objetivo: cerrar percepción premium y QA final.
+
+   Implementar hide/show del header al scroll, si sigue siendo requisito.
+   Resolver micrófono y adjuntar archivo del hero.
+   QA de links, rutas, responsive y CTAs.
+
+Salida esperada: website cerrada de verdad.
+
+
+
+Prioridad recomendada
+Nivel            Incluye                             Impacto
+
+
+Crítico          Maxwell, Contact, ownership,        Bloquea la sensación de producto final y la coherencia del
+                 socials, inquiry mapping            funnel.
+
+
+Alto             How it works, legal vs analytics,   Corrige contradicciones con Noon real y evita ruido
+                     footer wording                   legal/comercial.
+
+
+Medio                Technology page decision,        Mejora la consistencia y el polish sin reabrir la
+                     header behavior, hero controls   arquitectura.
+
+
+Cierre               Limpieza técnica, QA,            Prepara el proyecto para handoff, deploy o revisión final
+                     empaquetado limpio               seria.
+
+
+
+
+Dependencias que no conviene forzar ahora
+Estos puntos no bloquean el cierre principal de la website, pero sí dependen de la app de Noon
+o de definición junto al developer: catálogo final de templates reales, flujo fino de Seller, flujo fino
+de Developer y formulario específico de interés/inversión de Next product.
+
+
+
+Instrucción operativa para Codex
+Trabajar sobre el source actual sin rediseñar la home. Enfocarse en cerrar Maxwell, Contact,
+ownership wording, inquiry mapping, footer/socials, consistencia legal vs analytics y limpieza final del
+proyecto. No reabrir la arquitectura del homepage; solo completar, conectar, corregir y limpiar.
+
+
+
+
+Apéndice — Archivos revisados
+   lib/site-config.ts
+   lib/contact.ts
+   app/start-with-maxwell/page.tsx
+   app/_components/site/start-with-maxwell-flow.tsx
+   app/contact/page.tsx
+   app/_components/site/contact-intake-form.tsx
+   components/landing/why-noon-section.tsx
+   components/landing/how-it-works-section.tsx
+   components/landing/navigation.tsx
+   components/landing/hero-section.tsx
+   components/landing/footer-section.tsx
+   app/layout.tsx
+   data/legal-documents.ts
+   app/technology-we-use/page.tsx
+   package.json
+
+Documento preparado para implementación. No sustituye el source ni la app pendiente; resume qué
+falta y en qué orden conviene cerrarlo.
+

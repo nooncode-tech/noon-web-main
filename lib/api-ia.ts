@@ -1,0 +1,162 @@
+/**
+ * lib/api-ia.ts
+ * Integraciones reutilizables de IA: OpenAI (gpt-4.1) y V0 (v0-sdk v0.16)
+ *
+ * Variables de entorno requeridas:
+ *   OPENAI_API_KEY   – clave de OpenAI
+ *   V0_API_KEY       – clave de V0 (se configura globalmente en v0-sdk)
+ */
+
+import OpenAI from "openai";
+import { v0 } from "v0-sdk";
+
+// ---------------------------------------------------------------------------
+// Clientes
+// ---------------------------------------------------------------------------
+
+const openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+
+// ---------------------------------------------------------------------------
+// Tipos
+// ---------------------------------------------------------------------------
+
+export type ChatMessage = {
+  role: "user" | "assistant";
+  content: string | OpenAI.Chat.Completions.ChatCompletionContentPart[];
+};
+
+export type OpenAIParams = {
+  /** Mensaje del usuario (texto) */
+  prompt?: string;
+  /** URL de imagen opcional para visión */
+  imageUrl?: string;
+  /** Historial previo de mensajes */
+  history?: ChatMessage[];
+  /** Prompt de sistema */
+  systemPrompt?: string;
+  /** Modelo a usar (default: gpt-4.1) */
+  model?: string;
+};
+
+export type OpenAIResult = {
+  reply: string;
+};
+
+export type V0CreateParams = {
+  /** Descripcion del prototipo a generar */
+  prompt: string;
+  /** Prompt de sistema para V0 */
+  systemPrompt?: string;
+};
+
+export type V0SendMessageParams = {
+  /** ID del chat de V0 existente */
+  chatId: string;
+  /** Mensaje de modificacion */
+  prompt: string;
+};
+
+export type V0Result = {
+  chatId: string;
+  demoUrl: string;
+};
+
+// ---------------------------------------------------------------------------
+// OpenAI – Chat con soporte de vision e historial
+// ---------------------------------------------------------------------------
+
+const DEFAULT_OPENAI_SYSTEM =
+  "You are a helpful assistant.";
+
+const DEFAULT_V0_SYSTEM =
+  "You are an expert frontend developer specializing in crafting beautiful, modern, and highly detailed single-view landing pages. " +
+  "Every project you create must be a single-page landing (no multi-section or multi-page layouts). " +
+  "Always use the latest web technologies, libraries, and frameworks such as React, Next.js, Tailwind CSS, shadcn/ui, framer-motion, and Lucide or similar icon libraries. " +
+  "Ensure your designs are visually impressive, engaging, and highly interactive, incorporating smooth animations, appealing color schemes, and professional iconography. " +
+  "Write clean, well-structured, and accessible code. Focus on delivering visually striking, conversion-focused prototypes that impress clients and feel up to date with the latest design trends. " +
+  "Always provide code that is ready to use in a modern web project and easy to customize.";
+
+/**
+ * Llama a OpenAI GPT-4.1 con soporte de texto, imagen e historial.
+ */
+export async function chatWithOpenAI(params: OpenAIParams): Promise<OpenAIResult> {
+  const { prompt, imageUrl, history = [], systemPrompt, model = "gpt-4.1" } = params;
+
+  if (!prompt && !imageUrl) {
+    throw new Error("Se requiere al menos un prompt o imageUrl.");
+  }
+
+  let userContent: OpenAI.Chat.Completions.ChatCompletionContentPart[] | string;
+
+  if (imageUrl && prompt) {
+    userContent = [
+      { type: "text", text: prompt },
+      { type: "image_url", image_url: { url: imageUrl } },
+    ];
+  } else if (imageUrl) {
+    userContent = [{ type: "image_url", image_url: { url: imageUrl } }];
+  } else {
+    userContent = prompt!;
+  }
+
+  const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+    { role: "system", content: systemPrompt ?? DEFAULT_OPENAI_SYSTEM },
+    ...(history as OpenAI.Chat.Completions.ChatCompletionMessageParam[]),
+    { role: "user", content: userContent },
+  ];
+
+  const completion = await openaiClient.chat.completions.create({ model, messages });
+
+  const reply =
+    completion.choices[0]?.message?.content ?? "No se pudo generar una respuesta.";
+
+  return { reply };
+}
+
+// ---------------------------------------------------------------------------
+// V0 – Crear prototipo nuevo
+// ---------------------------------------------------------------------------
+
+/**
+ * Crea un nuevo chat en V0 y devuelve el chatId y la URL del prototipo.
+ */
+export async function createV0Prototype(params: V0CreateParams): Promise<V0Result> {
+  const { prompt, systemPrompt } = params;
+
+  const result = await v0.chats.create({
+    system: systemPrompt ?? DEFAULT_V0_SYSTEM,
+    message: prompt,
+    responseMode: "sync",
+    modelConfiguration: {
+      imageGenerations: false,
+      thinking: false,
+    },
+  }) as { id: string; latestVersion?: { demoUrl?: string } };
+
+  return {
+    chatId: result.id,
+    demoUrl: result.latestVersion?.demoUrl ?? "",
+  };
+}
+
+// ---------------------------------------------------------------------------
+// V0 – Modificar prototipo existente
+// ---------------------------------------------------------------------------
+
+/**
+ * Envia un mensaje a un chat de V0 ya existente para modificar el prototipo.
+ */
+export async function updateV0Prototype(params: V0SendMessageParams): Promise<V0Result> {
+  const { chatId, prompt } = params;
+
+  const reply = await v0.chats.sendMessage({
+    chatId,
+    message: prompt,
+    responseMode: "sync",
+  } as Parameters<typeof v0.chats.sendMessage>[0]) as { latestVersion?: { demoUrl?: string } };
+
+  return {
+    chatId,
+    demoUrl: reply.latestVersion?.demoUrl ?? "",
+  };
+}

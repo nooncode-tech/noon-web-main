@@ -1,0 +1,191 @@
+                                                                                   Noon — Privacy Policy
+
+
+Privacy Policy
+Website, Contact, Maxwell, and related service communications
+Effective date: March 31, 2026
+
+Overview
+
+This Policy explains how Noon collects, uses, discloses, stores, and protects personal information
+when you visit Noon’s website, submit a contact inquiry, start a conversation through Maxwell,
+request a proposal, become a client, or otherwise interact with Noon’s services.
+
+
+
+1. Who this Policy applies to
+• This Policy applies to personal information collected through Noon’s public website, Contact page,
+   Maxwell intake flow, project discovery communications, proposal-related communications, and
+   related support or maintenance communications.
+• It also applies when Noon receives information directly from you by email, through forms on the
+   website, or through materials you send during pre-sales or project delivery.
+• This Policy does not replace any privacy, confidentiality, or data-processing terms that may later
+   appear in a signed proposal, statement of work, client agreement, or other written contract for a
+   specific engagement.
+
+2. Information Noon collects
+Noon collects only the categories of information reasonably necessary to operate the website, handle
+inquiries, support Maxwell, deliver requested services, maintain records, and comply with legal
+obligations.
+
+2.1 Information you provide directly
+• Contact and identity details, such as your full name, email address, company or organization
+   name, role, and country or region, when you choose to provide them.
+• Inquiry and project information, such as what you need, project goals, business context, desired
+   features, budget range, timeline, and related information you submit through Contact or
+   Maxwell.
+• Communications and materials, such as emails, project briefs, notes, drafts, approvals, feedback,
+   and any files or links you choose to send to Noon.
+• Client and billing information, if you engage Noon for paid services directly, such as billing contact
+   details, invoicing information, tax-related information if needed, and limited transaction
+   metadata required for billing, accounting, fraud prevention, and recordkeeping.
+• Authentication information, if Noon enables account or login functionality for a given flow or
+   client portal, such as email address, account identifiers, and credentials or authentication tokens
+   managed directly or through Noon’s providers.
+
+
+
+
+                               Noon · Privacy Policy · Effective March 31, 2026
+                                                                                    Noon — Privacy Policy
+
+2.2 Information collected automatically
+• Technical and device information, such as IP address, browser type, operating system, device type,
+   language settings, and approximate diagnostic data needed to render, secure, and troubleshoot
+   the website and related services.
+• Usage and interaction information, such as pages visited, timestamps, referring URLs, navigation
+   events, basic session state, and limited server or application logs used to operate, secure, and
+   improve the service.
+• Security and abuse-prevention information, such as logs or signals reasonably necessary to detect
+   misuse, protect the site, investigate incidents, and preserve service integrity.
+
+2.3 Cookies and similar technologies
+• Noon uses strictly necessary and functional technologies needed to operate the website, maintain
+   session behavior where applicable, remember basic preferences, and support core site features.
+• As of the effective date of this Policy, Noon does not state that the public website uses third-party
+   advertising cookies or sells or shares personal information for cross-context behavioral
+   advertising.
+• If Noon later enables analytics, advertising, or additional measurement tools that materially
+   change these practices, Noon will update this Policy and the related Cookies Policy before or at
+   the time those practices change.
+
+3. How Noon uses personal information
+• To operate, provide, secure, and maintain the website, Maxwell flow, contact flows, and related
+   service communications.
+• To review, route, and respond to project requests, general questions, partnership inquiries,
+   collaboration requests, or other communications submitted to Noon.
+• To understand your request, assess project fit, prepare diagnostics, clarify scope, create proposals,
+   plan delivery, and communicate next steps.
+• To deliver services you request from Noon, including design, development, AI-assisted outputs,
+   support, maintenance, and related operational work.
+• To authenticate users, support client portals or account-enabled flows if those features are used,
+   and preserve continuity across permitted sessions.
+• To generate invoices, support billing and accounting, maintain records, and comply with financial,
+   tax, audit, or legal obligations.
+• To detect, prevent, investigate, and respond to fraud, abuse, security incidents, unlawful conduct,
+   and violations of Noon’s terms or agreements.
+• To improve reliability, usability, and service quality, including debugging and internal operational
+   analysis consistent with this Policy.
+
+4. Maxwell, AI features, and customer content
+• If you use Maxwell or any other AI-assisted feature provided by Noon, Noon may process prompts,
+   text, context, files, links, and related materials you submit in order to generate the requested
+   output, continue the conversation, maintain continuity of your request, or support Noon’s
+   internal review and response process.
+
+                               Noon · Privacy Policy · Effective March 31, 2026
+                                                                                   Noon — Privacy Policy
+• Noon may also retain and review that content when reasonably necessary to maintain the feature,
+   investigate problems, support quality control, preserve project history, or continue a sales or
+   service process that you initiated.
+• Noon does not use customer content to train its own foundation models without your explicit
+   permission.
+• Where AI or automation features depend on third-party providers, those providers may process
+  relevant input and output under Noon’s instructions or under the operational terms necessary to
+  provide the feature.
+
+5. How Noon discloses personal information
+• Noon may disclose personal information to service providers and processors that help operate the
+   website and services, such as hosting or infrastructure providers, form or email delivery
+   providers, database or authentication providers, AI or automation providers, payment
+   processors, customer support tools, and professional advisors.
+• Noon may disclose information when reasonably necessary to comply with law, regulation, legal
+   process, court order, government request, or to protect rights, safety, security, property, or users.
+• Noon may disclose information as part of a merger, acquisition, financing, reorganization, sale of
+   assets, or similar corporate transaction, subject to ordinary confidentiality and legal
+   requirements.
+• Noon does not state in this Policy that it sells personal information, and Noon does not state that it
+   shares personal information for cross-context behavioral advertising.
+
+6. Data retention
+• Noon keeps personal information only for as long as reasonably necessary for the purposes
+   described in this Policy, including service delivery, follow-up, recordkeeping, legal compliance,
+   and dispute resolution.
+• Typical retention ranges may include: contact and inquiry records for up to 24 months after the
+   last meaningful interaction; project and support records for the duration of the engagement and
+   a reasonable period afterward; billing, invoicing, and tax records for up to 7 years; and technical
+   logs for approximately 12 to 18 months, unless a longer period is required for security, legal, or
+   operational reasons.
+• If account-enabled features or client portals are used, Noon may retain related account records
+   while the account is active and for a reasonable period afterward to support continuity, security,
+   compliance, and dispute handling.
+• Noon may retain information longer where required by law, where necessary to enforce
+   agreements, where needed to resolve disputes, or where legitimate operational or security needs
+   justify continued retention.
+
+7. Your choices and privacy rights
+• You may request access to, correction of, or deletion of personal information held by Noon, subject
+   to applicable law and verification requirements.
+• You may opt out of non-essential marketing communications by using the unsubscribe mechanism
+   in those messages or by contacting Noon directly. Operational, legal, billing, and service-related
+   messages may still be sent where necessary.
+
+                               Noon · Privacy Policy · Effective March 31, 2026
+                                                                                   Noon — Privacy Policy
+• You can manage cookies through your browser settings and any controls Noon may later make
+   available. Blocking strictly necessary technologies may cause parts of the site or service to
+   function poorly.
+• California residents may have rights to know, access, correct, or delete personal information, and
+   the right not to be discriminated against for exercising applicable rights. Noon will take
+   reasonable steps to verify requests before acting on them.
+• Because Noon does not state in this Policy that it sells personal information or shares it for cross-
+   context behavioral advertising, this Policy does not provide a sale or sharing opt-out mechanism
+   at this time.
+
+8. Security
+• Noon uses reasonable administrative, technical, and organizational measures appropriate to the
+   nature of the information it handles. These measures are intended to help protect against
+   unauthorized access, misuse, alteration, loss, or disclosure.
+• No system is perfectly secure. You should use appropriate caution when sending information
+   electronically and avoid sending highly sensitive information unless it is reasonably necessary
+   and requested in a secure context.
+
+9. International transfers
+• Noon may store, access, or process personal information in the United States, Mexico, or other
+   jurisdictions where Noon or its service providers operate.
+• Data protection laws may differ across jurisdictions. When transfers occur, Noon applies
+   reasonable contractual, operational, and security safeguards appropriate to the circumstances.
+
+10. Children
+• Noon’s website and services are not directed to children under 13, and Noon does not knowingly
+   collect personal information from children under 13.
+• If Noon learns that it has collected personal information from a child under 13 without
+   appropriate authorization, Noon will take reasonable steps to delete that information. A parent or
+   guardian who believes this may have happened should contact Noon using the contact details
+   below.
+
+11. Changes to this Policy
+• Noon may update this Policy from time to time to reflect changes in the website, services, legal
+   requirements, business operations, or data practices.
+• If Noon makes a material change, Noon will post the updated version here and, where
+   appropriate, provide additional notice before the change takes effect.
+
+12. Contact
+• If you have questions about this Policy or wish to exercise applicable privacy rights, you may
+   contact Noon at:
+Noon
+Wilmington, Delaware, USA
+Email: noon.message@gmail.com
+
+                               Noon · Privacy Policy · Effective March 31, 2026
+

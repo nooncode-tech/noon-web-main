@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm dev:*)",
+      "Bash(npm run:*)",
+      "Bash(npm install:*)",
+      "Bash(taskkill /F /IM node.exe)",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(powershell -Command \"Compress-Archive -Path 'C:\\\\Users\\\\Juan\\\\Documents\\\\Noon\\\\noon-main\\\\*' -DestinationPath 'C:\\\\Users\\\\Juan\\\\Desktop\\\\noon-main.zip' -Force\")",
+      "Bash(powershell -Command ':*)",
+      "Bash(powershell -Command \"\\(Get-Item 'C:\\\\Users\\\\Juan\\\\Desktop\\\\noon-main.zip'\\).Length / 1MB\")",
+      "Bash(vercel --prod)",
+      "Bash(node -e \"const {v0} = require\\('c:/Users/Juan/Documents/Noon/noon-main/node_modules/v0-sdk'\\); console.log\\(Object.keys\\(v0.chats\\)\\)\")",
+      "Bash(node -e \"const {v0} = require\\('c:/Users/Juan/Documents/Noon/noon-main/node_modules/v0-sdk'\\); console.log\\(v0.chats.sendMessage.toString\\(\\).slice\\(0,200\\)\\)\")",
+      "Bash(npx tsc:*)",
+      "Bash(vercel --prod --force)",
+      "Bash(vercel env:*)",
+      "Bash(netstat -ano)",
+      "Bash(findstr \":3000 \")",
+      "Bash(findstr LISTEN)",
+      "Bash(npm test:*)",
+      "Bash(node -e \"const {v0} = require\\('v0-sdk'\\); console.log\\(Object.keys\\(v0\\)\\)\")",
+      "Bash(node -e \"const {V0} = require\\('v0-sdk'\\); console.log\\(typeof V0\\)\")",
+      "Bash(node -e ':*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx next:*)"
+    ]
+  }
+}

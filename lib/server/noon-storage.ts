@@ -1,0 +1,143 @@
+/**
+ * lib/server/noon-storage.ts
+ * Funciones de persistencia legacy (contact leads, maxwell sessions).
+ * Migrado de SQLite (node:sqlite) a PostgreSQL (postgres.js / Supabase).
+ */
+
+import { getDb } from "@/lib/server/db";
+import type { ContactSubmissionInput, ContactTypeOption, ContactInquiryKey } from "@/lib/contact";
+import type { MaxwellSessionInput } from "@/lib/maxwell";
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+export type ContactLeadRecord = {
+  id: string;
+  inquiry: ContactInquiryKey;
+  contactType: ContactTypeOption;
+  name: string;
+  email: string;
+  brief: string;
+  budget: string | null;
+  timeline: string | null;
+  source: string | null;
+  status: string;
+  createdAt: string;
+};
+
+export type MaxwellSessionRecord = {
+  id: string;
+  prompt: string;
+  source: string | null;
+  status: string;
+  firstPromptCapturedAt: string;
+  updatedAt: string;
+};
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function normalizeOptionalText(value?: string) {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
+// ── Contact leads ─────────────────────────────────────────────────────────────
+
+export async function saveContactLead(input: ContactSubmissionInput): Promise<ContactLeadRecord> {
+  const sql = getDb();
+  const id = crypto.randomUUID();
+  const createdAt = new Date().toISOString();
+  const budget = normalizeOptionalText(input.budget);
+  const timeline = normalizeOptionalText(input.timeline);
+  const source = normalizeOptionalText(input.source);
+
+  await sql`
+    INSERT INTO contact_leads (
+      id, inquiry, contact_type, full_name, email,
+      brief, budget_range, timeline, source, status, created_at
+    ) VALUES (
+      ${id}, ${input.inquiry}, ${input.contactType}, ${input.name.trim()}, ${input.email.trim()},
+      ${input.brief.trim()}, ${budget}, ${timeline}, ${source}, 'new', ${createdAt}
+    )
+  `;
+
+  return {
+    id,
+    inquiry: input.inquiry,
+    contactType: input.contactType,
+    name: input.name.trim(),
+    email: input.email.trim(),
+    brief: input.brief.trim(),
+    budget,
+    timeline,
+    source,
+    status: "new",
+    createdAt,
+  };
+}
+
+// ── Maxwell sessions (legacy cookie-based) ────────────────────────────────────
+
+export async function getMaxwellSession(sessionId?: string | null): Promise<MaxwellSessionRecord | null> {
+  if (!sessionId) return null;
+  const sql = getDb();
+
+  const rows = await sql<{ id: string; prompt: string; source: string | null; status: string; first_prompt_captured_at: string; updated_at: string }[]>`
+    SELECT id, prompt, source, status, first_prompt_captured_at, updated_at
+    FROM maxwell_sessions
+    WHERE id = ${sessionId}
+  `;
+
+  const row = rows[0];
+  if (!row) return null;
+
+  return {
+    id: row.id,
+    prompt: row.prompt,
+    source: row.source,
+    status: row.status,
+    firstPromptCapturedAt: row.first_prompt_captured_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+export async function upsertMaxwellSession(
+  input: MaxwellSessionInput & { sessionId?: string | null }
+): Promise<MaxwellSessionRecord> {
+  const sql = getDb();
+  const nextPrompt = input.prompt.trim();
+  const nextSource = normalizeOptionalText(input.source);
+  const existingSession = await getMaxwellSession(input.sessionId);
+
+  if (existingSession) {
+    const updatedAt = new Date().toISOString();
+    await sql`
+      UPDATE maxwell_sessions
+      SET prompt = ${nextPrompt},
+          source = COALESCE(${nextSource}, source),
+          updated_at = ${updatedAt}
+      WHERE id = ${existingSession.id}
+    `;
+    return {
+      ...existingSession,
+      prompt: nextPrompt,
+      source: nextSource ?? existingSession.source,
+      updatedAt,
+    };
+  }
+
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
+  await sql`
+    INSERT INTO maxwell_sessions (id, prompt, source, status, first_prompt_captured_at, updated_at)
+    VALUES (${id}, ${nextPrompt}, ${nextSource}, 'captured', ${now}, ${now})
+  `;
+
+  return {
+    id,
+    prompt: nextPrompt,
+    source: nextSource,
+    status: "captured",
+    firstPromptCapturedAt: now,
+    updatedAt: now,
+  };
+}

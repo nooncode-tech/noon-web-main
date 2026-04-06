@@ -1,0 +1,42 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.next-dev.log*
+.next-dev-live.log*
+
+# env files
+.env*
+
+# vercel
+.vercel
+
+# local caches / temp artifacts
+.pnpm-store/
+.tmp/
+.tmp-chrome-pdf/
+.tmp-chrome-pdf2/
+.tmp-edge-pdf/
+.dev-home.html
+.data/
+
+# sqlite (wal-mode side files)
+*.sqlite-shm
+*.sqlite-wal
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
