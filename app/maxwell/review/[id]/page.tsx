@@ -14,7 +14,7 @@ import {
 } from "@/lib/maxwell/repositories";
 
 export const metadata: Metadata = {
-  title: "Proposal Review — Noon",
+  title: "Proposal Review - Noon",
   robots: { index: false, follow: false },
 };
 
@@ -22,8 +22,11 @@ export const dynamic = "force-dynamic";
 
 function formatDate(iso: string) {
   return new Intl.DateTimeFormat("en-US", {
-    month: "short", day: "numeric", year: "numeric",
-    hour: "numeric", minute: "2-digit",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
   }).format(new Date(iso));
 }
 
@@ -42,9 +45,9 @@ export default async function ProposalReviewPage({ params }: Props) {
   const proposal = await getProposalRequest(id);
   if (!proposal) notFound();
 
-  const session   = await getStudioSession(proposal.studioSessionId);
-  const messages  = session ? (await getStudioMessages(session.id)).filter((m) => m.messageType === "chat") : [];
-  const versions  = session ? await getStudioVersions(session.id) : [];
+  const session = await getStudioSession(proposal.studioSessionId);
+  const messages = session ? (await getStudioMessages(session.id)).filter((m) => m.messageType === "chat") : [];
+  const versions = session ? await getStudioVersions(session.id) : [];
   const workspace = session ? await getClientWorkspaceBySession(session.id) : null;
 
   const reviewToken = process.env.REVIEW_API_SECRET ?? "";
@@ -52,14 +55,13 @@ export default async function ProposalReviewPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <div className="border-b border-border bg-card px-6 py-4">
         <div className="mx-auto flex max-w-6xl items-center gap-4">
           <Link
             href="/maxwell/review"
-            className="shrink-0 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="shrink-0 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
-            ← Back
+            &larr; Back
           </Link>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-mono text-muted-foreground">
@@ -79,18 +81,18 @@ export default async function ProposalReviewPage({ params }: Props) {
       </div>
 
       <div className="mx-auto grid max-w-6xl gap-8 px-6 py-8 lg:grid-cols-[1fr_360px]">
-
-        {/* Left — draft content + conversation */}
         <div className="space-y-6">
-
-          {/* Proposal draft */}
           <div className="rounded-xl border border-border bg-card p-6">
             <div className="mb-4 flex items-center justify-between gap-2">
               <h2 className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
                 Proposal draft
               </h2>
               {proposal.expiresAt && (
-                <span className={`text-xs font-medium ${isExpiringSoon(proposal.expiresAt) ? "text-orange-500" : "text-muted-foreground"}`}>
+                <span
+                  className={`text-xs font-medium ${
+                    isExpiringSoon(proposal.expiresAt) ? "text-orange-500" : "text-muted-foreground"
+                  }`}
+                >
                   Expires {formatDate(proposal.expiresAt)}
                 </span>
               )}
@@ -102,11 +104,10 @@ export default async function ProposalReviewPage({ params }: Props) {
                 </pre>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground italic">No draft content yet.</p>
+              <p className="text-sm italic text-muted-foreground">No draft content yet.</p>
             )}
           </div>
 
-          {/* Conversation */}
           {messages.length > 0 && (
             <div className="rounded-xl border border-border bg-card p-6">
               <h2 className="mb-4 text-xs font-mono uppercase tracking-widest text-muted-foreground">
@@ -134,18 +135,27 @@ export default async function ProposalReviewPage({ params }: Props) {
           )}
         </div>
 
-        {/* Right — context + actions */}
         <div className="space-y-5">
-
-          {/* Session metadata */}
           <div className="rounded-xl border border-border bg-card p-5">
             <h2 className="mb-4 text-xs font-mono uppercase tracking-widest text-muted-foreground">
               Session
             </h2>
             <dl className="space-y-2.5 text-sm">
               <div>
+                <dt className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/60">Version</dt>
+                <dd className="mt-0.5">v{proposal.versionNumber}</dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/60">Case</dt>
+                <dd className="mt-0.5 capitalize">{proposal.caseClassification}</dd>
+              </div>
+              <div>
                 <dt className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/60">Status</dt>
-                <dd className="mt-0.5 font-mono text-xs">{session?.status ?? "—"}</dd>
+                <dd className="mt-0.5 font-mono text-xs">{session?.status ?? "-"}</dd>
+              </div>
+              <div>
+                <dt className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/60">Recipient</dt>
+                <dd className="mt-0.5 text-xs">{proposal.deliveryRecipient ?? "-"}</dd>
               </div>
               <div>
                 <dt className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/60">Corrections</dt>
@@ -165,7 +175,7 @@ export default async function ProposalReviewPage({ params }: Props) {
                       rel="noopener noreferrer"
                       className="break-all text-xs text-blue-500 hover:underline"
                     >
-                      Open ↗
+                      {"Open ->"}
                     </a>
                   </dd>
                 </div>
@@ -174,23 +184,54 @@ export default async function ProposalReviewPage({ params }: Props) {
                 <dt className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/60">Created</dt>
                 <dd className="mt-0.5 text-xs">{formatDate(proposal.createdAt)}</dd>
               </div>
+              {proposal.sentAt && (
+                <div>
+                  <dt className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/60">Sent</dt>
+                  <dd className="mt-0.5 text-xs">{formatDate(proposal.sentAt)}</dd>
+                </div>
+              )}
+              {proposal.firstOpenedAt && (
+                <div>
+                  <dt className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/60">First opened</dt>
+                  <dd className="mt-0.5 text-xs">{formatDate(proposal.firstOpenedAt)}</dd>
+                </div>
+              )}
               {proposal.expiresAt && (
                 <div>
                   <dt className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/60">Validity</dt>
-                  <dd className={`mt-0.5 text-xs font-medium ${isExpiringSoon(proposal.expiresAt) ? "text-orange-500" : ""}`}>
+                  <dd
+                    className={`mt-0.5 text-xs font-medium ${
+                      isExpiringSoon(proposal.expiresAt) ? "text-orange-500" : ""
+                    }`}
+                  >
                     15 days · expires {formatDate(proposal.expiresAt)}
                   </dd>
                 </div>
               )}
+              <div>
+                <dt className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/60">Public proposal</dt>
+                <dd className="mt-0.5">
+                  <a
+                    href={`/maxwell/proposal/${proposal.publicToken}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="break-all text-xs text-blue-500 hover:underline"
+                  >
+                    {"Open public view ->"}
+                  </a>
+                </dd>
+              </div>
               {workspace && (
-                <div className="pt-1 border-t border-border">
-                  <dt className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/60 mb-1">Workspace</dt>
+                <div className="border-t border-border pt-1">
+                  <dt className="mb-1 text-[10px] font-mono uppercase tracking-wider text-muted-foreground/60">
+                    Workspace
+                  </dt>
                   <dd>
                     <Link
                       href={`/maxwell/review/workspace/${workspace.id}`}
                       className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-secondary/50"
                     >
-                      Manage workspace →
+                      {"Manage workspace ->"}
                     </Link>
                   </dd>
                 </div>
@@ -198,7 +239,6 @@ export default async function ProposalReviewPage({ params }: Props) {
             </dl>
           </div>
 
-          {/* Actions */}
           <div className="rounded-xl border border-border bg-card p-5">
             <h2 className="mb-4 text-xs font-mono uppercase tracking-widest text-muted-foreground">
               Actions
@@ -206,18 +246,16 @@ export default async function ProposalReviewPage({ params }: Props) {
             <ReviewActions proposal={proposal} reviewToken={reviewToken} />
           </div>
 
-          {/* Initial prompt (for PM context) */}
           {session?.initialPrompt && (
             <div className="rounded-xl border border-border bg-secondary/20 p-5">
               <h2 className="mb-2 text-xs font-mono uppercase tracking-widest text-muted-foreground">
                 Original request
               </h2>
-              <p className="text-sm leading-relaxed text-foreground/70 line-clamp-4">
+              <p className="line-clamp-4 text-sm leading-relaxed text-foreground/70">
                 {session.initialPrompt}
               </p>
             </div>
           )}
-
         </div>
       </div>
     </div>

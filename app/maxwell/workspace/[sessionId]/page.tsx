@@ -1,6 +1,8 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { auth } from "@/auth";
+import { buildSignInHref } from "@/lib/auth/redirect";
 import {
   getStudioSession,
   getClientWorkspaceBySession,
@@ -8,6 +10,7 @@ import {
 } from "@/lib/maxwell/repositories";
 import type { WorkspaceUpdate, WorkspaceStatus } from "@/lib/maxwell/repositories";
 import { getContactHref } from "@/lib/site-config";
+import { viewerOwnsStudioSession } from "@/lib/auth/ownership";
 
 export const dynamic = "force-dynamic";
 
@@ -108,9 +111,16 @@ type Props = { params: Promise<{ sessionId: string }> };
 
 export default async function WorkspacePage({ params }: Props) {
   const { sessionId } = await params;
+  const sessionData = await auth();
+  const viewerEmail = sessionData?.user?.email?.trim().toLowerCase();
+
+  if (!viewerEmail) {
+    redirect(buildSignInHref(`/maxwell/workspace/${encodeURIComponent(sessionId)}`));
+  }
 
   const session = await getStudioSession(sessionId);
   if (!session) notFound();
+  if (!viewerOwnsStudioSession({ email: viewerEmail }, session)) notFound();
 
   const workspace = await getClientWorkspaceBySession(sessionId);
   if (!workspace || workspace.workspaceStatus === "inactive") notFound();

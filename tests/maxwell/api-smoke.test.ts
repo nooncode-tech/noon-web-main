@@ -29,6 +29,7 @@ import type { StudioSession, ClientWorkspace } from "@/lib/maxwell/repositories"
 function sess(status: StudioSession["status"], correctionsUsed = 0): StudioSession {
   return {
     id: "s1", initialPrompt: "test", status,
+    ownerEmail: "owner@noon.dev", ownerName: "Owner", ownerImage: null,
     projectType: null, goalSummary: null, complexityHint: null,
     language: "en", correctionsUsed, maxCorrections: 2,
     proposalRequestedAt: null,

@@ -1,0 +1,137 @@
+Maxwell Proposal Alignment Roadmap
+Date: 2026-04-06
+
+Purpose
+- Align the website proposal flow, proposal engine, and Noon app contract with the closed business rules from the 2026 master documents.
+- Keep responsibilities separated: website handles chat, prototype, and proposal; Noon App handles live project operations after activation.
+
+Closed decisions
+- Secondary payment wording: "Pago flexible".
+- 15-minute auto-send applies only to normal cases.
+- The proposal must explain the post-payment path.
+- Proposal language may mention Project Manager, QA, deployment, and the Noon development team.
+- Client-visible workspace states are: Active, In Preparation, In Development, In Review, Delivered.
+- Formal proposal delivery happens by email, and the chat should set the expectation that standard cases usually arrive in under 20 minutes.
+- Website scope ends at proposal orchestration; live project operation belongs to the Noon App.
+
+Epic 1 - Proposal engine alignment
+Goal
+- Make proposal generation reflect the final commercial rules without leaking pre-proposal behavior into the chat.
+
+Tickets
+- Update `lib/maxwell/prompts.ts` so proposals include:
+  - Pago unico and Membresia as main options.
+  - Pago flexible as a secondary, agent-led option.
+  - Email delivery, 15-day validity from first real opening, versioning, payment-under-verification rules.
+  - Post-payment path: workspace, states, PM handoff, Noon development team, QA, deployment, formal delivery.
+- Update `lib/maxwell/proposal-rules.ts` so validation rejects old wording such as `pago por etapas` and `staged payments`.
+- Add tests for the new proposal contract.
+
+Acceptance criteria
+- Generated proposal instructions no longer rely on stale wording from the old docs.
+- Prompt and validation logic both enforce `Pago flexible` as the visible secondary label.
+- Tests cover email delivery, post-payment journey, and official workspace states.
+
+Epic 2 - Proposal review SLA and delivery
+Goal
+- Move the 5/10/15 review rule from documentation into runtime behavior.
+
+Tickets
+- Define the exact runtime source of truth for `normal case` vs `special case`.
+- Add proposal review timers:
+  - 5 min re-notification
+  - 10 min escalation
+  - 15 min auto-send for normal cases only
+- Add audit logging for every automated review transition.
+- Implement email delivery plumbing or explicit manual-send fallback handling.
+
+Acceptance criteria
+- Review SLA is executable, not only documented.
+- Special cases never auto-send.
+- Every send path leaves a review trail.
+
+Epic 3 - Proposal lifecycle and first-open tracking
+Goal
+- Make proposal validity follow the master rule: 15 days from first real opening.
+
+Tickets
+- Add persistence for proposal first-open timestamp.
+- Start expiry from first real proposal view, not from `payment_pending`.
+- Add version replacement behavior so sent proposals are superseded by a new commercial version instead of being edited in place.
+- Show a visible countdown in the client proposal view.
+
+Acceptance criteria
+- Expiry timing matches the master documents.
+- Sent proposals are versioned, not overwritten.
+- First-open tracking is auditable.
+
+Epic 4 - Website/chat alignment
+Goal
+- Keep Maxwell pre-proposal behavior disciplined while setting correct expectations once proposal review starts.
+
+Tickets
+- Keep pre-proposal chat focused on discovery, prototype, two corrections, and proposal request.
+- Update proposal-review chat copy so it mentions email delivery timing without implying premature access or activation.
+- Remove or supersede stale docs in the repo that still describe ranges or outdated payment wording.
+
+Acceptance criteria
+- Chat does not explain post-payment operations before proposal.
+- Once proposal is requested, the client gets the correct review and email expectation.
+- Repo docs no longer contain competing commercial instructions without an explicit superseded marker.
+
+Epic 5 - Noon App contract
+Goal
+- Make sure the proposal only promises flows the Noon App is designed to fulfill.
+
+Tickets
+- Define the shared contract for:
+  - workspace contents
+  - client-visible states
+  - Latest Update behavior
+  - materials and comments
+  - PM handoff
+  - QA, deployment, and delivery checklist
+- Define how Pago flexible maps to staged execution and pause behavior in the app.
+
+Acceptance criteria
+- Proposal copy and Noon App behavior refer to the same states and milestones.
+- Post-payment promises have an explicit owner in the Noon App backlog.
+
+Epic 6 - Data model hardening
+Goal
+- Add the missing fields needed to support the commercial flow cleanly.
+
+Tickets
+- Proposal fields:
+  - `proposal_opened_at`
+  - proposal version linkage
+  - delivery channel / delivery status
+- Session or commercial fields:
+  - case classification (`normal` / `special`)
+  - optional commercial modality metadata for flexible payment handling
+- Workspace fields:
+  - official client-visible states
+  - latest update metadata
+
+Acceptance criteria
+- Runtime data can support the proposal lifecycle without inference hacks.
+- Commercial rules are enforceable in code and queryable in review tooling.
+
+Execution order
+1. Epic 1
+2. Epic 4
+3. Epic 6
+4. Epic 2
+5. Epic 3
+6. Epic 5
+
+Immediate first slice
+- Proposal prompt alignment
+- Proposal validation alignment
+- Chat review copy alignment
+- Tests for the new proposal contract
+
+Known risks
+- Email delivery is still not wired in this workspace, so copy can set expectation but runtime send still needs implementation.
+- The repo still contains older commercial docs that can mislead future work if not explicitly superseded.
+- The current data model does not yet support first-open validity or automated review SLA execution.

@@ -75,7 +75,15 @@ export function assertCanRequestProposal(session: StudioSession): void {
  * Sent proposals cannot be edited — changes create a new commercial version.
  */
 export function assertProposalNotSent(proposalStatus: string): void {
-  if (proposalStatus === "sent") {
+  const lockedStatuses = new Set([
+    "sent",
+    "payment_pending",
+    "payment_under_verification",
+    "paid",
+    "expired",
+  ]);
+
+  if (lockedStatuses.has(proposalStatus)) {
     throw new MaxwellGuardError(
       "PROPOSAL_ALREADY_SENT",
       "This proposal has already been sent. To make changes, a new commercial version must be created."

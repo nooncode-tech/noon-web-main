@@ -10,13 +10,14 @@ import {
 } from "@/lib/maxwell/proposal-rules";
 import type { StudioSession, StudioVersion } from "@/lib/maxwell/repositories";
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 function makeSession(overrides: Partial<StudioSession> = {}): StudioSession {
   return {
     id: "sess-1",
     initialPrompt: "Build a booking platform for yoga studios",
     status: "approved_for_proposal",
+    ownerEmail: "owner@noon.dev",
+    ownerName: "Owner",
+    ownerImage: null,
     projectType: null,
     goalSummary: "Yoga studio booking system",
     complexityHint: null,
@@ -42,10 +43,6 @@ function makeVersion(n: number, source: "initial" | "correction" = "initial"): S
     createdAt: new Date().toISOString(),
   };
 }
-
-// ============================================================================
-// resolveProjectCategory
-// ============================================================================
 
 describe("resolveProjectCategory", () => {
   it("returns webapp_system for null (default)", () => {
@@ -85,10 +82,6 @@ describe("resolveProjectCategory", () => {
   });
 });
 
-// ============================================================================
-// resolveComplexityTier
-// ============================================================================
-
 describe("resolveComplexityTier", () => {
   it("returns medio for null hint", () => {
     expect(resolveComplexityTier(null)).toBe("medio");
@@ -114,10 +107,6 @@ describe("resolveComplexityTier", () => {
   });
 });
 
-// ============================================================================
-// formatPricing
-// ============================================================================
-
 describe("formatPricing", () => {
   it("returns exact USD-formatted strings (no ranges)", () => {
     const result = formatPricing("webapp_system", "medio");
@@ -126,31 +115,41 @@ describe("formatPricing", () => {
   });
 
   it("bajo tier is cheaper than alto in every category", () => {
-    const categories = ["web_landing", "ecommerce", "webapp_system", "mobile", "saas_ai_automation"] as const;
-    for (const cat of categories) {
-      const bajo = PRICING_TABLE[cat].bajo;
-      const alto = PRICING_TABLE[cat].alto;
+    const categories = [
+      "web_landing",
+      "ecommerce",
+      "webapp_system",
+      "mobile",
+      "saas_ai_automation",
+    ] as const;
+
+    for (const category of categories) {
+      const bajo = PRICING_TABLE[category].bajo;
+      const alto = PRICING_TABLE[category].alto;
       expect(bajo.activation).toBeLessThan(alto.activation);
       expect(bajo.monthly).toBeLessThan(alto.monthly);
     }
   });
 
   it("all cells have activation fee and monthly fee", () => {
-    const categories = ["web_landing", "ecommerce", "webapp_system", "mobile", "saas_ai_automation"] as const;
+    const categories = [
+      "web_landing",
+      "ecommerce",
+      "webapp_system",
+      "mobile",
+      "saas_ai_automation",
+    ] as const;
     const tiers = ["bajo", "medio", "alto"] as const;
-    for (const cat of categories) {
+
+    for (const category of categories) {
       for (const tier of tiers) {
-        const r = PRICING_TABLE[cat][tier];
-        expect(r.activation).toBeGreaterThan(0);
-        expect(r.monthly).toBeGreaterThan(0);
+        const row = PRICING_TABLE[category][tier];
+        expect(row.activation).toBeGreaterThan(0);
+        expect(row.monthly).toBeGreaterThan(0);
       }
     }
   });
 });
-
-// ============================================================================
-// isMembershipContraindicated
-// ============================================================================
 
 describe("isMembershipContraindicated", () => {
   it("returns false for null", () => {
@@ -178,23 +177,21 @@ describe("isMembershipContraindicated", () => {
   });
 });
 
-// ============================================================================
-// validateProposalDraft
-// ============================================================================
-
 describe("validateProposalDraft", () => {
   it("returns no warnings for a clean draft with exact prices", () => {
     const clean = `
-## Project Proposal — Yoga Studio Platform
+## Project Proposal - Yoga Studio Platform
 
 **Executive Summary**
 We will build a booking platform for yoga studios.
 
 **Investment**
-Pago único: $179 USD
+Pago unico: $179 USD
 
-Membresía — Recomendado: $179 USD activación + $69 USD/mes
-Incluye hosting, base de datos básica, soporte, actualizaciones menores y avance gradual del proyecto.
+Membresia - Recomendado: $179 USD activacion + $69 USD/mes
+Incluye hosting, base de datos basica, soporte, actualizaciones menores y avance gradual del proyecto.
+
+Pago flexible (opcion secundaria): disponible solo mediante coordinacion con un agente de Noon para casos que requieran avance por etapas.
     `;
     expect(validateProposalDraft(clean)).toHaveLength(0);
   });
@@ -203,13 +200,17 @@ Incluye hosting, base de datos básica, soporte, actualizaciones menores y avanc
     const draft = "If you pay upfront you get 10% off the total.";
     const warnings = validateProposalDraft(draft);
     expect(warnings.length).toBeGreaterThan(0);
-    expect(warnings.some((w) => w.toLowerCase().includes("descuento") || w.toLowerCase().includes("discount"))).toBe(true);
+    expect(
+      warnings.some((warning) =>
+        warning.toLowerCase().includes("descuento") || warning.toLowerCase().includes("discount")
+      )
+    ).toBe(true);
   });
 
   it("flags phase-based payment (English)", () => {
     const draft = "Phase 1 payment: $3,000. Phase 2 payment: $3,000.";
     const warnings = validateProposalDraft(draft);
-    expect(warnings.some((w) => w.toLowerCase().includes("fase") || w.toLowerCase().includes("phase"))).toBe(true);
+    expect(warnings.some((warning) => warning.toLowerCase().includes("fase") || warning.toLowerCase().includes("phase"))).toBe(true);
   });
 
   it("flags pago por fases (Spanish)", () => {
@@ -218,10 +219,22 @@ Incluye hosting, base de datos básica, soporte, actualizaciones menores y avanc
     expect(warnings.length).toBeGreaterThan(0);
   });
 
+  it("flags pago por etapas wording", () => {
+    const draft = "Pago por etapas disponible con coordinacion del agente.";
+    const warnings = validateProposalDraft(draft);
+    expect(warnings.length).toBeGreaterThan(0);
+  });
+
   it("flags installment plans", () => {
     const draft = "We offer installments to make the project more accessible.";
     const warnings = validateProposalDraft(draft);
     expect(warnings.length).toBeGreaterThan(0);
+  });
+
+  it("allows Pago flexible as a secondary agent-led option", () => {
+    const draft = "Pago flexible: disponible solo mediante coordinacion con un agente de Noon.";
+    const warnings = validateProposalDraft(draft);
+    expect(warnings).toHaveLength(0);
   });
 
   it("flags technical delivery before payment", () => {
@@ -246,10 +259,6 @@ Incluye hosting, base de datos básica, soporte, actualizaciones menores y avanc
     expect(warnings.length).toBeGreaterThanOrEqual(3);
   });
 });
-
-// ============================================================================
-// buildProposalContext
-// ============================================================================
 
 describe("buildProposalContext", () => {
   it("includes session metadata", () => {
@@ -292,6 +301,7 @@ describe("buildProposalContext", () => {
     const context = buildProposalContext(makeSession({ complexityHint: "simple" }), [], []);
     expect(context).toContain("Activation fee");
     expect(context).toContain("EXACT price");
+    expect(context).toContain("Pago flexible");
   });
 
   it("notes membership not recommended for marketplace", () => {
@@ -311,5 +321,14 @@ describe("buildProposalContext", () => {
   it("instructs writing in English when language is en", () => {
     const context = buildProposalContext(makeSession({ language: "en" }), [], []);
     expect(context).toContain("English");
+  });
+
+  it("includes post-payment journey guidance", () => {
+    const context = buildProposalContext(makeSession(), [], []);
+    expect(context).toContain("under 20 minutes");
+    expect(context).toContain("Latest Update");
+    expect(context).toContain("In Preparation");
+    expect(context).toContain("QA");
+    expect(context).toContain("deployment");
   });
 });

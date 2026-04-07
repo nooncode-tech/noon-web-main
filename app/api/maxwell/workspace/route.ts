@@ -1,17 +1,7 @@
-/**
- * app/api/maxwell/workspace/route.ts
- *
- * GET  ?session_id=   → Estado público del workspace (cliente).
- * POST               → Gestión interna del workspace (PM, requiere auth).
- *
- * Acciones POST:
- *   add_update       → Agrega una actualización al workspace.
- *   change_status    → Cambia workspace_status (active | paused | closed).
- *   log_payment      → Registra un payment_event.
- */
-
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { getAuthenticatedViewer } from "@/lib/auth/session";
+import { viewerOwnsStudioSession } from "@/lib/auth/ownership";
 import {
   getStudioSession,
   getClientWorkspaceBySession,
@@ -31,8 +21,6 @@ function isAuthorized(request: Request): boolean {
   if (!secret) return process.env.NODE_ENV !== "production";
   return request.headers.get("authorization") === `Bearer ${secret}`;
 }
-
-// ── Schemas ───────────────────────────────────────────────────────────────────
 
 const addUpdateSchema = z.object({
   action: z.literal("add_update"),
@@ -55,7 +43,14 @@ const changeStatusSchema = z.object({
 const logPaymentSchema = z.object({
   action: z.literal("log_payment"),
   session_id: z.string().min(1),
-  event_type: z.enum(["initiated", "received", "confirmed", "failed", "refund_initiated", "refunded"]),
+  event_type: z.enum([
+    "initiated",
+    "received",
+    "confirmed",
+    "failed",
+    "refund_initiated",
+    "refunded",
+  ]),
   amount_usd: z.number().positive().optional(),
   reference: z.string().max(200).optional(),
   notes: z.string().max(1000).optional(),
@@ -68,19 +63,25 @@ const workspaceActionSchema = z.discriminatedUnion("action", [
   logPaymentSchema,
 ]);
 
-// ── GET — estado público del workspace ───────────────────────────────────────
-
 export async function GET(request: Request) {
+  const viewer = await getAuthenticatedViewer();
   const { searchParams } = new URL(request.url);
   const sessionId = searchParams.get("session_id");
+  const isInternal = isAuthorized(request);
 
   if (!sessionId) {
     return NextResponse.json({ message: "Missing session_id." }, { status: 400 });
+  }
+  if (!viewer && !isInternal) {
+    return NextResponse.json({ message: "Authentication required." }, { status: 401 });
   }
 
   const session = await getStudioSession(sessionId);
   if (!session) {
     return NextResponse.json({ message: "Session not found." }, { status: 404 });
+  }
+  if (!isInternal && viewer && !viewerOwnsStudioSession(viewer, session)) {
+    return NextResponse.json({ message: "Forbidden." }, { status: 403 });
   }
 
   const workspace = await getClientWorkspaceBySession(sessionId);
@@ -88,9 +89,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ message: "Workspace not found." }, { status: 404 });
   }
 
-  // Solo actualizaciones visibles al cliente para el endpoint público
-  const isInternal = isAuthorized(request);
-  const updates = await getWorkspaceUpdates(workspace.id, { clientVisibleOnly: !isInternal });
+  const updates = await getWorkspaceUpdates(workspace.id, {
+    clientVisibleOnly: !isInternal,
+  });
   const paymentEvents = isInternal ? await getPaymentEvents(sessionId) : [];
 
   return NextResponse.json({
@@ -100,8 +101,6 @@ export async function GET(request: Request) {
     ...(isInternal ? { payment_events: paymentEvents } : {}),
   });
 }
-
-// ── POST — acciones internas de workspace ────────────────────────────────────
 
 export async function POST(request: Request) {
   if (!isAuthorized(request)) {
@@ -129,31 +128,34 @@ export async function POST(request: Request) {
       const updated = await updateClientWorkspaceStatus(
         payload.workspace_id,
         payload.status as WorkspaceStatus,
-        payload.summary
+        payload.summary,
       );
-      return NextResponse.json({ workspace: updated, message: `Status changed to ${payload.status}.` });
-    }
-
-    if (payload.action === "log_payment") {
-      const event = await appendPaymentEvent({
-        studioSessionId: payload.session_id,
-        eventType: payload.event_type,
-        amountUsd: payload.amount_usd,
-        reference: payload.reference,
-        notes: payload.notes,
-        createdBy: payload.created_by,
+      return NextResponse.json({
+        workspace: updated,
+        message: `Status changed to ${payload.status}.`,
       });
-      return NextResponse.json({ event, message: "Payment event logged." });
     }
 
+    const event = await appendPaymentEvent({
+      studioSessionId: payload.session_id,
+      eventType: payload.event_type,
+      amountUsd: payload.amount_usd,
+      reference: payload.reference,
+      notes: payload.notes,
+      createdBy: payload.created_by,
+    });
+    return NextResponse.json({ event, message: "Payment event logged." });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { message: "Invalid request.", fieldErrors: error.flatten().fieldErrors },
-        { status: 400 }
+        { status: 400 },
       );
     }
     console.error("Workspace error:", error);
-    return NextResponse.json({ message: "Action failed. Please try again." }, { status: 500 });
+    return NextResponse.json(
+      { message: "Action failed. Please try again." },
+      { status: 500 },
+    );
   }
 }

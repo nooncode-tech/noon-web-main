@@ -4,7 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ProposalRequest } from "@/lib/maxwell/repositories";
 
-type ReviewAction = "approve_and_send" | "edit" | "return_to_draft" | "escalate";
+type ReviewAction =
+  | "approve_and_send"
+  | "edit"
+  | "create_new_version"
+  | "return_to_draft"
+  | "escalate";
 type PaymentAction = "mark_payment_pending" | "verify_payment" | "expire_proposal";
 
 type Props = {
@@ -24,10 +29,10 @@ function ActionButton({
   disabled?: boolean;
 }) {
   const cls = {
-    default:  "border border-border bg-background hover:bg-secondary/50 text-foreground",
-    primary:  "bg-primary text-primary-foreground hover:bg-primary/90",
-    danger:   "border border-red-500/30 bg-red-500/10 text-red-600 hover:bg-red-500/20",
-    ghost:    "text-muted-foreground hover:text-foreground hover:bg-secondary/40",
+    default: "border border-border bg-background hover:bg-secondary/50 text-foreground",
+    primary: "bg-primary text-primary-foreground hover:bg-primary/90",
+    danger: "border border-red-500/30 bg-red-500/10 text-red-600 hover:bg-red-500/20",
+    ghost: "text-muted-foreground hover:text-foreground hover:bg-secondary/40",
   }[variant];
 
   return (
@@ -47,6 +52,8 @@ export function ReviewActions({ proposal, reviewToken }: Props) {
   const [busy, setBusy] = useState(false);
   const [notes, setNotes] = useState("");
   const [editContent, setEditContent] = useState(proposal.draftContent ?? "");
+  const [deliveryRecipient, setDeliveryRecipient] = useState(proposal.deliveryRecipient ?? "");
+  const [caseClassification, setCaseClassification] = useState(proposal.caseClassification);
   const [mode, setMode] = useState<ReviewAction | PaymentAction | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,7 +69,7 @@ export function ReviewActions({ proposal, reviewToken }: Props) {
         },
         body: JSON.stringify(body),
       });
-      const data = await res.json() as { message?: string };
+      const data = (await res.json()) as { message?: string };
       if (!res.ok) throw new Error(data.message ?? "Action failed.");
       router.refresh();
       setMode(null);
@@ -86,7 +93,7 @@ export function ReviewActions({ proposal, reviewToken }: Props) {
         },
         body: JSON.stringify(body),
       });
-      const data = await res.json() as { message?: string };
+      const data = (await res.json()) as { message?: string };
       if (!res.ok) throw new Error(data.message ?? "Action failed.");
       router.refresh();
       setMode(null);
@@ -101,7 +108,6 @@ export function ReviewActions({ proposal, reviewToken }: Props) {
 
   return (
     <div className="space-y-4">
-      {/* Primary actions by status */}
       <div className="flex flex-wrap gap-2">
         {(status === "pending_review" || status === "under_review" || status === "approved") && (
           <>
@@ -109,19 +115,9 @@ export function ReviewActions({ proposal, reviewToken }: Props) {
               label="Approve & send"
               variant="primary"
               disabled={busy}
-              onClick={() =>
-                callReviewApi({
-                  action: "approve_and_send",
-                  proposal_request_id: proposal.id,
-                  actor: "pm",
-                })
-              }
+              onClick={() => setMode("approve_and_send")}
             />
-            <ActionButton
-              label="Edit draft"
-              disabled={busy}
-              onClick={() => setMode("edit")}
-            />
+            <ActionButton label="Edit draft" disabled={busy} onClick={() => setMode("edit")} />
             <ActionButton
               label="Return to draft"
               variant="ghost"
@@ -135,6 +131,14 @@ export function ReviewActions({ proposal, reviewToken }: Props) {
               onClick={() => setMode("escalate")}
             />
           </>
+        )}
+
+        {(status === "sent" || status === "expired") && (
+          <ActionButton
+            label="Create new version"
+            disabled={busy}
+            onClick={() => setMode("create_new_version")}
+          />
         )}
 
         {status === "sent" && (
@@ -190,28 +194,85 @@ export function ReviewActions({ proposal, reviewToken }: Props) {
         )}
       </div>
 
-      {/* Inline forms */}
-
-      {mode === "edit" && (
+      {(mode === "approve_and_send" || mode === "edit" || mode === "create_new_version") && (
         <div className="space-y-3 rounded-xl border border-border bg-card p-4">
-          <p className="text-sm font-medium">Edit draft</p>
+          <p className="text-sm font-medium">
+            {mode === "approve_and_send" && "Approve and send"}
+            {mode === "edit" && "Edit draft"}
+            {mode === "create_new_version" && "Create a new commercial version"}
+          </p>
+
+          {mode !== "approve_and_send" && (
+            <textarea
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              rows={20}
+              className="w-full resize-y rounded-lg border border-border bg-background px-3 py-2 font-mono text-xs leading-relaxed outline-none focus:border-foreground/30"
+            />
+          )}
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="space-y-1.5 text-sm">
+              <span className="text-xs font-medium text-muted-foreground">Recipient email</span>
+              <input
+                type="email"
+                value={deliveryRecipient}
+                onChange={(e) => setDeliveryRecipient(e.target.value)}
+                placeholder="client@example.com"
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground/30"
+              />
+            </label>
+            <label className="space-y-1.5 text-sm">
+              <span className="text-xs font-medium text-muted-foreground">Case classification</span>
+              <select
+                value={caseClassification}
+                onChange={(e) => setCaseClassification(e.target.value as ProposalRequest["caseClassification"])}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground/30"
+              >
+                <option value="normal">Normal</option>
+                <option value="special">Special</option>
+              </select>
+            </label>
+          </div>
+
           <textarea
-            value={editContent}
-            onChange={(e) => setEditContent(e.target.value)}
-            rows={20}
-            className="w-full resize-y rounded-lg border border-border bg-background px-3 py-2 font-mono text-xs leading-relaxed outline-none focus:border-foreground/30"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={3}
+            placeholder={mode === "approve_and_send" ? "Optional note" : "Optional internal note"}
+            className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground/30"
           />
+
           <div className="flex gap-2">
             <ActionButton
-              label={busy ? "Saving…" : "Save changes"}
+              label={
+                busy
+                  ? mode === "approve_and_send"
+                    ? "Sending..."
+                    : mode === "create_new_version"
+                      ? "Creating..."
+                      : "Saving..."
+                  : mode === "approve_and_send"
+                    ? "Approve & send"
+                    : mode === "create_new_version"
+                      ? "Create version"
+                      : "Save changes"
+              }
               variant="primary"
-              disabled={busy || !editContent.trim()}
+              disabled={
+                busy ||
+                (mode === "approve_and_send" && !deliveryRecipient.trim()) ||
+                (mode !== "approve_and_send" && !editContent.trim())
+              }
               onClick={() =>
                 callReviewApi({
-                  action: "edit",
+                  action: mode,
                   proposal_request_id: proposal.id,
                   actor: "pm",
-                  draft_content: editContent,
+                  draft_content: mode === "approve_and_send" ? undefined : editContent,
+                  delivery_recipient: deliveryRecipient.trim() || undefined,
+                  case_classification: caseClassification,
+                  notes: notes.trim() || undefined,
                 })
               }
             />
@@ -230,12 +291,12 @@ export function ReviewActions({ proposal, reviewToken }: Props) {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
-            placeholder="Required…"
+            placeholder="Required..."
             className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground/30"
           />
           <div className="flex gap-2">
             <ActionButton
-              label={busy ? "Submitting…" : mode === "escalate" ? "Escalate" : "Return"}
+              label={busy ? "Submitting..." : mode === "escalate" ? "Escalate" : "Return"}
               variant={mode === "escalate" ? "danger" : "default"}
               disabled={busy || !notes.trim()}
               onClick={() =>
@@ -264,7 +325,7 @@ export function ReviewActions({ proposal, reviewToken }: Props) {
           />
           <div className="flex gap-2">
             <ActionButton
-              label={busy ? "Confirming…" : "Confirm & activate workspace"}
+              label={busy ? "Confirming..." : "Confirm & activate workspace"}
               variant="primary"
               disabled={busy}
               onClick={() =>
@@ -287,7 +348,7 @@ export function ReviewActions({ proposal, reviewToken }: Props) {
           <p className="text-sm text-muted-foreground">This action cannot be undone.</p>
           <div className="flex gap-2">
             <ActionButton
-              label={busy ? "Expiring…" : "Yes, expire"}
+              label={busy ? "Expiring..." : "Yes, expire"}
               variant="danger"
               disabled={busy}
               onClick={() =>

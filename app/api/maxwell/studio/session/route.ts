@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { getAuthenticatedViewer } from "@/lib/auth/session";
+import { viewerOwnsStudioSession } from "@/lib/auth/ownership";
 import { getStudioSession, getStudioMessages, getStudioVersions } from "@/lib/maxwell/repositories";
 import type { MessageType } from "@/lib/maxwell/repositories";
 
@@ -7,11 +9,21 @@ export const dynamic = "force-dynamic";
 
 function toUiType(messageType: MessageType): "thinking" | "system_event" | undefined {
   if (messageType === "thinking") return "thinking";
-  if (messageType === "system_event" || messageType === "prototype_announcement") return "system_event";
+  if (
+    messageType === "system_event" ||
+    messageType === "prototype_announcement"
+  ) {
+    return "system_event";
+  }
   return undefined;
 }
 
 export async function GET(request: Request) {
+  const viewer = await getAuthenticatedViewer();
+  if (!viewer) {
+    return NextResponse.json({ message: "Authentication required." }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const sessionId = searchParams.get("session_id");
 
@@ -23,22 +35,27 @@ export async function GET(request: Request) {
   if (!session) {
     return NextResponse.json({ message: "Session not found." }, { status: 404 });
   }
+  if (!viewerOwnsStudioSession(viewer, session)) {
+    return NextResponse.json({ message: "Forbidden." }, { status: 403 });
+  }
 
   const dbMessages = await getStudioMessages(sessionId);
   const dbVersions = await getStudioVersions(sessionId);
 
   const messages = dbMessages
-    .filter((m) => m.role !== "system")
-    .map((m) => ({
-      role: m.role,
-      content: m.content,
-      ...(toUiType(m.messageType) ? { type: toUiType(m.messageType) } : {}),
+    .filter((message) => message.role !== "system")
+    .map((message) => ({
+      role: message.role,
+      content: message.content,
+      ...(toUiType(message.messageType)
+        ? { type: toUiType(message.messageType) }
+        : {}),
     }));
 
-  const versions = dbVersions.map((v) => ({
-    chatId: v.v0ChatId,
-    demoUrl: v.previewUrl,
-    versionNumber: v.versionNumber,
+  const versions = dbVersions.map((version) => ({
+    chatId: version.v0ChatId,
+    demoUrl: version.previewUrl,
+    versionNumber: version.versionNumber,
   }));
 
   return NextResponse.json({

@@ -14,7 +14,20 @@ import { v0 } from "v0-sdk";
 // Clientes
 // ---------------------------------------------------------------------------
 
-const openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+let openaiClient: OpenAI | null = null;
+
+function getOpenAIClient(): OpenAI {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error("OPENAI_API_KEY is not configured.");
+  }
+
+  if (!openaiClient) {
+    openaiClient = new OpenAI({ apiKey });
+  }
+
+  return openaiClient;
+}
 
 // ---------------------------------------------------------------------------
 // Tipos
@@ -105,7 +118,7 @@ export async function chatWithOpenAI(params: OpenAIParams): Promise<OpenAIResult
     { role: "user", content: userContent },
   ];
 
-  const completion = await openaiClient.chat.completions.create({ model, messages });
+  const completion = await getOpenAIClient().chat.completions.create({ model, messages });
 
   const reply =
     completion.choices[0]?.message?.content ?? "No se pudo generar una respuesta.";

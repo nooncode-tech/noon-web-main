@@ -26,7 +26,6 @@ import {
   activateClientWorkspace,
   getLatestProposalRequest,
   updateProposalRequestStatus,
-  updateProposalExpiry,
 } from "@/lib/maxwell/repositories";
 import {
   assertSessionAwaitingPayment,
@@ -51,8 +50,6 @@ function isAuthorized(request: Request): boolean {
 const markPendingSchema = z.object({
   action: z.literal("mark_payment_pending"),
   proposal_request_id: z.string().min(1),
-  /** Days until proposal expires. Default 14. */
-  expires_in_days: z.number().int().min(1).max(90).optional(),
 });
 
 const submitEvidenceSchema = z.object({
@@ -136,15 +133,22 @@ export async function POST(request: Request) {
     // ── mark_payment_pending ──────────────────────────────────────────────────
 
     if (payload.action === "mark_payment_pending") {
-      const proposal = await updateProposalRequestStatus(payload.proposal_request_id, "payment_pending");
-      const expiresAt = new Date(
-        Date.now() + (payload.expires_in_days ?? 15) * 24 * 60 * 60 * 1000
-      ).toISOString();
-      await updateProposalExpiry(proposal.id, expiresAt);
+      const proposal = await getProposalRequest(payload.proposal_request_id);
+      if (!proposal) {
+        return NextResponse.json({ message: "Proposal request not found." }, { status: 404 });
+      }
+      if (proposal.status !== "sent") {
+        return NextResponse.json(
+          { message: "Only a sent proposal can move into payment pending." },
+          { status: 409 }
+        );
+      }
+
+      const updated = await updateProposalRequestStatus(payload.proposal_request_id, "payment_pending");
       return NextResponse.json({
         message: "Proposal marked as payment pending.",
-        proposal_status: "payment_pending",
-        expires_at: expiresAt,
+        proposal_status: updated.status,
+        expires_at: updated.expiresAt,
       });
     }
 

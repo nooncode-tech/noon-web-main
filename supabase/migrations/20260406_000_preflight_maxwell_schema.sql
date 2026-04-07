@@ -225,13 +225,22 @@ WHERE action NOT IN (
   'created',
   'approve_and_send',
   'edit',
+  'create_new_version',
   'return_to_draft',
   'escalate',
   'reviewed',
   'approved',
   'sent',
   'edited',
-  'returned'
+  'returned',
+  'sla_reminder',
+  'sla_escalated',
+  'sla_auto_sent',
+  'sla_blocked_special',
+  'sla_blocked_delivery',
+  'delivery_failed',
+  'opened',
+  'new_version_created'
 );
 
 -- Timestamp strings that do not look ISO-like

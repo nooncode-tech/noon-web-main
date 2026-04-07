@@ -1,0 +1,321 @@
+NOON WEBSITE 100 PERCENT EXECUTION ROADMAP
+Date: 2026-04-06
+Owner: Codex audit
+Status: Proposed execution plan
+
+Goal
+- Close the gap between the current Noon website and a premium, production-safe, brand-trustworthy commercial experience.
+- Prioritize production risk first, then workflow correctness, then premium polish, then cleanup.
+
+Non-negotiable constraint
+- Do not modify these Supabase tables without explicit user approval:
+- prototypes
+- conversations
+- messages
+
+Current reality
+- Core flow exists: landing -> Maxwell chat -> prototype -> up to 2 corrections -> proposal -> internal review -> email/public proposal -> payment -> workspace.
+- Build passes.
+- Tests pass.
+- The site is not yet release-perfect because security, access control, workflow alignment, and trust polish are still incomplete.
+
+P0 - Production blockers
+
+P0.1 Internal review authentication
+Why
+- Shared-secret admin access is not acceptable for a serious internal operation.
+Affected surfaces
+- /maxwell/review
+- /maxwell/review/[id]
+- Internal review actions and payment actions
+Affected modules
+- app/maxwell/review/_actions/auth.ts
+- app/maxwell/review/_components/review-login.tsx
+- app/api/maxwell/review/route.ts
+- app/api/maxwell/payment/route.ts
+- app/api/maxwell/workspace/route.ts
+Required outcome
+- Replace shared token login with real authenticated staff access.
+- Enforce role checks for PM/reviewer/admin capabilities.
+- Attribute review actions to real actors.
+Acceptance criteria
+- No review or payment endpoint accepts a single global bearer secret as sole authorization.
+- Review events store actor identity, not just a generic source.
+- Session expiration and logout exist.
+
+P0.2 Client workspace access control
+Why
+- Workspace access by session identifier is too weak for a client portal.
+Affected surfaces
+- /maxwell/workspace/[sessionId]
+- GET /api/maxwell/workspace
+Affected modules
+- app/maxwell/workspace/[sessionId]/page.tsx
+- app/api/maxwell/workspace/route.ts
+- lib/maxwell/repositories.ts
+Required outcome
+- Move from session-id access to client-safe access tokens or authenticated client sessions.
+- Support revocation and expiration.
+Acceptance criteria
+- Workspace cannot be opened with a guessed or leaked session id alone.
+- Access can be revoked without changing the entire project record.
+- Audit trail exists for first access and subsequent reads if needed.
+
+P0.3 Maxwell data hardening in Supabase
+Why
+- Maxwell tables should be backend-only.
+Affected modules
+- supabase/migrations/20260406_004_secure_maxwell_tables.sql
+- supabase/schema.sql
+Required outcome
+- Apply the hardening migration for Maxwell tables.
+- Verify anon/authenticated can no longer read/write Maxwell tables directly.
+Acceptance criteria
+- Maxwell tables no longer show as unrestricted.
+- service_role retains required access.
+- prototypes, conversations, and messages remain untouched.
+
+P0.4 Public contact anti-abuse protection
+Why
+- Public forms without abuse controls are a spam and cost liability.
+Affected surfaces
+- /contact
+- Any CTA that posts contact data
+Affected modules
+- app/contact/page.tsx
+- app/_components/site/contact-intake-form.tsx
+- app/api/contact/route.ts
+Required outcome
+- Add rate limiting, honeypot or CAPTCHA, and request validation hardening.
+- Define operator-friendly failure responses.
+Acceptance criteria
+- Repeated automated requests are throttled.
+- Basic bot submissions are filtered.
+- Invalid payloads are rejected consistently without leaking internals.
+
+P0.5 Workspace state model alignment
+Why
+- Runtime states still conflict with the business-approved client-facing states.
+Affected surfaces
+- Client workspace
+- Internal workspace review
+- Proposal wording where workspace journey is described
+Affected modules
+- lib/maxwell/repositories.ts
+- supabase/schema.sql
+- app/maxwell/workspace/[sessionId]/page.tsx
+- app/maxwell/review/workspace/[workspaceId]/page.tsx
+Required outcome
+- Replace legacy status set with:
+- Active
+- In Preparation
+- In Development
+- In Review
+- Delivered
+Acceptance criteria
+- Schema constraints, TypeScript types, rendering logic, and seeded/default states all match.
+- No UI still renders inactive/paused/closed for client-facing workspace states.
+
+P1 - Workflow correctness and product coherence
+
+P1.1 Durable prototype approval
+Why
+- Prototype approval still lives too much in local UI state.
+Affected surfaces
+- /maxwell/studio
+Affected modules
+- components/maxwell/studio-shell.tsx
+- app/api/maxwell/proposal/route.ts
+- lib/maxwell/repositories.ts
+Required outcome
+- Add a dedicated approval transition persisted on the backend.
+- Keep proposal request separate from prototype approval.
+Acceptance criteria
+- Refreshing after approval preserves approved state.
+- Proposal creation consumes an already-approved prototype rather than doubling as approval.
+
+P1.2 Remove legacy flow ambiguity
+Why
+- Multiple overlapping Maxwell entry/session flows create maintenance and product confusion.
+Affected surfaces
+- Public entry points to Maxwell
+- Legacy modal/session helpers
+Affected modules
+- app/_components/site/start-with-maxwell-flow.tsx
+- app/api/maxwell/session/route.ts
+- lib/server/noon-storage.ts
+- app/api/maxwell/studio/session/route.ts
+Required outcome
+- Decide the single supported intake/session pattern.
+- Delete, isolate, or clearly label legacy paths.
+Acceptance criteria
+- There is one clear canonical Maxwell entry flow.
+- No orphaned route or component remains in production without ownership.
+
+P1.3 Proposal delivery and workspace handoff consistency
+Why
+- Proposal runtime is stronger now, but the post-proposal handoff still needs tighter contract checks.
+Affected surfaces
+- Review panel
+- Public proposal page
+- Payment transition
+- Workspace activation
+Affected modules
+- app/api/maxwell/review/route.ts
+- app/maxwell/proposal/[token]/page.tsx
+- app/api/maxwell/payment/route.ts
+- lib/maxwell/proposal-lifecycle.ts
+- lib/maxwell/repositories.ts
+Required outcome
+- Enforce consistent delivery state transitions.
+- Ensure payment activation only occurs from valid proposal states.
+- Surface operator-safe errors when lifecycle assumptions fail.
+Acceptance criteria
+- Invalid transitions are blocked and logged.
+- First-open timestamps, expiry logic, and payment-pending state remain internally consistent.
+
+P1.4 Review SLA operationalization
+Why
+- 5/10/15 logic exists in code, but it is only real when the scheduler and environment are configured and monitored.
+Affected surfaces
+- Internal review operations
+- Auto-send path for normal cases
+Affected modules
+- lib/maxwell/proposal-review-sla.ts
+- app/api/maxwell/review-sla/route.ts
+- deployment environment
+Required outcome
+- Configure scheduler, CRON secret, alerting, and operator visibility.
+Acceptance criteria
+- SLA route runs on schedule in the deployed environment.
+- Auto-send never triggers for special cases.
+- Failures are observable.
+
+P2 - Premium brand and trust polish
+
+P2.1 Hero credibility cleanup
+Why
+- Dead controls make the product feel unfinished.
+Affected surfaces
+- Landing hero
+Affected modules
+- components/landing/hero-section.tsx
+Required outcome
+- Remove disabled voice/file controls or ship them fully.
+- Tighten first-impression copy and CTA confidence.
+Acceptance criteria
+- No visible feature teaser is inert.
+- Hero communicates real capabilities only.
+
+P2.2 Contact trust cleanup
+Why
+- Gmail fallback and weak response framing reduce premium trust.
+Affected surfaces
+- /contact
+- Contact CTAs and fallback messaging
+Affected modules
+- app/contact/page.tsx
+- app/_components/site/contact-intake-form.tsx
+- app/api/contact/route.ts
+- lib/contact.ts
+Required outcome
+- Replace Gmail with branded email/domain handling.
+- Tighten response expectations and escalation wording.
+Acceptance criteria
+- No public Gmail address remains in premium-facing flows.
+- Contact messaging matches actual ops capacity.
+
+P2.3 Footer and public trust signals
+Why
+- Overexposing implementation vendors weakens brand posture.
+Affected surfaces
+- Global footer
+Affected modules
+- components/landing/footer-section.tsx
+Required outcome
+- Reframe footer toward trust, legal, and product clarity rather than internal stack bragging.
+Acceptance criteria
+- Footer strengthens credibility instead of exposing implementation details.
+
+P2.4 Metadata, SEO, and language alignment
+Why
+- Premium sites do not ship thin metadata and mismatched document language.
+Affected surfaces
+- Global app shell
+- Main public pages
+Affected modules
+- app/layout.tsx
+- app/page.tsx
+- app/about/page.tsx
+- app/services/page.tsx
+- app/templates/page.tsx
+- app/contact/page.tsx
+Required outcome
+- Add robust metadata, OG/Twitter cards, canonical handling, and language strategy.
+Acceptance criteria
+- Metadata is page-aware and share-ready.
+- html lang matches the intended audience strategy.
+
+P2.5 Content and narrative sharpness
+Why
+- A premium product needs tighter narrative consistency than a functional MVP.
+Affected surfaces
+- Landing
+- Services
+- Templates
+- About
+- Contact
+Affected modules
+- components/landing/*
+- app/services/page.tsx
+- app/templates/page.tsx
+- app/templates/[slug]/page.tsx
+- app/about/page.tsx
+- app/contact/page.tsx
+Required outcome
+- Tighten copy hierarchy, reduce repetition, and align promise level with implemented reality.
+Acceptance criteria
+- Every page has a clear intent, single primary CTA, and consistent tone.
+
+P3 - Cleanup and maintainability
+
+P3.1 Documentation reconciliation
+Why
+- Outdated docs will reintroduce regressions.
+Affected modules
+- docs/website-missing-items.txt
+- docs/maxwell/*
+- docs/roadmaps/*
+Required outcome
+- Mark stale docs as superseded or update them to match current implementation and approved business rules.
+Acceptance criteria
+- No active doc contradicts proposal/payment/workspace rules.
+
+P3.2 Legacy code reduction
+Why
+- Stray routes, helpers, and patterns increase accidental complexity.
+Affected modules
+- Legacy Maxwell session helpers
+- Unused site components
+- Old docs/runtime notes
+Required outcome
+- Remove dead code or isolate it with clear ownership.
+Acceptance criteria
+- The active path through the product is easy to trace.
+
+Suggested execution order
+- Phase 1: P0.1, P0.2, P0.3, P0.5
+- Phase 2: P0.4, P1.1, P1.3, P1.4
+- Phase 3: P1.2, P2.1, P2.2, P2.3, P2.4
+- Phase 4: P2.5, P3.1, P3.2
+
+Definition of done for "website at 100 percent"
+- Internal operations use real auth and role boundaries.
+- Client workspace access is no longer session-id based.
+- Maxwell tables are backend-only in Supabase.
+- Contact flow is abuse-hardened.
+- Workspace states match approved business language everywhere.
+- Prototype approval is durable and explicit.
+- Proposal/payment/workspace lifecycle is internally consistent.
+- Public site has no trust leaks, dead controls, Gmail fallbacks, or thin metadata.
+- Docs no longer contradict runtime behavior.

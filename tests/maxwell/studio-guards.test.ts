@@ -19,6 +19,9 @@ function makeSession(overrides: Partial<StudioSession> = {}): StudioSession {
     id: "sess-1",
     initialPrompt: "test prompt",
     status: "prototype_ready",
+    ownerEmail: "owner@noon.dev",
+    ownerName: "Owner",
+    ownerImage: null,
     projectType: null,
     goalSummary: null,
     complexityHint: null,
@@ -170,6 +173,13 @@ describe("assertProposalNotSent", () => {
     } catch (e) {
       expect((e as MaxwellGuardError).code).toBe("PROPOSAL_ALREADY_SENT");
     }
+  });
+
+  it("throws PROPOSAL_ALREADY_SENT for post-send payment states", () => {
+    expect(() => assertProposalNotSent("payment_pending")).toThrow(MaxwellGuardError);
+    expect(() => assertProposalNotSent("payment_under_verification")).toThrow(MaxwellGuardError);
+    expect(() => assertProposalNotSent("paid")).toThrow(MaxwellGuardError);
+    expect(() => assertProposalNotSent("expired")).toThrow(MaxwellGuardError);
   });
 });
 

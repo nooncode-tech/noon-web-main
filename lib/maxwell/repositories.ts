@@ -7,6 +7,7 @@
 
 import { getDb } from "@/lib/server/db";
 import { assertValidTransition } from "./state-machine";
+import { buildProposalReviewTimeline, deriveProposalExpiry } from "./proposal-lifecycle";
 
 // ============================================================================
 // Types
@@ -49,6 +50,9 @@ export type ProposalStatus =
   | "returned"
   | "escalated";
 
+export type ProposalCaseClassification = "normal" | "special";
+export type ProposalDeliveryChannel = "email";
+export type ProposalDeliveryStatus = "pending_review" | "sent" | "opened";
 export type WorkspacePaymentStatus = "pending" | "confirmed" | "failed" | "refunded";
 export type WorkspaceStatus = "inactive" | "active" | "paused" | "closed";
 export type WorkspaceUpdateType = "status_update" | "milestone" | "material" | "note";
@@ -64,6 +68,9 @@ export type StudioSession = {
   id: string;
   initialPrompt: string;
   status: StudioStatus;
+  ownerEmail: string | null;
+  ownerName: string | null;
+  ownerImage: string | null;
   projectType: string | null;
   goalSummary: string | null;
   complexityHint: string | null;
@@ -136,11 +143,25 @@ export type StudioEvent = {
 export type ProposalRequest = {
   id: string;
   studioSessionId: string;
+  versionNumber: number;
+  publicToken: string;
   status: ProposalStatus;
+  caseClassification: ProposalCaseClassification;
   reviewRequired: boolean;
   reviewerId: string | null;
   draftContent: string | null;
+  deliveryChannel: ProposalDeliveryChannel;
+  deliveryStatus: ProposalDeliveryStatus;
+  deliveryRecipient: string | null;
+  sentAt: string | null;
+  firstOpenedAt: string | null;
   expiresAt: string | null;
+  reviewNotifiedAt: string;
+  reviewRemindedAt: string | null;
+  reviewEscalatedAt: string | null;
+  autoSendDueAt: string | null;
+  supersedesProposalRequestId: string | null;
+  supersededByProposalRequestId: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -199,6 +220,7 @@ export type PaymentEvent = {
 
 type SessionRow = {
   id: string; initial_prompt: string; status: string;
+  owner_email: string | null; owner_name: string | null; owner_image: string | null;
   project_type: string | null; goal_summary: string | null;
   complexity_hint: string | null; language: string;
   corrections_used: number; max_corrections: number;
@@ -227,8 +249,23 @@ type VersionRow = {
 
 type ProposalRow = {
   id: string; studio_session_id: string; status: string;
+  version_number: number;
+  public_token: string;
+  case_classification: string;
   review_required: boolean | number; reviewer_id: string | null;
-  draft_content: string | null; expires_at: string | Date | null;
+  draft_content: string | null;
+  delivery_channel: string;
+  delivery_status: string;
+  delivery_recipient: string | null;
+  sent_at: string | Date | null;
+  first_opened_at: string | Date | null;
+  expires_at: string | Date | null;
+  review_notified_at: string | Date;
+  review_reminded_at: string | Date | null;
+  review_escalated_at: string | Date | null;
+  auto_send_due_at: string | Date | null;
+  supersedes_proposal_request_id: string | null;
+  superseded_by_proposal_request_id: string | null;
   created_at: string | Date; updated_at: string | Date;
 };
 
@@ -294,6 +331,7 @@ function toJsonObject(value: unknown): Record<string, unknown> {
 function mapSession(r: SessionRow): StudioSession {
   return {
     id: r.id, initialPrompt: r.initial_prompt, status: r.status as StudioStatus,
+    ownerEmail: r.owner_email, ownerName: r.owner_name, ownerImage: r.owner_image,
     projectType: r.project_type, goalSummary: r.goal_summary,
     complexityHint: r.complexity_hint, language: r.language,
     correctionsUsed: Number(r.corrections_used), maxCorrections: Number(r.max_corrections),
@@ -342,9 +380,23 @@ function mapVersion(r: VersionRow): StudioVersion {
 function mapProposal(r: ProposalRow): ProposalRequest {
   return {
     id: r.id, studioSessionId: r.studio_session_id,
+    versionNumber: Number(r.version_number),
+    publicToken: r.public_token,
     status: r.status as ProposalStatus, reviewRequired: toBoolean(r.review_required),
+    caseClassification: r.case_classification as ProposalCaseClassification,
     reviewerId: r.reviewer_id, draftContent: r.draft_content,
+    deliveryChannel: r.delivery_channel as ProposalDeliveryChannel,
+    deliveryStatus: r.delivery_status as ProposalDeliveryStatus,
+    deliveryRecipient: r.delivery_recipient,
+    sentAt: toIsoTimestamp(r.sent_at),
+    firstOpenedAt: toIsoTimestamp(r.first_opened_at),
     expiresAt: toIsoTimestamp(r.expires_at),
+    reviewNotifiedAt: toIsoTimestamp(r.review_notified_at)!,
+    reviewRemindedAt: toIsoTimestamp(r.review_reminded_at),
+    reviewEscalatedAt: toIsoTimestamp(r.review_escalated_at),
+    autoSendDueAt: toIsoTimestamp(r.auto_send_due_at),
+    supersedesProposalRequestId: r.supersedes_proposal_request_id,
+    supersededByProposalRequestId: r.superseded_by_proposal_request_id,
     createdAt: toIsoTimestamp(r.created_at)!,
     updatedAt: toIsoTimestamp(r.updated_at)!,
   };
@@ -400,6 +452,9 @@ function mapEvent(r: EventRow): StudioEvent {
 
 export async function createStudioSession(input: {
   initialPrompt: string;
+  ownerEmail: string;
+  ownerName?: string | null;
+  ownerImage?: string | null;
   language?: string;
 }): Promise<StudioSession> {
   const sql = getDb();
@@ -409,10 +464,20 @@ export async function createStudioSession(input: {
 
   await sql`
     INSERT INTO studio_session (
-      id, initial_prompt, status, language,
+      id, initial_prompt, status, owner_email, owner_name, owner_image, language,
       corrections_used, max_corrections, created_at, updated_at
     ) VALUES (
-      ${id}, ${input.initialPrompt.trim()}, 'intake', ${lang}, 0, 2, ${now}, ${now}
+      ${id},
+      ${input.initialPrompt.trim()},
+      'intake',
+      ${input.ownerEmail.trim().toLowerCase()},
+      ${input.ownerName?.trim() ?? null},
+      ${input.ownerImage?.trim() ?? null},
+      ${lang},
+      0,
+      2,
+      ${now},
+      ${now}
     )
   `;
 
@@ -651,10 +716,15 @@ export async function getLatestStudioVersion(studioSessionId: string): Promise<S
 export async function createProposalRequest(input: {
   studioSessionId: string;
   draftContent: string;
+  caseClassification?: ProposalCaseClassification;
+  deliveryRecipient?: string | null;
+  supersedesProposalRequestId?: string | null;
 }): Promise<ProposalRequest> {
   const sql = getDb();
   const id = crypto.randomUUID();
+  const publicToken = crypto.randomUUID();
   const now = new Date().toISOString();
+  const timeline = buildProposalReviewTimeline(now);
   const row = await sql.begin(async (tx) => {
     await tx`SELECT pg_advisory_xact_lock(hashtext(${input.studioSessionId}))`;
 
@@ -669,13 +739,52 @@ export async function createProposalRequest(input: {
       return existing[0];
     }
 
+    const previousRows = await tx<ProposalRow[]>`
+      SELECT *
+      FROM proposal_request
+      WHERE studio_session_id = ${input.studioSessionId}
+      ORDER BY version_number DESC, created_at DESC
+      LIMIT 1
+    `;
+    const nextVersionNumber = previousRows[0] ? Number(previousRows[0].version_number) + 1 : 1;
+
     const rows = await tx<ProposalRow[]>`
       INSERT INTO proposal_request (
-        id, studio_session_id, status,
-        draft_content, created_at, updated_at
-      ) VALUES (${id}, ${input.studioSessionId}, 'pending_review', ${input.draftContent}, ${now}, ${now})
+        id, studio_session_id, version_number, public_token, status,
+        case_classification, review_required, draft_content,
+        delivery_channel, delivery_status, delivery_recipient,
+        review_notified_at, auto_send_due_at,
+        supersedes_proposal_request_id,
+        created_at, updated_at
+      ) VALUES (
+        ${id},
+        ${input.studioSessionId},
+        ${nextVersionNumber},
+        ${publicToken},
+        'pending_review',
+        ${input.caseClassification ?? "normal"},
+        TRUE,
+        ${input.draftContent},
+        'email',
+        'pending_review',
+        ${input.deliveryRecipient ?? null},
+        ${timeline.reviewNotifiedAt},
+        ${timeline.autoSendDueAt},
+        ${input.supersedesProposalRequestId ?? null},
+        ${now},
+        ${now}
+      )
       RETURNING *
     `;
+
+    if (input.supersedesProposalRequestId) {
+      await tx`
+        UPDATE proposal_request
+        SET superseded_by_proposal_request_id = ${id},
+            updated_at = ${now}
+        WHERE id = ${input.supersedesProposalRequestId}
+      `;
+    }
 
     return rows[0];
   });
@@ -689,11 +798,113 @@ export async function getProposalRequest(id: string): Promise<ProposalRequest | 
   return rows[0] ? mapProposal(rows[0]) : null;
 }
 
-export async function updateProposalDraftContent(id: string, draftContent: string): Promise<ProposalRequest> {
+export async function getProposalRequestByPublicToken(publicToken: string): Promise<ProposalRequest | null> {
+  const sql = getDb();
+  const rows = await sql<ProposalRow[]>`
+    SELECT *
+    FROM proposal_request
+    WHERE public_token = ${publicToken}
+    LIMIT 1
+  `;
+  return rows[0] ? mapProposal(rows[0]) : null;
+}
+
+export async function updateProposalRequest(id: string, patch: {
+  status?: ProposalStatus;
+  caseClassification?: ProposalCaseClassification;
+  reviewerId?: string | null;
+  draftContent?: string | null;
+  deliveryStatus?: ProposalDeliveryStatus;
+  deliveryRecipient?: string | null;
+  sentAt?: string | null;
+  firstOpenedAt?: string | null;
+  expiresAt?: string | null;
+  reviewNotifiedAt?: string;
+  reviewRemindedAt?: string | null;
+  reviewEscalatedAt?: string | null;
+  autoSendDueAt?: string | null;
+  supersededByProposalRequestId?: string | null;
+}): Promise<ProposalRequest> {
   const sql = getDb();
   const now = new Date().toISOString();
-  await sql`UPDATE proposal_request SET draft_content = ${draftContent}, updated_at = ${now} WHERE id = ${id}`;
+
+  await sql`
+    UPDATE proposal_request
+    SET status = COALESCE(${patch.status ?? null}, status),
+        case_classification = CASE
+          WHEN ${patch.caseClassification !== undefined}
+            THEN ${patch.caseClassification ?? null}
+          ELSE case_classification
+        END,
+        reviewer_id = CASE
+          WHEN ${patch.reviewerId !== undefined}
+            THEN ${patch.reviewerId ?? null}
+          ELSE reviewer_id
+        END,
+        draft_content = CASE
+          WHEN ${patch.draftContent !== undefined}
+            THEN ${patch.draftContent ?? null}
+          ELSE draft_content
+        END,
+        delivery_status = CASE
+          WHEN ${patch.deliveryStatus !== undefined}
+            THEN ${patch.deliveryStatus ?? null}
+          ELSE delivery_status
+        END,
+        delivery_recipient = CASE
+          WHEN ${patch.deliveryRecipient !== undefined}
+            THEN ${patch.deliveryRecipient ?? null}
+          ELSE delivery_recipient
+        END,
+        sent_at = CASE
+          WHEN ${patch.sentAt !== undefined}
+            THEN ${patch.sentAt ?? null}
+          ELSE sent_at
+        END,
+        first_opened_at = CASE
+          WHEN ${patch.firstOpenedAt !== undefined}
+            THEN ${patch.firstOpenedAt ?? null}
+          ELSE first_opened_at
+        END,
+        expires_at = CASE
+          WHEN ${patch.expiresAt !== undefined}
+            THEN ${patch.expiresAt ?? null}
+          ELSE expires_at
+        END,
+        review_notified_at = CASE
+          WHEN ${patch.reviewNotifiedAt !== undefined}
+            THEN ${patch.reviewNotifiedAt ?? null}
+          ELSE review_notified_at
+        END,
+        review_reminded_at = CASE
+          WHEN ${patch.reviewRemindedAt !== undefined}
+            THEN ${patch.reviewRemindedAt ?? null}
+          ELSE review_reminded_at
+        END,
+        review_escalated_at = CASE
+          WHEN ${patch.reviewEscalatedAt !== undefined}
+            THEN ${patch.reviewEscalatedAt ?? null}
+          ELSE review_escalated_at
+        END,
+        auto_send_due_at = CASE
+          WHEN ${patch.autoSendDueAt !== undefined}
+            THEN ${patch.autoSendDueAt ?? null}
+          ELSE auto_send_due_at
+        END,
+        superseded_by_proposal_request_id = CASE
+          WHEN ${patch.supersededByProposalRequestId !== undefined}
+            THEN ${patch.supersededByProposalRequestId ?? null}
+          ELSE superseded_by_proposal_request_id
+        END,
+        updated_at = ${now}
+    WHERE id = ${id}
+  `;
+
   return (await getProposalRequest(id))!;
+}
+
+export async function updateProposalDraftContent(id: string, draftContent: string): Promise<ProposalRequest> {
+  return updateProposalRequest(id, { draftContent });
 }
 
 export async function getLatestProposalRequest(studioSessionId: string): Promise<ProposalRequest | null> {
@@ -710,25 +921,102 @@ export async function getLatestProposalRequest(studioSessionId: string): Promise
 export async function updateProposalRequestStatus(
   id: string,
   status: ProposalStatus,
-  extra?: { reviewerId?: string }
+  extra?: {
+    reviewerId?: string;
+    sentAt?: string | null;
+    deliveryStatus?: ProposalDeliveryStatus;
+    deliveryRecipient?: string | null;
+    caseClassification?: ProposalCaseClassification;
+  }
 ): Promise<ProposalRequest> {
-  const sql = getDb();
-  const now = new Date().toISOString();
-  await sql`
-    UPDATE proposal_request
-    SET status = ${status},
-        reviewer_id = COALESCE(${extra?.reviewerId ?? null}, reviewer_id),
-        updated_at = ${now}
-    WHERE id = ${id}
-  `;
-  return (await getProposalRequest(id))!;
+  return updateProposalRequest(id, {
+    status,
+    reviewerId: extra?.reviewerId,
+    sentAt: extra?.sentAt,
+    deliveryStatus: extra?.deliveryStatus,
+    deliveryRecipient: extra?.deliveryRecipient,
+    caseClassification: extra?.caseClassification,
+  });
 }
 
 export async function updateProposalExpiry(id: string, expiresAt: string): Promise<ProposalRequest> {
+  return updateProposalRequest(id, { expiresAt });
+}
+
+export async function createProposalRequestVersion(input: {
+  proposalRequestId: string;
+  draftContent?: string | null;
+  caseClassification?: ProposalCaseClassification;
+  deliveryRecipient?: string | null;
+}): Promise<ProposalRequest> {
+  const source = await getProposalRequest(input.proposalRequestId);
+  if (!source) {
+    throw new Error(`Proposal request ${input.proposalRequestId} not found.`);
+  }
+
+  const next = await createProposalRequest({
+    studioSessionId: source.studioSessionId,
+    draftContent: input.draftContent ?? source.draftContent ?? "",
+    caseClassification: input.caseClassification ?? source.caseClassification,
+    deliveryRecipient:
+      input.deliveryRecipient !== undefined ? input.deliveryRecipient : source.deliveryRecipient,
+    supersedesProposalRequestId: source.id,
+  });
+
+  return next;
+}
+
+export async function markProposalFirstOpened(publicToken: string): Promise<ProposalRequest | null> {
   const sql = getDb();
   const now = new Date().toISOString();
-  await sql`UPDATE proposal_request SET expires_at = ${expiresAt}, updated_at = ${now} WHERE id = ${id}`;
-  return (await getProposalRequest(id))!;
+  let openedNow = false;
+
+  const row = await sql.begin(async (tx) => {
+    const rows = await tx<ProposalRow[]>`
+      SELECT *
+      FROM proposal_request
+      WHERE public_token = ${publicToken}
+      LIMIT 1
+      FOR UPDATE
+    `;
+
+    const proposal = rows[0];
+    if (!proposal) {
+      return null;
+    }
+
+    if (proposal.first_opened_at) {
+      return proposal;
+    }
+
+    openedNow = true;
+    const expiresAt = deriveProposalExpiry(now);
+    const updatedRows = await tx<ProposalRow[]>`
+      UPDATE proposal_request
+      SET first_opened_at = ${now},
+          expires_at = COALESCE(expires_at, ${expiresAt}),
+          delivery_status = CASE
+            WHEN delivery_status = 'sent' THEN 'opened'
+            ELSE delivery_status
+          END,
+          updated_at = ${now}
+      WHERE id = ${proposal.id}
+      RETURNING *
+    `;
+
+    return updatedRows[0];
+  });
+
+  if (openedNow && row) {
+    await appendProposalReviewEvent({
+      proposalRequestId: row.id,
+      action: "opened",
+      actor: "client",
+      notes: "First client open recorded for proposal validity.",
+    });
+  }
+
+  return row ? mapProposal(row) : null;
 }
 
 export async function getProposalRequestsWithSession(opts?: {

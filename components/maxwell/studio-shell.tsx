@@ -46,9 +46,14 @@ const MAX_CORRECTIONS = 2;
 type StudioShellProps = {
   initialPrompt: string;
   initialSessionId?: string;
+  viewerEmail: string;
 };
 
-export function StudioShell({ initialPrompt, initialSessionId }: StudioShellProps) {
+export function StudioShell({
+  initialPrompt,
+  initialSessionId,
+  viewerEmail,
+}: StudioShellProps) {
   const router = useRouter();
 
   // Phase & state
@@ -193,9 +198,8 @@ export function StudioShell({ initialPrompt, initialSessionId }: StudioShellProp
       };
 
       // Store session_id on first response
-      if (data.session_id && !sessionId) {
-        setSessionId(data.session_id);
-      }
+      const effectiveSessionId = data.session_id ?? sessionId;
+      if (data.session_id && !sessionId) setSessionId(data.session_id);
 
       // Update project name if Maxwell extracted one
       if (data.project_name && !projectName) {
@@ -213,7 +217,7 @@ export function StudioShell({ initialPrompt, initialSessionId }: StudioShellProp
       ]);
 
       if (data.readyForPrototype) {
-        void buildPrototype(userMessage, reply);
+        void buildPrototype(userMessage, reply, effectiveSessionId ?? null);
       }
     } catch {
       setMessages((prev) => [
@@ -238,7 +242,11 @@ export function StudioShell({ initialPrompt, initialSessionId }: StudioShellProp
 
   // ── Prototype ────────────────────────────────────────────────────────────────
 
-  async function buildPrototype(lastUserMsg: string, lastAssistantMsg: string) {
+  async function buildPrototype(
+    lastUserMsg: string,
+    lastAssistantMsg: string,
+    effectiveSessionId: string | null,
+  ) {
     setPhase("generating_prototype");
     setPrototypeFailed(false);
 
@@ -267,7 +275,7 @@ export function StudioShell({ initialPrompt, initialSessionId }: StudioShellProp
         body: JSON.stringify({
           action: "create",
           prompt: `Based on this conversation, create a prototype:\n\n${contextLines}`,
-          ...(sessionId ? { session_id: sessionId } : {}),
+          ...(effectiveSessionId ? { session_id: effectiveSessionId } : {}),
         }),
       });
       const data = (await res.json()) as {
@@ -451,7 +459,7 @@ export function StudioShell({ initialPrompt, initialSessionId }: StudioShellProp
           {
             role: "assistant",
             content:
-              "Your proposal has been drafted and is now in review with the Noon team. A Project Manager will verify everything before it's formally sent to you.\n\nIf you'd prefer to speak directly with someone, use the 'Talk to agent' button above.",
+              "Your proposal has been drafted and is now in review with the Noon team. A Project Manager will verify everything before the formal version is sent by email. For standard cases, that usually happens in under 20 minutes.\n\nIf you'd prefer to speak directly with someone, use the 'Talk to agent' button above.",
           },
         ]);
       }
@@ -502,6 +510,7 @@ export function StudioShell({ initialPrompt, initialSessionId }: StudioShellProp
         correctionsUsed={correctionsUsed}
         maxCorrections={MAX_CORRECTIONS}
         agentHref={agentHref}
+        viewerEmail={viewerEmail}
         activeView={activeView}
         onToggleView={setActiveView}
         hasPrototype={prototypeVersions.length > 0}
@@ -557,7 +566,7 @@ export function StudioShell({ initialPrompt, initialSessionId }: StudioShellProp
             onRetryPrototype={() => {
               const lastUserMsg = messages.filter((m) => m.role === "user").at(-1)?.content ?? "";
               const lastAssistantMsg = messages.filter((m) => m.role === "assistant").at(-1)?.content ?? "";
-              void buildPrototype(lastUserMsg, lastAssistantMsg);
+              void buildPrototype(lastUserMsg, lastAssistantMsg, sessionId);
             }}
             agentHref={agentHref}
           />

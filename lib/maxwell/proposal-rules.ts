@@ -2,45 +2,46 @@
  * lib/maxwell/proposal-rules.ts
  *
  * Reglas comerciales vigentes de Noon para propuestas generadas por Maxwell.
- * Esta es la fuente de verdad — el prompt de propuesta las refleja y esta capa
- * las valida programáticamente.
+ * Esta es la fuente de verdad: el prompt de propuesta las refleja y esta capa
+ * las valida programaticamente.
  *
- * DECISIONES CERRADAS (no reabrir):
- * - Pago único y Membresía son las dos modalidades principales visibles.
- * - Toda propuesta pasa por revisión humana antes de llegar al cliente.
+ * DECISIONES CERRADAS:
+ * - Pago unico y Membresia son las dos modalidades principales visibles.
+ * - Pago flexible es la opcion secundaria visible y siempre requiere agente.
+ * - Toda propuesta pasa por revision humana antes de llegar al cliente.
  * - No se activa workspace sin pago confirmado.
  * - "Payment under verification" no activa el proyecto.
- * - Cambios sobre propuesta enviada crean nueva versión; no se edita encima.
- * - Vigencia de la propuesta: 15 días desde la primera apertura real del enlace.
+ * - Cambios sobre propuesta enviada crean nueva version; no se edita encima.
+ * - Vigencia de la propuesta: 15 dias desde la primera apertura real del enlace.
  * - Precio exacto en la propuesta; no usar rangos tipo "desde".
- * - Membresía incluye: hosting, base de datos básica, soporte, actualizaciones
+ * - Membresia incluye: hosting, base de datos basica, soporte, actualizaciones
  *   menores y avance gradual del proyecto.
  */
 
-import type { StudioSession, StudioMessage, StudioVersion } from "./repositories";
+import type { StudioSession, StudioVersion } from "./repositories";
 
 // ============================================================================
 // Modalidades de pago
 // ============================================================================
 
 export const PAYMENT_MODALITIES = {
-  /** Modalidad principal 1: pago único de activación. */
+  /** Modalidad principal 1: pago unico de activacion. */
   SINGLE_PAYMENT: "single_payment",
-  /** Modalidad principal 2: fee de activación + mensualidad. */
+  /** Modalidad principal 2: fee de activacion + mensualidad. */
   MEMBERSHIP: "membership",
 } as const;
 
 export type PaymentModality = (typeof PAYMENT_MODALITIES)[keyof typeof PAYMENT_MODALITIES];
 
 // ============================================================================
-// Categorías de proyecto
+// Categorias de proyecto
 // ============================================================================
 
 export const PROJECT_CATEGORIES = {
-  web_landing:        "Web básica / Landing / Corporate",
-  ecommerce:          "E-commerce",
-  webapp_system:      "Web App / Sistema",
-  mobile:             "Mobile",
+  web_landing: "Web básica / Landing / Corporate",
+  ecommerce: "E-commerce",
+  webapp_system: "Web App / Sistema",
+  mobile: "Mobile",
   saas_ai_automation: "SaaS / AI / Automation",
 } as const;
 
@@ -51,19 +52,19 @@ export type ProjectCategory = keyof typeof PROJECT_CATEGORIES;
 // ============================================================================
 
 export const COMPLEXITY_TIERS = {
-  bajo:  "Bajo",
+  bajo: "Bajo",
   medio: "Medio",
-  alto:  "Alto",
+  alto: "Alto",
 } as const;
 
 export type ComplexityTier = keyof typeof COMPLEXITY_TIERS;
 
 // ============================================================================
-// Tabla de precios oficial — 5 categorías × 3 tiers
+// Tabla de precios oficial - 5 categorias x 3 tiers
 // Precios exactos en USD. No usar rangos.
 //
-// activation → fee único para arrancar el proyecto (pago único O activación de membresía)
-// monthly    → cuota mensual de membresía (aplica solo en modalidad Membresía)
+// activation -> fee unico para arrancar el proyecto
+// monthly    -> cuota mensual de membresia
 // ============================================================================
 
 export const PRICING_TABLE: Record<
@@ -71,38 +72,36 @@ export const PRICING_TABLE: Record<
   Record<ComplexityTier, { activation: number; monthly: number }>
 > = {
   web_landing: {
-    //                 activation  monthly
-    bajo:  { activation:  49, monthly:  25 },
-    medio: { activation:  79, monthly:  32 },
-    alto:  { activation: 129, monthly:  49 },
+    bajo: { activation: 49, monthly: 25 },
+    medio: { activation: 79, monthly: 32 },
+    alto: { activation: 129, monthly: 49 },
   },
   ecommerce: {
-    bajo:  { activation:  79, monthly:  39 },
-    medio: { activation: 129, monthly:  55 },
-    alto:  { activation: 199, monthly:  79 },
+    bajo: { activation: 79, monthly: 39 },
+    medio: { activation: 129, monthly: 55 },
+    alto: { activation: 199, monthly: 79 },
   },
   webapp_system: {
-    bajo:  { activation:  99, monthly:  49 },
-    medio: { activation: 179, monthly:  69 },
-    alto:  { activation: 279, monthly: 109 },
+    bajo: { activation: 99, monthly: 49 },
+    medio: { activation: 179, monthly: 69 },
+    alto: { activation: 279, monthly: 109 },
   },
   mobile: {
-    bajo:  { activation: 129, monthly:  49 },
-    medio: { activation: 199, monthly:  69 },
-    alto:  { activation: 299, monthly: 109 },
+    bajo: { activation: 129, monthly: 49 },
+    medio: { activation: 199, monthly: 69 },
+    alto: { activation: 299, monthly: 109 },
   },
   saas_ai_automation: {
-    bajo:  { activation: 129, monthly:  69 },
-    medio: { activation: 229, monthly:  99 },
-    alto:  { activation: 349, monthly: 149 },
+    bajo: { activation: 129, monthly: 69 },
+    medio: { activation: 229, monthly: 99 },
+    alto: { activation: 349, monthly: 149 },
   },
 };
 
 // ============================================================================
-// Casos donde NO se ofrece Membresía automáticamente
+// Casos donde NO se ofrece Membresia automaticamente
 // ============================================================================
 
-/** Términos que indican un proyecto donde la membresía no aplica por defecto. */
 const MEMBERSHIP_EXCLUDED_PATTERNS: RegExp[] = [
   /\bmarketplace\b/i,
   /\bmulti[\s-]?vendor\b/i,
@@ -113,7 +112,7 @@ const MEMBERSHIP_EXCLUDED_PATTERNS: RegExp[] = [
   /\bGDPR\b.*\bregulat/i,
   /\bregulat.*\bcomplian/i,
   /\bcomplian.*\bregulat/i,
-  /\bmigraci[oó]n\s+(masiva|pesada|de\s+datos)\b/i,
+  /\bmigraci(?:on|\u00f3n)\s+(masiva|pesada|de\s+datos)\b/i,
   /\bdata\s+migration\b/i,
   /\bheavy\s+migration\b/i,
   /\bblockchain\b/i,
@@ -125,137 +124,163 @@ const MEMBERSHIP_EXCLUDED_PATTERNS: RegExp[] = [
   /\bjuego\b/i,
 ];
 
-/**
- * Devuelve true si el proyecto indica un caso donde la Membresía
- * NO debe ofrecerse automáticamente.
- */
 export function isMembershipContraindicated(text: string | null): boolean {
   if (!text) return false;
   return MEMBERSHIP_EXCLUDED_PATTERNS.some((re) => re.test(text));
 }
 
 // ============================================================================
-// Resolvers — categoría y tier desde hints de la sesión
+// Resolvers - categoria y tier desde hints de la sesion
 // ============================================================================
 
-/**
- * Mapea project_type / goal_summary de la sesión a una ProjectCategory.
- * Fallback: "webapp_system".
- */
 export function resolveProjectCategory(hint: string | null): ProjectCategory {
   if (!hint) return "webapp_system";
   const h = hint.toLowerCase();
 
-  // Mobile — máxima prioridad para evitar confusión con web
   if (
-    h.includes("mobile") || h.includes("móvil") || h.includes("movil") ||
-    h.includes("ios") || h.includes("android") || h.includes("app móvil") ||
+    h.includes("mobile") ||
+    h.includes("móvil") ||
+    h.includes("movil") ||
+    h.includes("ios") ||
+    h.includes("android") ||
+    h.includes("app móvil") ||
     h.includes("app movil")
-  ) return "mobile";
+  ) {
+    return "mobile";
+  }
 
-  // SaaS / AI / Automation
   if (
     /\b(ai|ia|saas|llm|nlp|chatbot|gpt|bot)\b/i.test(hint) ||
-    h.includes("intelig") || h.includes("automat") || h.includes("machine learn")
-  ) return "saas_ai_automation";
+    h.includes("intelig") ||
+    h.includes("automat") ||
+    h.includes("machine learn")
+  ) {
+    return "saas_ai_automation";
+  }
 
-  // E-commerce
   if (
-    h.includes("ecommerce") || h.includes("e-commerce") || h.includes("tienda") ||
-    h.includes("shop") || h.includes("store") || h.includes("ventas online") ||
-    h.includes("carrito") || h.includes("checkout") || h.includes("marketplace")
-  ) return "ecommerce";
+    h.includes("ecommerce") ||
+    h.includes("e-commerce") ||
+    h.includes("tienda") ||
+    h.includes("shop") ||
+    h.includes("store") ||
+    h.includes("ventas online") ||
+    h.includes("carrito") ||
+    h.includes("checkout") ||
+    h.includes("marketplace")
+  ) {
+    return "ecommerce";
+  }
 
-  // Web básica / Landing — solo si es realmente simple
   if (
-    (h.includes("landing") || h.includes("corporate") || h.includes("brochure") ||
-     h.includes("portafolio") || h.includes("portfolio") || h.includes("blog") ||
-     h.includes("sitio web") || h.includes("website") || h.includes("presentaci"))
-    && !h.includes("app") && !h.includes("sistema") && !h.includes("plataforma")
-  ) return "web_landing";
+    (h.includes("landing") ||
+      h.includes("corporate") ||
+      h.includes("brochure") ||
+      h.includes("portafolio") ||
+      h.includes("portfolio") ||
+      h.includes("blog") ||
+      h.includes("sitio web") ||
+      h.includes("website") ||
+      h.includes("presentaci")) &&
+    !h.includes("app") &&
+    !h.includes("sistema") &&
+    !h.includes("plataforma")
+  ) {
+    return "web_landing";
+  }
 
-  // Web App / Sistema — default para lo que no encaje en otras categorías
   return "webapp_system";
 }
 
-/**
- * Mapea complexity_hint de la sesión a un ComplexityTier.
- * Fallback: "medio".
- */
 export function resolveComplexityTier(hint: string | null): ComplexityTier {
   if (!hint) return "medio";
   const h = hint.toLowerCase();
 
-  // Alto — se evalúa primero para capturar "enterprise", "complex platform", etc.
   if (
-    h.includes("alto") || h.includes("high") || h.includes("enterprise") ||
-    h.includes("platform") || h.includes("complex") || h.includes("advanced") ||
-    h.includes("avanzado") || h.includes("large") || h.includes("grande")
-  ) return "alto";
+    h.includes("alto") ||
+    h.includes("high") ||
+    h.includes("enterprise") ||
+    h.includes("platform") ||
+    h.includes("complex") ||
+    h.includes("advanced") ||
+    h.includes("avanzado") ||
+    h.includes("large") ||
+    h.includes("grande")
+  ) {
+    return "alto";
+  }
 
-  // Bajo — proyectos simples, básicos
   if (
-    h.includes("bajo") || h.includes("low") || h.includes("simple") ||
-    h.includes("basic") || h.includes("small") || h.includes("pequeño") ||
-    h.includes("básico") || h.includes("sencillo") || h.includes("starter")
-  ) return "bajo";
+    h.includes("bajo") ||
+    h.includes("low") ||
+    h.includes("simple") ||
+    h.includes("basic") ||
+    h.includes("small") ||
+    h.includes("pequeño") ||
+    h.includes("básico") ||
+    h.includes("sencillo") ||
+    h.includes("starter")
+  ) {
+    return "bajo";
+  }
 
   return "medio";
 }
 
-/**
- * Devuelve los precios formateados en USD para el bloque de contexto del prompt.
- */
 export function formatPricing(
   category: ProjectCategory,
   tier: ComplexityTier
 ): { activation: string; monthly: string } {
-  const r = PRICING_TABLE[category][tier];
+  const row = PRICING_TABLE[category][tier];
   return {
-    activation: `$${r.activation} USD`,
-    monthly:    `$${r.monthly} USD/mes`,
+    activation: `$${row.activation} USD`,
+    monthly: `$${row.monthly} USD/mes`,
   };
 }
 
 // ============================================================================
-// Validación de propuesta generada
+// Validacion de propuesta generada
 // ============================================================================
 
 export const PROPOSAL_FORBIDDEN_PATTERNS: { pattern: RegExp; reason: string }[] = [
   {
     pattern: /\b(\d+)\s*%\s*(off|discount|descuento)\b/i,
-    reason: "Descuento porcentual — no hay descuentos por defecto",
+    reason: "Descuento porcentual - no hay descuentos por defecto",
   },
   {
     pattern: /\bphase[\s-]?(1|2|3|one|two|three)\s+payment\b/i,
-    reason: "Pago por fases como opción principal",
+    reason: "Pago por fases como opcion principal",
   },
   {
     pattern: /\bpago\s+por\s+fase(s)?\b/i,
-    reason: "Pago por fases como opción principal",
+    reason: "Pago por fases como opcion principal",
+  },
+  {
+    pattern: /\bpago\s+por\s+etapas\b/i,
+    reason: "Usar 'Pago flexible' en vez de 'pago por etapas' como opcion secundaria",
   },
   {
     pattern: /\binstallment(s)?\b/i,
-    reason: "Plan de pagos en cuotas mencionado como opción principal",
+    reason: "Plan de pagos en cuotas mencionado como opcion principal",
+  },
+  {
+    pattern: /\bstaged\s+payment(s)?\b/i,
+    reason: "Usar 'Pago flexible' en vez de 'staged payments' como opcion secundaria",
   },
   {
     pattern: /\b(repository|repo|github|gitlab|código)\s+(access|acceso|delivery|entrega)\b/i,
-    reason: "Entrega técnica implícita antes del pago",
+    reason: "Entrega tecnica implicita antes del pago",
   },
   {
     pattern: /\bdesde\s+\$\d/i,
-    reason: "Rango 'desde $X' — la propuesta debe mostrar precio exacto",
+    reason: "Rango 'desde $X' - la propuesta debe mostrar precio exacto",
   },
   {
     pattern: /\$\d[\d,]*\s*[–\-]\s*\$\d/,
-    reason: "Rango de precio — la propuesta debe mostrar precio exacto",
+    reason: "Rango de precio - la propuesta debe mostrar precio exacto",
   },
 ];
 
-/**
- * Valida un draft de propuesta contra las reglas comerciales.
- * Devuelve warnings para el revisor PM — no se muestran al cliente.
- */
 export function validateProposalDraft(content: string): string[] {
   return PROPOSAL_FORBIDDEN_PATTERNS
     .filter(({ pattern }) => pattern.test(content))
@@ -263,21 +288,17 @@ export function validateProposalDraft(content: string): string[] {
 }
 
 // ============================================================================
-// Construcción de contexto rico para el prompt de propuesta
+// Construccion de contexto rico para el prompt de propuesta
 // ============================================================================
 
-/**
- * Construye el bloque de contexto estructurado que se pasa a OpenAI
- * al generar una propuesta formal.
- */
 export function buildProposalContext(
   session: StudioSession,
   messages: { role: "user" | "assistant"; content: string }[],
   versions: StudioVersion[]
 ): string {
   const category = resolveProjectCategory(session.projectType ?? session.goalSummary);
-  const tier     = resolveComplexityTier(session.complexityHint);
-  const pricing  = formatPricing(category, tier);
+  const tier = resolveComplexityTier(session.complexityHint);
+  const pricing = formatPricing(category, tier);
 
   const noMembership = isMembershipContraindicated(
     [session.initialPrompt, session.goalSummary, session.projectType].filter(Boolean).join(" ")
@@ -285,12 +306,10 @@ export function buildProposalContext(
 
   const lines: string[] = [];
 
-  // ── Metadata de sesión ────────────────────────────────────────────────────
-
   lines.push("## Session context");
   lines.push(`- Initial request: "${session.initialPrompt}"`);
-  if (session.goalSummary)    lines.push(`- Goal summary: ${session.goalSummary}`);
-  if (session.projectType)    lines.push(`- Project type: ${session.projectType}`);
+  if (session.goalSummary) lines.push(`- Goal summary: ${session.goalSummary}`);
+  if (session.projectType) lines.push(`- Project type: ${session.projectType}`);
   if (session.complexityHint) lines.push(`- Complexity: ${session.complexityHint}`);
   lines.push(`- Category resolved: ${PROJECT_CATEGORIES[category]}`);
   lines.push(`- Tier resolved: ${COMPLEXITY_TIERS[tier]}`);
@@ -299,58 +318,73 @@ export function buildProposalContext(
   lines.push(`- Corrections used: ${session.correctionsUsed} of ${session.maxCorrections}`);
   lines.push("");
 
-  // ── Historial de versiones ────────────────────────────────────────────────
-
   if (versions.length > 0) {
     lines.push("## Prototype iteration history");
-    for (const v of versions) {
-      const label = v.source === "initial" ? "Initial prototype" : `Correction (v${v.versionNumber})`;
+    for (const version of versions) {
+      const label = version.source === "initial"
+        ? "Initial prototype"
+        : `Correction (v${version.versionNumber})`;
+
       lines.push(
-        v.changeSummary
-          ? `- v${v.versionNumber} [${label}]: ${v.changeSummary}`
-          : `- v${v.versionNumber} [${label}]`
+        version.changeSummary
+          ? `- v${version.versionNumber} [${label}]: ${version.changeSummary}`
+          : `- v${version.versionNumber} [${label}]`
       );
     }
     lines.push("");
   }
 
-  // ── Conversación ──────────────────────────────────────────────────────────
-
   lines.push("## Full conversation");
-  for (const m of messages) {
-    lines.push(`**${m.role === "user" ? "Client" : "Maxwell"}:** ${m.content}`);
+  for (const message of messages) {
+    lines.push(`**${message.role === "user" ? "Client" : "Maxwell"}:** ${message.content}`);
   }
   lines.push("");
-
-  // ── Guía de precios ───────────────────────────────────────────────────────
 
   lines.push("## Pricing for this proposal");
   lines.push(`Category: ${PROJECT_CATEGORIES[category]} | Tier: ${COMPLEXITY_TIERS[tier]}`);
-  lines.push(`- Activation fee (Pago único OR Membresía activation): ${pricing.activation}`);
+  lines.push(`- Activation fee (Pago unico OR Membresia activation): ${pricing.activation}`);
   if (!noMembership) {
-    lines.push(`- Membresía mensual: ${pricing.monthly}`);
-    lines.push(`  Membership line: "Incluye hosting, base de datos básica, soporte, actualizaciones menores y avance gradual del proyecto."`);
+    lines.push(`- Membresia mensual: ${pricing.monthly}`);
+    lines.push(
+      `  Membership line: "Incluye hosting, base de datos basica, soporte, actualizaciones menores y avance gradual del proyecto."`
+    );
     lines.push(`- Mark the recommended modality with label "Recomendado".`);
   } else {
-    lines.push(`- NOTE: Membership is NOT recommended for this type of project. Offer Pago único only.`);
+    lines.push(`- NOTE: Membership is NOT recommended for this type of project. Offer Pago unico only.`);
   }
-  lines.push("");
-  lines.push("IMPORTANT:");
-  lines.push("- Show the EXACT price. Do NOT use ranges like 'desde $X' or '$X – $Y'.");
-  lines.push("- Do NOT add any discount percentage for single payment.");
-  lines.push("- Do NOT present phase-based or installment payments as a primary option.");
-  lines.push("- Proposal validity: 15 days from first real link opening (not from send date).");
-  lines.push("- Project activates ONLY upon confirmed payment. 'Under verification' does NOT activate the project.");
+  lines.push(
+    `- Secondary option wording: "Pago flexible" only. Never use "pago por fases", "pago por etapas", or "installments" as the visible label.`
+  );
+  lines.push(
+    `- If staged execution needs to be mentioned, frame it as a secondary, agent-led path. Never make it the main or recommended option.`
+  );
   lines.push("");
 
-  // ── Instrucción de generación ─────────────────────────────────────────────
+  lines.push("IMPORTANT:");
+  lines.push(`- Show the EXACT price. Do NOT use ranges like "desde $X" or "$X - $Y".`);
+  lines.push(`- Do NOT add any discount percentage for single payment.`);
+  lines.push(`- Do NOT present phase-based or installment payments as a primary option.`);
+  lines.push(`- Proposal validity: 15 days from first real link opening (not from send date).`);
+  lines.push(
+    `- The formal proposal is delivered by email after review. For normal cases, once approved, formal send usually happens in under 20 minutes.`
+  );
+  lines.push(`- Sent proposals are versioned. Do NOT describe editing an already sent proposal in place.`);
+  lines.push(`- Project activates ONLY upon confirmed payment. "Under verification" does NOT activate the project.`);
+  lines.push(
+    `- If Pago flexible is mentioned, say that each agreed stage advances after the corresponding payment confirmation and unpaid future stages remain paused.`
+  );
+  lines.push(
+    `- Describe the post-payment journey: Noon client workspace, approved proposal, approved prototype or available progress, Latest Update summary, materials, client comments, Noon agent contact, Project Manager handoff, Noon development team, QA, deployment, and formal delivery.`
+  );
+  lines.push(`- Official workspace states to mention: Active, In Preparation, In Development, In Review, Delivered.`);
+  lines.push("");
 
   lines.push("## Your task");
   lines.push(
     "Generate the full formal proposal following the structure defined in your system prompt. " +
-    "Use the conversation above to extract scope, deliverables, and exclusions. " +
-    "Use the EXACT pricing above for the Investment section — do not invent or adjust figures. " +
-    `Write the proposal in ${session.language === "es" ? "Spanish" : "English"} unless the conversation clearly used a different language.`
+      "Use the conversation above to extract scope, deliverables, exclusions, and the correct commercial framing. " +
+      "Use the EXACT pricing above for the Investment section - do not invent or adjust figures. " +
+      `Write the proposal in ${session.language === "es" ? "Spanish" : "English"} unless the conversation clearly used a different language.`
   );
 
   return lines.join("\n");

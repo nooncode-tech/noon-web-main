@@ -128,6 +128,7 @@ type StudioHeaderProps = {
   correctionsUsed: number;
   maxCorrections: number;
   agentHref: string;
+  viewerEmail: string;
   activeView: ActiveView;
   onToggleView: (v: ActiveView) => void;
   hasPrototype: boolean;
@@ -139,6 +140,7 @@ export function StudioHeader({
   correctionsUsed,
   maxCorrections,
   agentHref,
+  viewerEmail,
   activeView,
   onToggleView,
   hasPrototype,
@@ -188,6 +190,9 @@ export function StudioHeader({
           />
           <span className="text-xs text-muted-foreground truncate">{label}</span>
         </div>
+        <p className="mt-1 hidden truncate text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground/65 sm:block">
+          {viewerEmail}
+        </p>
       </div>
 
       {/* View toggle (mobile) */}

@@ -157,7 +157,7 @@ export function StartWithMaxwellFlow({ initialPrompt }: StartWithMaxwellFlowProp
           </div>
 
           <p className="mt-4 text-sm text-muted-foreground">
-            You can begin without signing in. This version preserves the first prompt on this device so the next step can continue with the same context.
+            Maxwell now asks for Google sign-in before the first prompt is sent, so the session, proposal, and workspace stay tied to the same verified account.
           </p>
         </div>
 
