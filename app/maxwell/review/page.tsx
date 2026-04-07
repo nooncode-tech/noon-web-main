@@ -1,57 +1,47 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 import type { Metadata } from "next";
-import { isReviewAuthorized } from "./_actions/auth";
+import { signOutAction } from "@/app/signin/actions";
+import { getReviewPageAccess } from "./_actions/auth";
 import { ReviewLogin } from "./_components/review-login";
 import { StatusBadge } from "./_components/status-badge";
 import { getProposalRequestsWithSession } from "@/lib/maxwell/repositories";
 import type { ProposalStatus, ProposalWithSession } from "@/lib/maxwell/repositories";
 
 export const metadata: Metadata = {
-  title: "Review Panel — Noon",
+  title: "Review Panel - Noon",
   robots: { index: false, follow: false },
 };
 
 export const dynamic = "force-dynamic";
 
-// ── Logout action ─────────────────────────────────────────────────────────────
-
-async function logoutAction() {
-  "use server";
-  const jar = await cookies();
-  jar.delete("noon_review_token");
-  redirect("/maxwell/review");
-}
-
-// ── Status grouping ───────────────────────────────────────────────────────────
-
 const NEEDS_ATTENTION: ProposalStatus[] = ["pending_review", "payment_under_verification"];
-const IN_PROGRESS: ProposalStatus[]     = ["under_review", "sent", "payment_pending"];
-const CLOSED: ProposalStatus[]          = ["paid", "expired", "returned", "escalated"];
+const IN_PROGRESS: ProposalStatus[] = ["under_review", "sent", "payment_pending"];
+const CLOSED: ProposalStatus[] = ["paid", "expired", "returned", "escalated"];
 
 function groupProposals(proposals: ProposalWithSession[]) {
   return {
-    needsAttention: proposals.filter((p) => NEEDS_ATTENTION.includes(p.status)),
-    inProgress:     proposals.filter((p) => IN_PROGRESS.includes(p.status)),
-    closed:         proposals.filter((p) => CLOSED.includes(p.status)),
+    needsAttention: proposals.filter((proposal) => NEEDS_ATTENTION.includes(proposal.status)),
+    inProgress: proposals.filter((proposal) => IN_PROGRESS.includes(proposal.status)),
+    closed: proposals.filter((proposal) => CLOSED.includes(proposal.status)),
   };
 }
 
 function formatDate(iso: string) {
   return new Intl.DateTimeFormat("en-US", {
-    month: "short", day: "numeric", year: "numeric",
-    hour: "numeric", minute: "2-digit",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
   }).format(new Date(iso));
 }
 
 function formatDateShort(iso: string) {
   return new Intl.DateTimeFormat("en-US", {
-    month: "short", day: "numeric",
+    month: "short",
+    day: "numeric",
   }).format(new Date(iso));
 }
-
-// ── Proposal card ─────────────────────────────────────────────────────────────
 
 function ProposalCard({ proposal }: { proposal: ProposalWithSession }) {
   const isUrgent = NEEDS_ATTENTION.includes(proposal.status);
@@ -64,30 +54,27 @@ function ProposalCard({ proposal }: { proposal: ProposalWithSession }) {
         isUrgent ? "border-orange-500/30" : "border-border"
       }`}
     >
-      {/* Title row */}
       <div className="mb-3 flex items-start justify-between gap-3">
-        <p className="text-sm font-medium leading-snug line-clamp-2 flex-1">{title}</p>
+        <p className="line-clamp-2 flex-1 text-sm font-medium leading-snug">{title}</p>
         <StatusBadge status={proposal.status} />
       </div>
 
-      {/* Meta row */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
         <span className="font-mono">{proposal.id.slice(0, 8)}</span>
         <span>{formatDateShort(proposal.createdAt)}</span>
         <span className="rounded bg-secondary/60 px-1.5 py-0.5 font-mono text-[10px]">
           {proposal.sessionStatus}
         </span>
-        {proposal.expiresAt && new Date(proposal.expiresAt) < new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) && (
-          <span className="text-orange-500 font-medium">
-            Expires {formatDate(proposal.expiresAt)}
-          </span>
-        )}
+        {proposal.expiresAt &&
+          new Date(proposal.expiresAt) < new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) && (
+            <span className="font-medium text-orange-500">
+              Expires {formatDate(proposal.expiresAt)}
+            </span>
+          )}
       </div>
     </Link>
   );
 }
-
-// ── Section ───────────────────────────────────────────────────────────────────
 
 function Section({
   title,
@@ -101,7 +88,9 @@ function Section({
   return (
     <section>
       <div className="mb-3 flex items-center gap-2">
-        <h2 className="text-xs font-mono uppercase tracking-widest text-muted-foreground">{title}</h2>
+        <h2 className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
+          {title}
+        </h2>
         <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-mono text-muted-foreground">
           {proposals.length}
         </span>
@@ -112,8 +101,8 @@ function Section({
         </p>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {proposals.map((p) => (
-            <ProposalCard key={p.id} proposal={p} />
+          {proposals.map((proposal) => (
+            <ProposalCard key={proposal.id} proposal={proposal} />
           ))}
         </div>
       )}
@@ -121,17 +110,21 @@ function Section({
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
-
 type Props = {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 export default async function ReviewPage({ searchParams }: Props) {
-  const authorized = await isReviewAuthorized();
-  if (!authorized) {
-    const { error } = await searchParams;
-    return <ReviewLogin error={error === "invalid"} />;
+  const access = await getReviewPageAccess();
+  if (!access.authorized) {
+    await searchParams;
+    return (
+      <ReviewLogin
+        reason={access.reason}
+        redirectTo="/maxwell/review"
+        viewerEmail={access.viewer?.email ?? null}
+      />
+    );
   }
 
   const proposals = await getProposalRequestsWithSession({ limit: 200 });
@@ -140,7 +133,6 @@ export default async function ReviewPage({ searchParams }: Props) {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <div className="border-b border-border bg-card px-6 py-4">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div>
@@ -155,10 +147,14 @@ export default async function ReviewPage({ searchParams }: Props) {
             </h1>
           </div>
           <div className="flex items-center gap-4">
+            <span className="hidden text-sm text-muted-foreground md:inline">
+              {access.viewer.email}
+            </span>
             <span className="text-sm text-muted-foreground">
               {proposals.length} proposal{proposals.length !== 1 ? "s" : ""}
             </span>
-            <form action={logoutAction}>
+            <form action={signOutAction}>
+              <input type="hidden" name="redirectTo" value="/signin?redirectTo=%2Fmaxwell%2Freview" />
               <button
                 type="submit"
                 className="rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
@@ -170,7 +166,6 @@ export default async function ReviewPage({ searchParams }: Props) {
         </div>
       </div>
 
-      {/* Content */}
       <div className="mx-auto max-w-6xl space-y-10 px-6 py-8">
         <Section
           title="Needs attention"
@@ -182,11 +177,7 @@ export default async function ReviewPage({ searchParams }: Props) {
           proposals={inProgress}
           emptyMessage="No active proposals."
         />
-        <Section
-          title="Closed"
-          proposals={closed}
-          emptyMessage="No closed proposals yet."
-        />
+        <Section title="Closed" proposals={closed} emptyMessage="No closed proposals yet." />
       </div>
     </div>
   );

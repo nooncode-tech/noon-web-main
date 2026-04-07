@@ -19,7 +19,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   assertCanRequestCorrection,
   assertCanRequestProposal,
-  assertWorkspaceNotActive,
+  assertWorkspaceNotProvisioned,
   assertSessionAwaitingPayment,
   assertPaymentConfirmed,
   MaxwellGuardError,
@@ -40,7 +40,7 @@ function sess(status: StudioSession["status"], correctionsUsed = 0): StudioSessi
 function ws(workspaceStatus: ClientWorkspace["workspaceStatus"]): ClientWorkspace {
   return {
     id: "w1", studioSessionId: "s1",
-    paymentStatus: workspaceStatus === "active" ? "confirmed" : "pending",
+    paymentStatus: "confirmed",
     workspaceStatus,
     latestUpdateSummary: null,
     createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
@@ -130,19 +130,19 @@ describe("QA row 11 — Confirmed payment allows workspace activation", () => {
     const activeWs = ws("active");
     let caught: MaxwellGuardError | null = null;
     try {
-      assertWorkspaceNotActive(activeWs);
+      assertWorkspaceNotProvisioned(activeWs);
     } catch (e) {
       caught = e as MaxwellGuardError;
     }
     expect(caught!.code).toBe("WORKSPACE_ALREADY_ACTIVE");
   });
 
-  it("inactive workspace is not blocked", () => {
-    expect(() => assertWorkspaceNotActive(ws("inactive"))).not.toThrow();
+  it("any existing workspace is blocked", () => {
+    expect(() => assertWorkspaceNotProvisioned(ws("in_preparation"))).toThrow(MaxwellGuardError);
   });
 
   it("null workspace is not blocked", () => {
-    expect(() => assertWorkspaceNotActive(null)).not.toThrow();
+    expect(() => assertWorkspaceNotProvisioned(null)).not.toThrow();
   });
 });
 

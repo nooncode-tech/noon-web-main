@@ -9,5 +9,5 @@
 
 - Contact persistence is real inside the app runtime, but proposal email delivery only works after configuring `RESEND_API_KEY`, `MAIL_FROM`, and a public site URL such as `MAXWELL_PUBLIC_BASE_URL`.
 - Google sign-in for Maxwell requires `AUTH_SECRET`, `AUTH_GOOGLE_ID`, and `AUTH_GOOGLE_SECRET`.
-- Maxwell now preserves the first prompt and session continuity on the current device, but there is still no real user authentication system in this repo.
+- Internal review access now depends on Google session auth plus `REVIEW_ALLOWED_EMAILS`. Keep `REVIEW_API_SECRET` only for automation, cron, or server-to-server calls.
 - Proposal review SLA can now be processed through `GET/POST /api/maxwell/review-sla`. In production, attach a scheduler and authorize it with `CRON_SECRET` or `REVIEW_API_SECRET`.

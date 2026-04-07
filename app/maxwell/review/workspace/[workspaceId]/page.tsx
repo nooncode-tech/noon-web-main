@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { isReviewAuthorized } from "../../_actions/auth";
+import { getReviewPageAccess } from "../../_actions/auth";
 import { ReviewLogin } from "../../_components/review-login";
 import { WorkspaceForm } from "./_components/workspace-form";
 import {
@@ -11,6 +11,7 @@ import {
   getPaymentEvents,
 } from "@/lib/maxwell/repositories";
 import type { WorkspaceUpdate } from "@/lib/maxwell/repositories";
+import { WORKSPACE_STATUS_META } from "@/lib/maxwell/workspace-status";
 
 export const metadata: Metadata = {
   title: "Workspace Management — Noon",
@@ -66,17 +67,24 @@ function UpdateRow({ update }: { update: WorkspaceUpdate }) {
 type Props = { params: Promise<{ workspaceId: string }> };
 
 export default async function WorkspaceManagePage({ params }: Props) {
-  const authorized = await isReviewAuthorized();
-  if (!authorized) return <ReviewLogin />;
-
   const { workspaceId } = await params;
+  const access = await getReviewPageAccess();
+  if (!access.authorized) {
+    return (
+      <ReviewLogin
+        reason={access.reason}
+        redirectTo={`/maxwell/review/workspace/${workspaceId}`}
+        viewerEmail={access.viewer?.email ?? null}
+      />
+    );
+  }
+
   const workspace = await getClientWorkspace(workspaceId);
   if (!workspace) notFound();
 
   const session = await getStudioSession(workspace.studioSessionId);
   const updates = await getWorkspaceUpdates(workspaceId);
   const paymentEvents = await getPaymentEvents(workspace.studioSessionId);
-  const reviewToken = process.env.REVIEW_API_SECRET ?? "";
 
   const workspaceUrl = `/maxwell/workspace/${workspace.studioSessionId}`;
 
@@ -95,7 +103,7 @@ export default async function WorkspaceManagePage({ params }: Props) {
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xs text-muted-foreground">
-              Status: <strong>{workspace.workspaceStatus}</strong>
+              Status: <strong>{WORKSPACE_STATUS_META[workspace.workspaceStatus].label}</strong>
             </span>
             <a
               href={workspaceUrl}
@@ -163,8 +171,8 @@ export default async function WorkspaceManagePage({ params }: Props) {
         <div>
           <WorkspaceForm
             workspaceId={workspaceId}
-            sessionId={workspace.studioSessionId}
-            reviewToken={reviewToken}
+            actorEmail={access.viewer.email}
+            currentStatus={workspace.workspaceStatus}
           />
         </div>
 

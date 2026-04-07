@@ -8,6 +8,8 @@
 import { getDb } from "@/lib/server/db";
 import { assertValidTransition } from "./state-machine";
 import { buildProposalReviewTimeline, deriveProposalExpiry } from "./proposal-lifecycle";
+import type { WorkspaceStatus } from "./workspace-status";
+export type { WorkspaceStatus } from "./workspace-status";
 
 // ============================================================================
 // Types
@@ -54,7 +56,6 @@ export type ProposalCaseClassification = "normal" | "special";
 export type ProposalDeliveryChannel = "email";
 export type ProposalDeliveryStatus = "pending_review" | "sent" | "opened";
 export type WorkspacePaymentStatus = "pending" | "confirmed" | "failed" | "refunded";
-export type WorkspaceStatus = "inactive" | "active" | "paused" | "closed";
 export type WorkspaceUpdateType = "status_update" | "milestone" | "material" | "note";
 export type PaymentEventType =
   | "initiated"
@@ -1093,6 +1094,8 @@ export async function createClientWorkspace(input: {
   const sql = getDb();
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
+  const initialStatus: WorkspaceStatus =
+    input.paymentStatus === "confirmed" ? "active" : "in_preparation";
   const row = await sql.begin(async (tx) => {
     await tx`SELECT pg_advisory_xact_lock(hashtext(${input.studioSessionId}))`;
 
@@ -1109,7 +1112,7 @@ export async function createClientWorkspace(input: {
     const rows = await tx<WorkspaceRow[]>`
       INSERT INTO client_workspace (
         id, studio_session_id, payment_status, workspace_status, created_at, updated_at
-      ) VALUES (${id}, ${input.studioSessionId}, ${input.paymentStatus}, 'inactive', ${now}, ${now})
+      ) VALUES (${id}, ${input.studioSessionId}, ${input.paymentStatus}, ${initialStatus}, ${now}, ${now})
       RETURNING *
     `;
 

@@ -2,39 +2,48 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  WORKSPACE_STATUS_META,
+  WORKSPACE_STATUS_VALUES,
+  type WorkspaceStatus,
+} from "@/lib/maxwell/workspace-status";
 
 type Props = {
   workspaceId: string;
-  sessionId: string;
-  reviewToken: string;
+  actorEmail: string;
+  currentStatus: WorkspaceStatus;
 };
 
-export function WorkspaceForm({ workspaceId, sessionId, reviewToken }: Props) {
+export function WorkspaceForm({
+  workspaceId,
+  actorEmail,
+  currentStatus,
+}: Props) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<WorkspaceStatus>(currentStatus);
 
-  // Update form
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [updateType, setUpdateType] = useState<"status_update" | "milestone" | "material" | "note">("status_update");
   const [materialUrl, setMaterialUrl] = useState("");
   const [clientVisible, setClientVisible] = useState(true);
+  const [statusSummary, setStatusSummary] = useState("");
 
   async function submitUpdate(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim()) return;
+
     setBusy(true);
     setError(null);
     setSuccess(null);
+
     try {
       const res = await fetch("/api/maxwell/workspace", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${reviewToken}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "add_update",
           workspace_id: workspaceId,
@@ -43,11 +52,12 @@ export function WorkspaceForm({ workspaceId, sessionId, reviewToken }: Props) {
           update_type: updateType,
           material_url: materialUrl.trim() || undefined,
           is_client_visible: clientVisible,
-          created_by: "pm",
+          created_by: actorEmail,
         }),
       });
-      const data = await res.json() as { message?: string };
+      const data = (await res.json()) as { message?: string };
       if (!res.ok) throw new Error(data.message ?? "Failed.");
+
       setSuccess("Update added.");
       setTitle("");
       setContent("");
@@ -62,24 +72,27 @@ export function WorkspaceForm({ workspaceId, sessionId, reviewToken }: Props) {
     }
   }
 
-  async function changeStatus(status: "paused" | "closed") {
+  async function changeStatus() {
     setBusy(true);
     setError(null);
+    setSuccess(null);
+
     try {
       const res = await fetch("/api/maxwell/workspace", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${reviewToken}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "change_status",
           workspace_id: workspaceId,
-          status,
+          status: selectedStatus,
+          summary: statusSummary.trim() || undefined,
         }),
       });
-      const data = await res.json() as { message?: string };
+      const data = (await res.json()) as { message?: string };
       if (!res.ok) throw new Error(data.message ?? "Failed.");
+
+      setSuccess("Workspace status updated.");
+      setStatusSummary("");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unexpected error.");
@@ -90,8 +103,6 @@ export function WorkspaceForm({ workspaceId, sessionId, reviewToken }: Props) {
 
   return (
     <div className="space-y-8">
-
-      {/* Add update */}
       <div className="rounded-xl border border-border bg-card p-5">
         <h2 className="mb-4 text-xs font-mono uppercase tracking-widest text-muted-foreground">
           Add update
@@ -125,13 +136,15 @@ export function WorkspaceForm({ workspaceId, sessionId, reviewToken }: Props) {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-medium">Title <span className="text-red-500">*</span></label>
+            <label className="mb-1.5 block text-xs font-medium">
+              Title <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              placeholder="e.g. Design phase completed"
+              placeholder="e.g. Development kickoff complete"
               className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground/30"
             />
           </div>
@@ -142,7 +155,7 @@ export function WorkspaceForm({ workspaceId, sessionId, reviewToken }: Props) {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={3}
-              placeholder="Details for this update…"
+              placeholder="Details for this update..."
               className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground/30"
             />
           </div>
@@ -154,7 +167,7 @@ export function WorkspaceForm({ workspaceId, sessionId, reviewToken }: Props) {
                 type="url"
                 value={materialUrl}
                 onChange={(e) => setMaterialUrl(e.target.value)}
-                placeholder="https://…"
+                placeholder="https://..."
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground/30"
               />
             </div>
@@ -176,36 +189,65 @@ export function WorkspaceForm({ workspaceId, sessionId, reviewToken }: Props) {
             disabled={busy || !title.trim()}
             className="rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40"
           >
-            {busy ? "Saving…" : "Add update"}
+            {busy ? "Saving..." : "Add update"}
           </button>
         </form>
       </div>
 
-      {/* Status controls */}
       <div className="rounded-xl border border-border bg-card p-5">
-        <h2 className="mb-3 text-xs font-mono uppercase tracking-widest text-muted-foreground">
+        <h2 className="mb-4 text-xs font-mono uppercase tracking-widest text-muted-foreground">
           Workspace status
         </h2>
-        <div className="flex flex-wrap gap-2">
+
+        <div className="mb-4 rounded-xl border border-border bg-secondary/20 p-4">
+          <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
+            Current
+          </p>
+          <p className="mt-1 text-sm font-medium">
+            {WORKSPACE_STATUS_META[currentStatus].label}
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {WORKSPACE_STATUS_META[currentStatus].description}
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          <label className="block">
+            <span className="mb-1.5 block text-xs font-medium">New status</span>
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value as WorkspaceStatus)}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground/30"
+            >
+              {WORKSPACE_STATUS_VALUES.map((status) => (
+                <option key={status} value={status}>
+                  {WORKSPACE_STATUS_META[status].label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="block">
+            <span className="mb-1.5 block text-xs font-medium">Latest update summary (optional)</span>
+            <textarea
+              value={statusSummary}
+              onChange={(e) => setStatusSummary(e.target.value)}
+              rows={3}
+              placeholder="What should the client see with this status change?"
+              className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground/30"
+            />
+          </label>
+
           <button
             type="button"
-            disabled={busy}
-            onClick={() => changeStatus("paused")}
+            disabled={busy || selectedStatus === currentStatus}
+            onClick={changeStatus}
             className="rounded-lg border border-border px-4 py-2 text-sm transition-colors hover:bg-secondary/50 disabled:opacity-40"
           >
-            Pause project
-          </button>
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => changeStatus("closed")}
-            className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-600 transition-colors hover:bg-red-500/20 disabled:opacity-40"
-          >
-            Close workspace
+            {busy ? "Updating..." : "Update workspace status"}
           </button>
         </div>
       </div>
-
     </div>
   );
 }

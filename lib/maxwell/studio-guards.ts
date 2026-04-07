@@ -122,17 +122,22 @@ export function assertSessionIsConverted(session: StudioSession): void {
 }
 
 /**
- * Throws MaxwellGuardError if a workspace already exists and is active.
- * Prevents double-activation from duplicate payment webhooks or retries.
+ * Throws MaxwellGuardError if a workspace already exists.
+ * Prevents duplicate activation from retries once the workspace lifecycle exists.
  */
-export function assertWorkspaceNotActive(workspace: ClientWorkspace | null): void {
-  if (workspace && workspace.workspaceStatus === "active") {
+export function assertWorkspaceNotProvisioned(workspace: ClientWorkspace | null): void {
+  if (workspace) {
     throw new MaxwellGuardError(
       "WORKSPACE_ALREADY_ACTIVE",
-      "A workspace for this session is already active. Duplicate activation is not allowed."
+      "A workspace for this session already exists. Duplicate activation is not allowed."
     );
   }
 }
+
+/**
+ * Backward-compatible alias kept while tests and callers migrate to the clearer name.
+ */
+export const assertWorkspaceNotActive = assertWorkspaceNotProvisioned;
 
 /**
  * Throws MaxwellGuardError if the session is not in proposal_sent status.

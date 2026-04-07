@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { getReviewRequestAccess } from "@/lib/auth/review";
 import {
   appendProposalReviewEvent,
   createProposalRequestVersion,
@@ -22,17 +23,10 @@ import { assertProposalNotSent, MaxwellGuardError } from "@/lib/maxwell/studio-g
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-function isAuthorized(request: Request): boolean {
-  const secret = process.env.REVIEW_API_SECRET;
-  if (!secret) return process.env.NODE_ENV !== "production";
-  const authHeader = request.headers.get("authorization");
-  return authHeader === `Bearer ${secret}`;
-}
-
 const approveSchema = z.object({
   action: z.literal("approve_and_send"),
   proposal_request_id: z.string().min(1),
-  actor: z.string().min(1),
+  actor: z.string().min(1).optional(),
   delivery_recipient: z.string().email().optional(),
   case_classification: z.enum(["normal", "special"]).optional(),
   notes: z.string().optional(),
@@ -41,7 +35,7 @@ const approveSchema = z.object({
 const editSchema = z.object({
   action: z.literal("edit"),
   proposal_request_id: z.string().min(1),
-  actor: z.string().min(1),
+  actor: z.string().min(1).optional(),
   draft_content: z.string().min(1),
   delivery_recipient: z.string().email().optional(),
   case_classification: z.enum(["normal", "special"]).optional(),
@@ -51,7 +45,7 @@ const editSchema = z.object({
 const newVersionSchema = z.object({
   action: z.literal("create_new_version"),
   proposal_request_id: z.string().min(1),
-  actor: z.string().min(1),
+  actor: z.string().min(1).optional(),
   draft_content: z.string().min(1).optional(),
   delivery_recipient: z.string().email().optional(),
   case_classification: z.enum(["normal", "special"]).optional(),
@@ -61,14 +55,14 @@ const newVersionSchema = z.object({
 const returnSchema = z.object({
   action: z.literal("return_to_draft"),
   proposal_request_id: z.string().min(1),
-  actor: z.string().min(1),
+  actor: z.string().min(1).optional(),
   notes: z.string().min(1, "A reason is required when returning to draft"),
 });
 
 const escalateSchema = z.object({
   action: z.literal("escalate"),
   proposal_request_id: z.string().min(1),
-  actor: z.string().min(1),
+  actor: z.string().min(1).optional(),
   notes: z.string().min(1, "Escalation reason is required"),
 });
 
@@ -81,8 +75,10 @@ const reviewSchema = z.discriminatedUnion("action", [
 ]);
 
 export async function GET(request: Request) {
-  if (!isAuthorized(request)) {
-    return NextResponse.json({ message: "Unauthorized." }, { status: 401 });
+  const access = await getReviewRequestAccess(request);
+  if (!access.authorized) {
+    const status = access.reason === "sign_in_required" ? 401 : 403;
+    return NextResponse.json({ message: "Unauthorized." }, { status });
   }
 
   const { searchParams } = new URL(request.url);
@@ -109,13 +105,16 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  if (!isAuthorized(request)) {
-    return NextResponse.json({ message: "Unauthorized." }, { status: 401 });
+  const access = await getReviewRequestAccess(request);
+  if (!access.authorized) {
+    const status = access.reason === "sign_in_required" ? 401 : 403;
+    return NextResponse.json({ message: "Unauthorized." }, { status });
   }
 
   try {
     const body = await request.json();
     const payload = reviewSchema.parse(body);
+    const actor = payload.actor ?? access.actor;
 
     const proposal = await getProposalRequest(payload.proposal_request_id);
     if (!proposal) {
@@ -162,7 +161,7 @@ export async function POST(request: Request) {
         await appendProposalReviewEvent({
           proposalRequestId: proposal.id,
           action: "delivery_failed",
-          actor: payload.actor,
+          actor,
           notes: error instanceof Error ? error.message : "Unknown delivery error.",
         });
 
@@ -185,7 +184,7 @@ export async function POST(request: Request) {
 
       const sentAt = new Date().toISOString();
       const updated = await updateProposalRequestStatus(proposal.id, "sent", {
-        reviewerId: payload.actor,
+        reviewerId: actor,
         sentAt,
         deliveryStatus: "sent",
         deliveryRecipient,
@@ -197,7 +196,7 @@ export async function POST(request: Request) {
       await appendProposalReviewEvent({
         proposalRequestId: proposal.id,
         action: "approve_and_send",
-        actor: payload.actor,
+        actor,
         notes:
           payload.notes ??
           `Delivered to ${deliveryRecipient} via ${emailResult.provider} (${emailResult.messageId}).`,
@@ -206,7 +205,7 @@ export async function POST(request: Request) {
       await appendProposalReviewEvent({
         proposalRequestId: proposal.id,
         action: "sent",
-        actor: payload.actor,
+        actor,
         notes: `Email delivered via ${emailResult.provider} (${emailResult.messageId}).`,
       });
 
@@ -223,7 +222,7 @@ export async function POST(request: Request) {
 
       const updated = await updateProposalRequest(proposal.id, {
         status: "under_review",
-        reviewerId: payload.actor,
+        reviewerId: actor,
         caseClassification: payload.case_classification,
         deliveryRecipient: payload.delivery_recipient,
       });
@@ -231,7 +230,7 @@ export async function POST(request: Request) {
       await appendProposalReviewEvent({
         proposalRequestId: proposal.id,
         action: "edit",
-        actor: payload.actor,
+        actor,
         notes: payload.notes,
       });
 
@@ -265,7 +264,7 @@ export async function POST(request: Request) {
       await appendProposalReviewEvent({
         proposalRequestId: proposal.id,
         action: "new_version_created",
-        actor: payload.actor,
+        actor,
         notes:
           payload.notes ??
           `Created proposal version ${nextProposal.versionNumber} (${nextProposal.id}).`,
@@ -274,7 +273,7 @@ export async function POST(request: Request) {
       await appendProposalReviewEvent({
         proposalRequestId: nextProposal.id,
         action: "created",
-        actor: payload.actor,
+        actor,
         notes: `Created from prior commercial version ${proposal.id}.`,
       });
 
@@ -287,7 +286,7 @@ export async function POST(request: Request) {
 
     if (payload.action === "return_to_draft") {
       const updated = await updateProposalRequestStatus(proposal.id, "returned", {
-        reviewerId: payload.actor,
+        reviewerId: actor,
       });
 
       await updateStudioSessionStatus(session.id, "approved_for_proposal");
@@ -295,7 +294,7 @@ export async function POST(request: Request) {
       await appendProposalReviewEvent({
         proposalRequestId: proposal.id,
         action: "return_to_draft",
-        actor: payload.actor,
+        actor,
         notes: payload.notes,
       });
 
@@ -308,13 +307,13 @@ export async function POST(request: Request) {
 
     if (payload.action === "escalate") {
       const updated = await updateProposalRequestStatus(proposal.id, "escalated", {
-        reviewerId: payload.actor,
+        reviewerId: actor,
       });
 
       await appendProposalReviewEvent({
         proposalRequestId: proposal.id,
         action: "escalate",
-        actor: payload.actor,
+        actor,
         notes: payload.notes,
       });
 

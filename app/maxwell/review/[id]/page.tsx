@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { isReviewAuthorized } from "../_actions/auth";
+import { getReviewPageAccess } from "../_actions/auth";
 import { ReviewLogin } from "../_components/review-login";
 import { StatusBadge } from "../_components/status-badge";
 import { ReviewActions } from "./_components/review-actions";
@@ -38,10 +38,18 @@ function isExpiringSoon(expiresAt: string | null) {
 type Props = { params: Promise<{ id: string }> };
 
 export default async function ProposalReviewPage({ params }: Props) {
-  const authorized = await isReviewAuthorized();
-  if (!authorized) return <ReviewLogin />;
-
   const { id } = await params;
+  const access = await getReviewPageAccess();
+  if (!access.authorized) {
+    return (
+      <ReviewLogin
+        reason={access.reason}
+        redirectTo={`/maxwell/review/${id}`}
+        viewerEmail={access.viewer?.email ?? null}
+      />
+    );
+  }
+
   const proposal = await getProposalRequest(id);
   if (!proposal) notFound();
 
@@ -50,7 +58,6 @@ export default async function ProposalReviewPage({ params }: Props) {
   const versions = session ? await getStudioVersions(session.id) : [];
   const workspace = session ? await getClientWorkspaceBySession(session.id) : null;
 
-  const reviewToken = process.env.REVIEW_API_SECRET ?? "";
   const projectTitle = session?.goalSummary ?? session?.initialPrompt ?? "Proposal";
 
   return (
@@ -243,7 +250,7 @@ export default async function ProposalReviewPage({ params }: Props) {
             <h2 className="mb-4 text-xs font-mono uppercase tracking-widest text-muted-foreground">
               Actions
             </h2>
-            <ReviewActions proposal={proposal} reviewToken={reviewToken} />
+            <ReviewActions proposal={proposal} actorEmail={access.viewer.email} />
           </div>
 
           {session?.initialPrompt && (

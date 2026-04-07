@@ -7,7 +7,7 @@ import {
   assertProposalNotSent,
   assertPaymentConfirmed,
   assertSessionIsConverted,
-  assertWorkspaceNotActive,
+  assertWorkspaceNotProvisioned,
   assertSessionAwaitingPayment,
 } from "@/lib/maxwell/studio-guards";
 import type { StudioSession, ClientWorkspace } from "@/lib/maxwell/repositories";
@@ -40,7 +40,7 @@ function makeWorkspace(overrides: Partial<ClientWorkspace> = {}): ClientWorkspac
     id: "ws-1",
     studioSessionId: "sess-1",
     paymentStatus: "pending",
-    workspaceStatus: "inactive",
+    workspaceStatus: "in_preparation",
     latestUpdateSummary: null,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -226,23 +226,17 @@ describe("assertSessionIsConverted", () => {
   });
 });
 
-describe("assertWorkspaceNotActive", () => {
+describe("assertWorkspaceNotProvisioned", () => {
   it("does not throw when workspace is null", () => {
-    expect(() => assertWorkspaceNotActive(null)).not.toThrow();
+    expect(() => assertWorkspaceNotProvisioned(null)).not.toThrow();
   });
 
-  it("does not throw when workspace is inactive", () => {
+  it("throws when any workspace already exists", () => {
     expect(() =>
-      assertWorkspaceNotActive(makeWorkspace({ workspaceStatus: "inactive" }))
-    ).not.toThrow();
-  });
-
-  it("throws WORKSPACE_ALREADY_ACTIVE when workspace is active", () => {
-    expect(() =>
-      assertWorkspaceNotActive(makeWorkspace({ workspaceStatus: "active" }))
+      assertWorkspaceNotProvisioned(makeWorkspace({ workspaceStatus: "in_preparation" }))
     ).toThrow(MaxwellGuardError);
     try {
-      assertWorkspaceNotActive(makeWorkspace({ workspaceStatus: "active" }));
+      assertWorkspaceNotProvisioned(makeWorkspace({ workspaceStatus: "active" }));
     } catch (e) {
       expect((e as MaxwellGuardError).code).toBe("WORKSPACE_ALREADY_ACTIVE");
     }

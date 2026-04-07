@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
-import { signIn } from "@/auth";
+import { signIn, signOut } from "@/auth";
 import { normalizeInternalRedirect } from "@/lib/auth/redirect";
 
 export async function signInWithGoogleAction(formData: FormData) {
@@ -23,4 +23,13 @@ export async function signInWithGoogleAction(formData: FormData) {
     }
     throw error;
   }
+}
+
+export async function signOutAction(formData: FormData) {
+  const redirectTo = normalizeInternalRedirect(
+    formData.get("redirectTo")?.toString(),
+    "/signin",
+  );
+
+  await signOut({ redirectTo });
 }

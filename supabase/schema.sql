@@ -210,7 +210,7 @@ CREATE TABLE IF NOT EXISTS client_workspace (
   id                    TEXT PRIMARY KEY,
   studio_session_id     TEXT NOT NULL UNIQUE REFERENCES studio_session(id) ON DELETE CASCADE,
   payment_status        TEXT NOT NULL DEFAULT 'pending',
-  workspace_status      TEXT NOT NULL DEFAULT 'inactive',
+  workspace_status      TEXT NOT NULL DEFAULT 'active',
   latest_update_summary TEXT,
   created_at            TIMESTAMPTZ NOT NULL,
   updated_at            TIMESTAMPTZ NOT NULL,
@@ -219,7 +219,7 @@ CREATE TABLE IF NOT EXISTS client_workspace (
     'pending', 'confirmed', 'failed', 'refunded'
   )),
   CONSTRAINT client_workspace_status_check CHECK (workspace_status IN (
-    'inactive', 'active', 'paused', 'closed'
+    'active', 'in_preparation', 'in_development', 'in_review', 'delivered'
   )),
   CONSTRAINT client_workspace_confirmed_activation_check CHECK (
     NOT (workspace_status = 'active' AND payment_status <> 'confirmed')

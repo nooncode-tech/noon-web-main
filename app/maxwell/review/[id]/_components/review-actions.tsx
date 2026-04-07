@@ -14,7 +14,7 @@ type PaymentAction = "mark_payment_pending" | "verify_payment" | "expire_proposa
 
 type Props = {
   proposal: ProposalRequest;
-  reviewToken: string;
+  actorEmail: string;
 };
 
 function ActionButton({
@@ -47,7 +47,7 @@ function ActionButton({
   );
 }
 
-export function ReviewActions({ proposal, reviewToken }: Props) {
+export function ReviewActions({ proposal, actorEmail }: Props) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [notes, setNotes] = useState("");
@@ -63,10 +63,7 @@ export function ReviewActions({ proposal, reviewToken }: Props) {
     try {
       const res = await fetch("/api/maxwell/review", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${reviewToken}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
       const data = (await res.json()) as { message?: string };
@@ -87,10 +84,7 @@ export function ReviewActions({ proposal, reviewToken }: Props) {
     try {
       const res = await fetch("/api/maxwell/payment", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${reviewToken}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
       const data = (await res.json()) as { message?: string };
@@ -268,7 +262,7 @@ export function ReviewActions({ proposal, reviewToken }: Props) {
                 callReviewApi({
                   action: mode,
                   proposal_request_id: proposal.id,
-                  actor: "pm",
+                  actor: actorEmail,
                   draft_content: mode === "approve_and_send" ? undefined : editContent,
                   delivery_recipient: deliveryRecipient.trim() || undefined,
                   case_classification: caseClassification,
@@ -303,7 +297,7 @@ export function ReviewActions({ proposal, reviewToken }: Props) {
                 callReviewApi({
                   action: mode,
                   proposal_request_id: proposal.id,
-                  actor: "pm",
+                  actor: actorEmail,
                   notes,
                 })
               }
@@ -332,7 +326,7 @@ export function ReviewActions({ proposal, reviewToken }: Props) {
                 callPaymentApi({
                   action: "verify_payment",
                   proposal_request_id: proposal.id,
-                  actor: "pm",
+                  actor: actorEmail,
                   payment_reference: notes || undefined,
                 })
               }
@@ -355,7 +349,7 @@ export function ReviewActions({ proposal, reviewToken }: Props) {
                 callPaymentApi({
                   action: "expire_proposal",
                   proposal_request_id: proposal.id,
-                  actor: "pm",
+                  actor: actorEmail,
                 })
               }
             />
