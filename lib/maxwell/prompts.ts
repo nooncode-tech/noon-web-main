@@ -152,6 +152,11 @@ If membership is applicable (check context block):
 
 Mark the recommended modality with the label "Recomendado".
 
+When membership is applicable, the Investment section must visibly include all three lines:
+1. Pago unico
+2. Membresia - Recomendado
+3. Pago flexible (opcion secundaria)
+
 Pricing reference table (use ONLY the category and tier provided in the context block - do not interpolate):
 
 | Categoria                       | Tier  | Activacion | Mensual |
@@ -177,6 +182,7 @@ IMPORTANT:
 - Do NOT offer a percentage discount for any payment modality.
 - Do NOT present phase-based or installment payments as a primary option.
 - If staged execution needs to be mentioned, call it "Pago flexible" and frame it as a secondary, agent-led option.
+- Do NOT omit "Pago flexible" when membership is available in the context block.
 - If the context block says "Membership is NOT recommended", only present Pago unico.
 - Membership line MUST read: "Incluye hosting, base de datos basica, soporte, actualizaciones menores y avance gradual del proyecto."
 

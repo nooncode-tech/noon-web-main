@@ -10,11 +10,17 @@ import {
   createProposalRequest,
   updateStudioSessionStatus,
   appendStudioMessage,
+  appendProposalReviewEvent,
 } from "@/lib/maxwell/repositories";
 import { assertCanRequestProposal, MaxwellGuardError } from "@/lib/maxwell/studio-guards";
 import { MAXWELL_PROPOSAL_SYSTEM_PROMPT } from "@/lib/maxwell/prompts";
-import { buildProposalContext, validateProposalDraft } from "@/lib/maxwell/proposal-rules";
+import {
+  buildProposalContext,
+  resolveProposalCommercialProfile,
+  validateProposalDraft,
+} from "@/lib/maxwell/proposal-rules";
 import { classifyProposalCase } from "@/lib/maxwell/proposal-lifecycle";
+import { stripInternalReviewFlags } from "@/lib/maxwell/proposal-content";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -71,6 +77,7 @@ export async function POST(request: Request) {
     const dbMessages = await getStudioMessagesForOpenAI(session.id);
     const dbVersions = await getStudioVersions(session.id);
     const richContext = buildProposalContext(session, dbMessages, dbVersions);
+    const commercialProfile = resolveProposalCommercialProfile(session);
 
     const { reply: draftContent } = await chatWithOpenAI({
       prompt: richContext,
@@ -78,26 +85,31 @@ export async function POST(request: Request) {
       systemPrompt: MAXWELL_PROPOSAL_SYSTEM_PROMPT,
     });
 
-    const warnings = validateProposalDraft(draftContent);
+    const warnings = validateProposalDraft(draftContent, {
+      membershipRecommended: commercialProfile.membershipRecommended,
+      requireFlexibleOption: true,
+    });
     if (warnings.length > 0) {
       console.warn(
         `[Maxwell Proposal] Draft for session ${session.id} has ${warnings.length} review flag(s):\n${warnings.join("\n")}`,
       );
     }
 
-    const draftWithFlags =
-      warnings.length > 0
-        ? `${draftContent}\n\n---\n\n_PM Review Flags (internal only):_\n${warnings
-            .map((warning) => `- ${warning}`)
-            .join("\n")}`
-        : draftContent;
-
     const proposalRequest = await createProposalRequest({
       studioSessionId: session.id,
-      draftContent: draftWithFlags,
+      draftContent: stripInternalReviewFlags(draftContent),
       caseClassification: classifyProposalCase({ warningCount: warnings.length }),
       deliveryRecipient: session.ownerEmail,
     });
+
+    if (warnings.length > 0) {
+      await appendProposalReviewEvent({
+        proposalRequestId: proposalRequest.id,
+        action: "review_flags_detected",
+        actor: "maxwell",
+        notes: warnings.join("\n"),
+      });
+    }
 
     await appendStudioMessage({
       studioSessionId: session.id,

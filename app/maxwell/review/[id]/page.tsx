@@ -5,13 +5,20 @@ import { getReviewPageAccess } from "../_actions/auth";
 import { ReviewLogin } from "../_components/review-login";
 import { StatusBadge } from "../_components/status-badge";
 import { ReviewActions } from "./_components/review-actions";
+import { ProposalDocument } from "@/components/maxwell/proposal-document";
 import {
   getProposalRequest,
+  getProposalReviewEvents,
   getStudioSession,
   getStudioMessages,
   getStudioVersions,
   getClientWorkspaceBySession,
 } from "@/lib/maxwell/repositories";
+import {
+  extractInternalReviewFlags,
+  stripInternalReviewFlags,
+} from "@/lib/maxwell/proposal-content";
+import { getStudioStatusLabel } from "@/lib/maxwell/studio-status";
 
 export const metadata: Metadata = {
   title: "Proposal Review - Noon",
@@ -33,6 +40,19 @@ function formatDate(iso: string) {
 function isExpiringSoon(expiresAt: string | null) {
   if (!expiresAt) return false;
   return new Date(expiresAt) < new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+}
+
+function extractFlagsFromEventNotes(notes: string | null | undefined): string[] {
+  if (!notes) {
+    return [];
+  }
+
+  return notes
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => line.replace(/^- /, "").trim())
+    .filter((line) => line.startsWith("[REVIEW FLAG]"));
 }
 
 type Props = { params: Promise<{ id: string }> };
@@ -57,8 +77,17 @@ export default async function ProposalReviewPage({ params }: Props) {
   const messages = session ? (await getStudioMessages(session.id)).filter((m) => m.messageType === "chat") : [];
   const versions = session ? await getStudioVersions(session.id) : [];
   const workspace = session ? await getClientWorkspaceBySession(session.id) : null;
+  const reviewEvents = await getProposalReviewEvents(proposal.id);
 
   const projectTitle = session?.goalSummary ?? session?.initialPrompt ?? "Proposal";
+  const cleanDraft = stripInternalReviewFlags(proposal.draftContent);
+  const extractedFlags = extractInternalReviewFlags(proposal.draftContent);
+  const eventFlags = reviewEvents
+    .filter((event) => event.action === "review_flags_detected")
+    .flatMap((event) => extractFlagsFromEventNotes(event.notes));
+  const reviewFlags = Array.from(new Set([...extractedFlags, ...eventFlags]));
+  const resolvedRecipient = proposal.deliveryRecipient ?? session?.ownerEmail ?? null;
+  const isRecipientMissing = !resolvedRecipient;
 
   return (
     <div className="min-h-screen bg-background">
@@ -79,7 +108,7 @@ export default async function ProposalReviewPage({ params }: Props) {
           <div className="flex shrink-0 items-center gap-3">
             {session && (
               <span className="hidden rounded bg-secondary/60 px-2 py-1 font-mono text-[10px] text-muted-foreground sm:inline">
-                session: {session.status}
+                session: {getStudioStatusLabel(session.status)}
               </span>
             )}
             <StatusBadge status={proposal.status} />
@@ -104,16 +133,24 @@ export default async function ProposalReviewPage({ params }: Props) {
                 </span>
               )}
             </div>
-            {proposal.draftContent ? (
-              <div className="prose prose-sm max-w-none">
-                <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-foreground/80">
-                  {proposal.draftContent}
-                </pre>
-              </div>
-            ) : (
-              <p className="text-sm italic text-muted-foreground">No draft content yet.</p>
-            )}
+            <ProposalDocument
+              content={cleanDraft}
+              emptyMessage="No draft content yet."
+            />
           </div>
+
+          {reviewFlags.length > 0 && (
+            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-6">
+              <h2 className="mb-3 text-xs font-mono uppercase tracking-widest text-amber-700">
+                Review flags
+              </h2>
+              <ul className="space-y-2 pl-5 text-sm leading-6 text-amber-900 marker:text-amber-700">
+                {reviewFlags.map((flag) => (
+                  <li key={flag}>{flag.replace(/^\[REVIEW FLAG\]\s*/, "")}</li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {messages.length > 0 && (
             <div className="rounded-xl border border-border bg-card p-6">
@@ -158,11 +195,18 @@ export default async function ProposalReviewPage({ params }: Props) {
               </div>
               <div>
                 <dt className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/60">Status</dt>
-                <dd className="mt-0.5 font-mono text-xs">{session?.status ?? "-"}</dd>
+                <dd className="mt-0.5 text-xs">{getStudioStatusLabel(session?.status)}</dd>
               </div>
               <div>
                 <dt className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/60">Recipient</dt>
-                <dd className="mt-0.5 text-xs">{proposal.deliveryRecipient ?? "-"}</dd>
+                <dd className={`mt-0.5 text-xs ${isRecipientMissing ? "font-medium text-amber-700" : ""}`}>
+                  {resolvedRecipient ?? "Missing - required before send"}
+                </dd>
+                {proposal.deliveryRecipient == null && session?.ownerEmail && (
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    Using session owner email as fallback until PM confirms delivery recipient.
+                  </p>
+                )}
               </div>
               <div>
                 <dt className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground/60">Corrections</dt>
@@ -182,7 +226,7 @@ export default async function ProposalReviewPage({ params }: Props) {
                       rel="noopener noreferrer"
                       className="break-all text-xs text-blue-500 hover:underline"
                     >
-                      {"Open ->"}
+                      Open preview
                     </a>
                   </dd>
                 </div>
@@ -224,7 +268,7 @@ export default async function ProposalReviewPage({ params }: Props) {
                     rel="noopener noreferrer"
                     className="break-all text-xs text-blue-500 hover:underline"
                   >
-                    {"Open public view ->"}
+                    Open public proposal
                   </a>
                 </dd>
               </div>
@@ -250,7 +294,12 @@ export default async function ProposalReviewPage({ params }: Props) {
             <h2 className="mb-4 text-xs font-mono uppercase tracking-widest text-muted-foreground">
               Actions
             </h2>
-            <ReviewActions proposal={proposal} actorEmail={access.viewer.email} />
+            <ReviewActions
+              proposal={proposal}
+              actorEmail={access.viewer.email}
+              cleanedDraftContent={cleanDraft}
+              defaultRecipient={resolvedRecipient}
+            />
           </div>
 
           {session?.initialPrompt && (

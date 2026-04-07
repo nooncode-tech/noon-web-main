@@ -98,6 +98,13 @@ export const PRICING_TABLE: Record<
   },
 };
 
+export type ProposalCommercialProfile = {
+  category: ProjectCategory;
+  tier: ComplexityTier;
+  pricing: { activation: string; monthly: string };
+  membershipRecommended: boolean;
+};
+
 // ============================================================================
 // Casos donde NO se ofrece Membresia automaticamente
 // ============================================================================
@@ -238,6 +245,24 @@ export function formatPricing(
   };
 }
 
+export function resolveProposalCommercialProfile(
+  session: Pick<StudioSession, "projectType" | "goalSummary" | "complexityHint" | "initialPrompt">
+): ProposalCommercialProfile {
+  const category = resolveProjectCategory(session.projectType ?? session.goalSummary);
+  const tier = resolveComplexityTier(session.complexityHint);
+  const pricing = formatPricing(category, tier);
+  const membershipRecommended = !isMembershipContraindicated(
+    [session.initialPrompt, session.goalSummary, session.projectType].filter(Boolean).join(" ")
+  );
+
+  return {
+    category,
+    tier,
+    pricing,
+    membershipRecommended,
+  };
+}
+
 // ============================================================================
 // Validacion de propuesta generada
 // ============================================================================
@@ -281,10 +306,28 @@ export const PROPOSAL_FORBIDDEN_PATTERNS: { pattern: RegExp; reason: string }[] 
   },
 ];
 
-export function validateProposalDraft(content: string): string[] {
-  return PROPOSAL_FORBIDDEN_PATTERNS
+export type ProposalDraftValidationOptions = {
+  membershipRecommended?: boolean;
+  requireFlexibleOption?: boolean;
+};
+
+export function validateProposalDraft(
+  content: string,
+  options: ProposalDraftValidationOptions = {}
+): string[] {
+  const warnings = PROPOSAL_FORBIDDEN_PATTERNS
     .filter(({ pattern }) => pattern.test(content))
     .map(({ reason }) => `[REVIEW FLAG] ${reason}`);
+
+  if (options.requireFlexibleOption !== false && !/\b(Pago flexible|Flexible payment)\b/i.test(content)) {
+    warnings.push("[REVIEW FLAG] Falta la opcion secundaria visible de Pago flexible.");
+  }
+
+  if (options.membershipRecommended && !/\b(Membresia|Membres\u00eda|Membership)\b/i.test(content)) {
+    warnings.push("[REVIEW FLAG] Falta la opcion principal de Membresia en la propuesta.");
+  }
+
+  return warnings;
 }
 
 // ============================================================================
@@ -296,13 +339,9 @@ export function buildProposalContext(
   messages: { role: "user" | "assistant"; content: string }[],
   versions: StudioVersion[]
 ): string {
-  const category = resolveProjectCategory(session.projectType ?? session.goalSummary);
-  const tier = resolveComplexityTier(session.complexityHint);
-  const pricing = formatPricing(category, tier);
-
-  const noMembership = isMembershipContraindicated(
-    [session.initialPrompt, session.goalSummary, session.projectType].filter(Boolean).join(" ")
-  );
+  const commercialProfile = resolveProposalCommercialProfile(session);
+  const { category, tier, pricing } = commercialProfile;
+  const noMembership = !commercialProfile.membershipRecommended;
 
   const lines: string[] = [];
 
@@ -349,6 +388,7 @@ export function buildProposalContext(
       `  Membership line: "Incluye hosting, base de datos basica, soporte, actualizaciones menores y avance gradual del proyecto."`
     );
     lines.push(`- Mark the recommended modality with label "Recomendado".`);
+    lines.push(`- Investment section must visibly include: Pago unico, Membresia - Recomendado, and Pago flexible (opcion secundaria).`);
   } else {
     lines.push(`- NOTE: Membership is NOT recommended for this type of project. Offer Pago unico only.`);
   }

@@ -6,6 +6,7 @@ import { ReviewLogin } from "./_components/review-login";
 import { StatusBadge } from "./_components/status-badge";
 import { getProposalRequestsWithSession } from "@/lib/maxwell/repositories";
 import type { ProposalStatus, ProposalWithSession } from "@/lib/maxwell/repositories";
+import { getStudioStatusLabel } from "@/lib/maxwell/studio-status";
 
 export const metadata: Metadata = {
   title: "Review Panel - Noon",
@@ -63,7 +64,7 @@ function ProposalCard({ proposal }: { proposal: ProposalWithSession }) {
         <span className="font-mono">{proposal.id.slice(0, 8)}</span>
         <span>{formatDateShort(proposal.createdAt)}</span>
         <span className="rounded bg-secondary/60 px-1.5 py-0.5 font-mono text-[10px]">
-          {proposal.sessionStatus}
+          {getStudioStatusLabel(proposal.sessionStatus)}
         </span>
         {proposal.expiresAt &&
           new Date(proposal.expiresAt) < new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) && (

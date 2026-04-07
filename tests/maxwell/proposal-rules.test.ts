@@ -237,6 +237,26 @@ Pago flexible (opcion secundaria): disponible solo mediante coordinacion con un 
     expect(warnings).toHaveLength(0);
   });
 
+  it("flags drafts that omit the visible Pago flexible option", () => {
+    const draft = `
+      **Investment**
+      Pago unico: $179 USD
+      Membresia - Recomendado: $179 USD activacion + $69 USD/mes
+    `;
+    const warnings = validateProposalDraft(draft, { membershipRecommended: true });
+    expect(warnings.some((warning) => warning.includes("Pago flexible"))).toBe(true);
+  });
+
+  it("flags drafts that omit membership when membership is recommended", () => {
+    const draft = `
+      **Investment**
+      Pago unico: $179 USD
+      Pago flexible (opcion secundaria): disponible solo mediante coordinacion con un agente de Noon.
+    `;
+    const warnings = validateProposalDraft(draft, { membershipRecommended: true });
+    expect(warnings.some((warning) => warning.includes("Membresia"))).toBe(true);
+  });
+
   it("flags technical delivery before payment", () => {
     const draft = "You will receive repository access upon signing.";
     const warnings = validateProposalDraft(draft);

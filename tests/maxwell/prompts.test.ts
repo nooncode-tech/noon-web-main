@@ -5,6 +5,7 @@ describe("MAXWELL_PROPOSAL_SYSTEM_PROMPT", () => {
   it("mentions flexible payment as a secondary option", () => {
     expect(MAXWELL_PROPOSAL_SYSTEM_PROMPT).toContain("Pago flexible");
     expect(MAXWELL_PROPOSAL_SYSTEM_PROMPT).toContain("opcion secundaria");
+    expect(MAXWELL_PROPOSAL_SYSTEM_PROMPT).toContain("Do NOT omit \"Pago flexible\"");
   });
 
   it("describes the post-payment journey and official workspace states", () => {

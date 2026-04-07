@@ -270,6 +270,15 @@ type ProposalRow = {
   created_at: string | Date; updated_at: string | Date;
 };
 
+type ProposalReviewEventRow = {
+  id: string;
+  proposal_request_id: string;
+  action: string;
+  actor: string;
+  notes: string | null;
+  created_at: string | Date;
+};
+
 type WorkspaceRow = {
   id: string; studio_session_id: string; payment_status: string;
   workspace_status: string; latest_update_summary: string | null;
@@ -1081,6 +1090,27 @@ export async function appendProposalReviewEvent(input: {
     action: input.action, actor: input.actor,
     notes: input.notes ?? null, createdAt: now,
   };
+}
+
+export async function getProposalReviewEvents(
+  proposalRequestId: string
+): Promise<ProposalReviewEvent[]> {
+  const sql = getDb();
+  const rows = await sql<ProposalReviewEventRow[]>`
+    SELECT *
+    FROM proposal_review_event
+    WHERE proposal_request_id = ${proposalRequestId}
+    ORDER BY created_at DESC
+  `;
+
+  return rows.map((row) => ({
+    id: row.id,
+    proposalRequestId: row.proposal_request_id,
+    action: row.action,
+    actor: row.actor,
+    notes: row.notes,
+    createdAt: toIsoTimestamp(row.created_at)!,
+  }));
 }
 
 // ============================================================================

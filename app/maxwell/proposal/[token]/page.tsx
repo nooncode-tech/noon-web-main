@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { ProposalDocument } from "@/components/maxwell/proposal-document";
+import { StatusBadge } from "@/app/maxwell/review/_components/status-badge";
 import {
   getProposalRequestByPublicToken,
   markProposalFirstOpened,
@@ -57,9 +59,11 @@ export default async function PublicProposalPage({ params }: Props) {
             Noon Proposal
           </p>
           <h1 className="mt-2 text-2xl font-display">Project proposal</h1>
+          <div className="mt-4">
+            <StatusBadge status={proposal.status} />
+          </div>
           <div className="mt-4 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
             <p>Version {proposal.versionNumber}</p>
-            <p>Status: {proposal.status.replaceAll("_", " ")}</p>
             <p>Sent: {proposal.sentAt ? formatDate(proposal.sentAt) : "Pending delivery record"}</p>
             <p>
               First opened: {proposal.firstOpenedAt ? formatDate(proposal.firstOpenedAt) : "This visit"}
@@ -77,9 +81,7 @@ export default async function PublicProposalPage({ params }: Props) {
         </header>
 
         <section className="rounded-2xl border border-border bg-card p-6">
-          <pre className="whitespace-pre-wrap font-sans text-sm leading-7 text-foreground">
-            {cleanDraft}
-          </pre>
+          <ProposalDocument content={cleanDraft} />
         </section>
       </div>
     </main>

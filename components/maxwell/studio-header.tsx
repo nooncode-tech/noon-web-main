@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft, Sparkles, User, MessageSquare, Monitor } from "lucide-react";
 import { siteRoutes } from "@/lib/site-config";
 import { siteStatusTones, siteTones } from "@/lib/site-tones";
+import { STUDIO_STATUS_META } from "@/lib/maxwell/studio-status";
 import type { StudioPhase, ActiveView } from "./studio-shell";
 
 // ============================================================================
@@ -11,15 +12,15 @@ import type { StudioPhase, ActiveView } from "./studio-shell";
 // ============================================================================
 
 const phaseLabels: Record<StudioPhase, string> = {
-  intake: "Starting...",
-  clarifying: "Clarifying",
-  generating_prototype: "Building prototype...",
-  prototype_ready: "Prototype ready",
-  revision_requested: "Applying adjustment...",
-  revision_applied: "Adjustment applied",
-  approved_for_proposal: "Approved",
-  proposal_pending_review: "Proposal in review",
-  proposal_sent: "Proposal sent",
+  intake: `${STUDIO_STATUS_META.intake.label}...`,
+  clarifying: STUDIO_STATUS_META.clarifying.label,
+  generating_prototype: `${STUDIO_STATUS_META.generating_prototype.label}...`,
+  prototype_ready: STUDIO_STATUS_META.prototype_ready.label,
+  revision_requested: `${STUDIO_STATUS_META.revision_requested.label}...`,
+  revision_applied: STUDIO_STATUS_META.revision_applied.label,
+  approved_for_proposal: STUDIO_STATUS_META.approved_for_proposal.label,
+  proposal_pending_review: STUDIO_STATUS_META.proposal_pending_review.label,
+  proposal_sent: STUDIO_STATUS_META.proposal_sent.label,
   converted: "Project active",
 };
 

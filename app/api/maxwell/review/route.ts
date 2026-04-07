@@ -218,7 +218,8 @@ export async function POST(request: Request) {
     }
 
     if (payload.action === "edit") {
-      await updateProposalDraftContent(proposal.id, payload.draft_content);
+      const sanitizedDraft = stripInternalReviewFlags(payload.draft_content);
+      await updateProposalDraftContent(proposal.id, sanitizedDraft);
 
       const updated = await updateProposalRequest(proposal.id, {
         status: "under_review",
@@ -252,7 +253,9 @@ export async function POST(request: Request) {
       }
 
       const nextDraft =
-        payload.draft_content ?? stripInternalReviewFlags(proposal.draftContent);
+        payload.draft_content
+          ? stripInternalReviewFlags(payload.draft_content)
+          : stripInternalReviewFlags(proposal.draftContent);
 
       const nextProposal = await createProposalRequestVersion({
         proposalRequestId: proposal.id,

@@ -15,6 +15,8 @@ type PaymentAction = "mark_payment_pending" | "verify_payment" | "expire_proposa
 type Props = {
   proposal: ProposalRequest;
   actorEmail: string;
+  cleanedDraftContent: string;
+  defaultRecipient: string | null;
 };
 
 function ActionButton({
@@ -47,12 +49,12 @@ function ActionButton({
   );
 }
 
-export function ReviewActions({ proposal, actorEmail }: Props) {
+export function ReviewActions({ proposal, actorEmail, cleanedDraftContent, defaultRecipient }: Props) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [notes, setNotes] = useState("");
-  const [editContent, setEditContent] = useState(proposal.draftContent ?? "");
-  const [deliveryRecipient, setDeliveryRecipient] = useState(proposal.deliveryRecipient ?? "");
+  const [editContent, setEditContent] = useState(cleanedDraftContent);
+  const [deliveryRecipient, setDeliveryRecipient] = useState(defaultRecipient ?? "");
   const [caseClassification, setCaseClassification] = useState(proposal.caseClassification);
   const [mode, setMode] = useState<ReviewAction | PaymentAction | null>(null);
   const [error, setError] = useState<string | null>(null);
