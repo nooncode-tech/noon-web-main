@@ -17,6 +17,7 @@ type Props = {
   actorEmail: string;
   cleanedDraftContent: string;
   defaultRecipient: string | null;
+  recipientRequired: boolean;
 };
 
 function ActionButton({
@@ -49,7 +50,13 @@ function ActionButton({
   );
 }
 
-export function ReviewActions({ proposal, actorEmail, cleanedDraftContent, defaultRecipient }: Props) {
+export function ReviewActions({
+  proposal,
+  actorEmail,
+  cleanedDraftContent,
+  defaultRecipient,
+  recipientRequired,
+}: Props) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [notes, setNotes] = useState("");
@@ -217,6 +224,11 @@ export function ReviewActions({ proposal, actorEmail, cleanedDraftContent, defau
                 placeholder="client@example.com"
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-foreground/30"
               />
+              {recipientRequired && !deliveryRecipient.trim() && (
+                <span className="block text-[11px] text-amber-700">
+                  Required before approving and sending this proposal.
+                </span>
+              )}
             </label>
             <label className="space-y-1.5 text-sm">
               <span className="text-xs font-medium text-muted-foreground">Case classification</span>

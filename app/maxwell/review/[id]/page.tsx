@@ -18,6 +18,10 @@ import {
   extractInternalReviewFlags,
   stripInternalReviewFlags,
 } from "@/lib/maxwell/proposal-content";
+import {
+  resolveProposalCommercialProfile,
+  validateProposalDraft,
+} from "@/lib/maxwell/proposal-rules";
 import { getStudioStatusLabel } from "@/lib/maxwell/studio-status";
 
 export const metadata: Metadata = {
@@ -85,7 +89,13 @@ export default async function ProposalReviewPage({ params }: Props) {
   const eventFlags = reviewEvents
     .filter((event) => event.action === "review_flags_detected")
     .flatMap((event) => extractFlagsFromEventNotes(event.notes));
-  const reviewFlags = Array.from(new Set([...extractedFlags, ...eventFlags]));
+  const liveFlags = session
+    ? validateProposalDraft(cleanDraft, {
+        membershipRecommended: resolveProposalCommercialProfile(session).membershipRecommended,
+        requireFlexibleOption: true,
+      })
+    : validateProposalDraft(cleanDraft, { requireFlexibleOption: true });
+  const reviewFlags = Array.from(new Set([...extractedFlags, ...eventFlags, ...liveFlags]));
   const resolvedRecipient = proposal.deliveryRecipient ?? session?.ownerEmail ?? null;
   const isRecipientMissing = !resolvedRecipient;
 
@@ -299,6 +309,7 @@ export default async function ProposalReviewPage({ params }: Props) {
               actorEmail={access.viewer.email}
               cleanedDraftContent={cleanDraft}
               defaultRecipient={resolvedRecipient}
+              recipientRequired={isRecipientMissing}
             />
           </div>
 
