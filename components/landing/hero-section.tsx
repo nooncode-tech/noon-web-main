@@ -176,28 +176,28 @@ export function HeroSection() {
   };
 
   return (
-    <section id="hero" className="relative min-h-screen flex flex-col justify-center overflow-hidden">
-      <div className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-12 pt-28 pb-20 lg:pt-32 lg:pb-24">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+    <section id="hero" className="relative min-h-[100dvh] flex flex-col justify-center overflow-hidden">
+      <div className="relative z-10 max-w-[1400px] mx-auto px-5 lg:px-12 pt-24 pb-16 lg:pt-32 lg:pb-24">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Left column - Content */}
-          <div className="order-2 lg:order-1">
+          <div className="order-1 lg:order-1">
             {/* Eyebrow */}
-            <div className="mb-6 flex justify-start">
-              <span className="inline-flex items-center gap-2 text-[13px] font-mono text-muted-foreground bg-secondary/50 px-3.5 py-1.5 rounded-full border border-border">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            <div className="mb-5 lg:mb-6 flex justify-start">
+              <span className="inline-flex items-center gap-2 text-[11px] lg:text-[13px] font-mono text-muted-foreground bg-secondary/50 px-3 lg:px-3.5 py-1.5 rounded-full border border-border">
+                <span className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-primary animate-pulse" />
                 The code-first software company
               </span>
             </div>
 
             {/* Main headline */}
-            <div className="mb-6">
-              <h1 className="text-[clamp(2.25rem,5.4vw,3.7rem)] font-display leading-[1.08] tracking-tight">
+            <div className="mb-5 lg:mb-6">
+              <h1 className="text-[clamp(2rem,8vw,3.7rem)] font-display leading-[1.08] tracking-tight">
                 <span className="block text-balance">Tell us what you want to build.</span>
               </h1>
             </div>
 
             {/* Description */}
-            <p className="text-[15px] lg:text-[17px] text-muted-foreground leading-relaxed max-w-xl mb-8 text-pretty">
+            <p className="text-[14px] lg:text-[17px] text-muted-foreground leading-relaxed max-w-xl mb-6 lg:mb-8 text-pretty">
               Noon turns ideas into real, scalable software built in code and accelerated by AI.
             </p>
 
@@ -219,7 +219,7 @@ export function HeroSection() {
                       }}
                       placeholder={isInputFocused ? "Describe what you want to build..." : ""}
                       rows={3}
-                      className="min-h-[80px] w-full resize-none bg-transparent px-4 py-2 text-sm leading-relaxed lg:text-[15px] outline-none placeholder:text-muted-foreground/60"
+                      className="min-h-[72px] lg:min-h-[80px] w-full resize-none bg-transparent px-3 lg:px-4 py-2 text-sm leading-relaxed lg:text-[15px] outline-none placeholder:text-muted-foreground/60"
                       aria-label="Describe what you want to build"
                     />
                     {!inputValue && !isInputFocused && (
@@ -348,7 +348,7 @@ export function HeroSection() {
               </div>
 
               {/* Prompt Suggestions */}
-              <div className="mt-5 pl-4 lg:pl-5 max-w-xl">
+              <div className="mt-4 lg:mt-5 pl-1 lg:pl-5 max-w-xl">
                 <p className="mb-3 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground/55">
                   Not sure where to start? Try one of these
                 </p>
@@ -406,7 +406,7 @@ export function HeroSection() {
               </div>
 
               {/* Secondary CTA */}
-              <div className="mt-6 flex">
+              <div className="mt-5 lg:mt-6 hidden sm:flex">
                 <Link
                   href={siteRoutes.homeTemplatesSection}
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group"
@@ -419,8 +419,8 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Right column - Code Emergence Animation */}
-          <div className="order-1 lg:order-2">
+          {/* Right column - Code Emergence Animation (desktop only) */}
+          <div className="hidden lg:block lg:order-2">
             <CodeEmergence />
           </div>
         </div>
