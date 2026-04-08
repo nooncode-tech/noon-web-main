@@ -21,6 +21,9 @@ const promptSuggestions = [
   { label: "AI customer support", prompt: "I need an AI assistant for customer support — it should answer FAQs, escalate complex issues, and integrate with our existing chat." },
   { label: "Custom workflow tool", prompt: "Build custom software to automate my business workflow — reduce manual steps and connect my existing tools." },
   { label: "Mobile app", prompt: "Create a mobile app for my business — available on iOS and Android with a clean, modern design." },
+  { label: "E-commerce store", prompt: "I need an e-commerce store for my products — with catalog management, cart, checkout, and order tracking." },
+  { label: "Client portal", prompt: "Build a client portal where my customers can log in, view their projects, upload documents, and communicate with my team." },
+  { label: "Internal tool", prompt: "Create an internal tool for my team to manage operations — track tasks, approvals, and performance metrics in one place." },
 ];
 
 export function HeroSection() {
@@ -201,8 +204,8 @@ export function HeroSection() {
               Noon turns ideas into real, scalable software built in code and accelerated by AI.
             </p>
 
-            {/* Mobile CTA — clean button, no textarea */}
-            <div className="lg:hidden mb-6 flex flex-col gap-3">
+            {/* Mobile CTA — clean button + prompt chips */}
+            <div className="lg:hidden mb-6 flex flex-col gap-4">
               <Link
                 href={siteRoutes.maxwell}
                 className="flex items-center justify-center gap-2 w-full rounded-[10px] bg-primary text-primary-foreground py-3.5 text-sm font-medium hover:bg-primary/90 transition-colors"
@@ -210,12 +213,19 @@ export function HeroSection() {
                 <Sparkles className="w-4 h-4" />
                 Start with Maxwell
               </Link>
-              <div className="flex flex-wrap gap-2">
-                {promptSuggestions.slice(0, 3).map((s) => (
+
+              {/* Prompt chips label */}
+              <p className="text-[10px] font-mono uppercase tracking-[0.16em] text-muted-foreground/55">
+                Not sure where to start? Try one of these
+              </p>
+
+              {/* Scrollable chips row */}
+              <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+                {promptSuggestions.map((s) => (
                   <Link
                     key={s.label}
                     href={getStartWithMaxwellHref(s.prompt)}
-                    className="rounded-full border border-border bg-background/80 px-3 py-1.5 text-xs text-muted-foreground"
+                    className="shrink-0 rounded-full border border-border bg-background/80 px-3 py-1.5 text-xs text-muted-foreground whitespace-nowrap"
                   >
                     {s.label}
                   </Link>
