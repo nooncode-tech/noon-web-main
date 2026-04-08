@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Monitor, ExternalLink, CheckCircle, RotateCcw,
-  FileText, User, ArrowRight, Loader2, AlertCircle, RefreshCw,
+  FileText, User, ArrowRight, Loader2, AlertCircle, RefreshCw, Smartphone,
 } from "lucide-react";
 import { siteTones } from "@/lib/site-tones";
 import type { StudioPhase, PrototypeVersion } from "./studio-shell";
@@ -352,7 +352,7 @@ export function StudioPreviewPane({
         </div>
       )}
 
-      {/* iframe */}
+      {/* iframe (desktop) / open card (mobile) */}
       <div className="flex-1 relative overflow-hidden">
         {isRevising && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-sm">
@@ -362,11 +362,43 @@ export function StudioPreviewPane({
             </div>
           </div>
         )}
+        {/* Desktop: iframe */}
         <iframe
           src={selectedVersion.demoUrl}
-          className="w-full h-full border-0"
+          className="hidden lg:block w-full h-full border-0"
           title={`Maxwell prototype version ${selectedVersion.versionNumber}`}
         />
+        {/* Mobile: open-in-browser card */}
+        <div
+          className="flex lg:hidden flex-col items-center justify-center h-full px-8 text-center"
+          style={{ backgroundColor: siteTones.brand.mutedSurface ?? "var(--secondary)" }}
+        >
+          <div
+            className="w-16 h-16 rounded-2xl border flex items-center justify-center mb-5"
+            style={{ backgroundColor: siteTones.brand.surface, borderColor: siteTones.brand.border }}
+          >
+            <Smartphone className="w-7 h-7" style={{ color: siteTones.brand.accent }} />
+          </div>
+          <p className="text-base font-display mb-2">
+            Version {selectedVersion.versionNumber} ready
+          </p>
+          <p className="text-sm text-muted-foreground max-w-xs leading-relaxed mb-6">
+            The prototype opens in your browser for the best experience on mobile.
+          </p>
+          <a
+            href={selectedVersion.demoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-opacity hover:opacity-90"
+            style={{ backgroundColor: siteTones.brand.accent, color: siteTones.brand.contrast }}
+          >
+            <ExternalLink className="w-4 h-4" />
+            Open prototype
+          </a>
+          <p className="text-xs text-muted-foreground mt-4 font-mono opacity-50">
+            opens in a new tab
+          </p>
+        </div>
       </div>
 
       {/* Actions bar */}

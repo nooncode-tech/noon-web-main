@@ -350,7 +350,7 @@ export function HeroSection() {
               {/* Prompt Suggestions */}
               <div className="mt-5 pl-4 lg:pl-5 max-w-xl">
                 <p className="mb-3 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground/55">
-                  ¿No sabes por dónde empezar? Prueba una de estas opciones
+                  Not sure where to start? Try one of these
                 </p>
                 <div className="flex items-center gap-2">
                   {canScrollPromptsLeft && (

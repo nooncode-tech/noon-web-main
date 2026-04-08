@@ -509,7 +509,7 @@ export function StudioShell({
 
   if (isRehydrating) {
     return (
-      <div className="flex h-screen items-center justify-center bg-background">
+      <div className="flex h-[100dvh] items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4 text-muted-foreground">
           <div className="flex gap-1.5">
             {[0, 1, 2].map((i) => (
@@ -533,7 +533,7 @@ export function StudioShell({
     phase === "approved_for_proposal";
 
   return (
-    <div className="flex flex-col h-screen bg-background overflow-hidden">
+    <div className="flex flex-col h-[100dvh] bg-background overflow-hidden">
       <StudioHeader
         projectName={projectName}
         phase={phase}

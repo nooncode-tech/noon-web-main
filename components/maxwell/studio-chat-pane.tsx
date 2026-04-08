@@ -182,19 +182,19 @@ export function StudioChatPane({
 
       {/* Text input */}
       {canSend && (
-        <div className="shrink-0 border-t border-border px-4 py-3">
-          <div className="flex gap-3 items-end rounded-xl border border-border bg-secondary/20 px-4 py-3 focus-within:border-foreground/20 transition-colors">
+        <div className="shrink-0 border-t border-border px-3 py-3 sm:px-4">
+          <div className="flex gap-3 items-end rounded-xl border border-border bg-secondary/20 px-3 py-2.5 sm:px-4 sm:py-3 focus-within:border-foreground/20 transition-colors">
             <textarea
               ref={inputRef}
               value={input}
               onChange={(e) => onInputChange(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
+                if (e.key === "Enter" && !e.shiftKey && !("ontouchstart" in window)) {
                   e.preventDefault();
                   onSend();
                 }
               }}
-              placeholder="Reply to Maxwell... (Enter to send)"
+              placeholder="Reply to Maxwell..."
               rows={1}
               className="flex-1 resize-none bg-transparent text-sm leading-relaxed outline-none placeholder:text-muted-foreground/50 max-h-32"
             />
