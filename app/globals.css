@@ -81,6 +81,43 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0f1e;
+    --foreground: #e8edf7;
+    --card: #0f1628;
+    --card-foreground: #e8edf7;
+    --popover: #0f1628;
+    --popover-foreground: #e8edf7;
+    --primary: #4f6dff;
+    --primary-foreground: #ffffff;
+    --secondary: #161e35;
+    --secondary-foreground: #e8edf7;
+    --muted: #111827;
+    --muted-foreground: #7a8aaa;
+    --accent: #1a2340;
+    --accent-foreground: #e8edf7;
+    --destructive: oklch(0.577 0.245 27.325);
+    --destructive-foreground: #ffffff;
+    --border: #1e2d4a;
+    --input: #1e2d4a;
+    --ring: #4f6dff;
+    --chart-1: #e8edf7;
+    --chart-2: #4f6dff;
+    --chart-3: #7b93ff;
+    --chart-4: #a8baff;
+    --chart-5: #1a2340;
+    --sidebar: #0a0f1e;
+    --sidebar-foreground: #e8edf7;
+    --sidebar-primary: #4f6dff;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #1a2340;
+    --sidebar-accent-foreground: #e8edf7;
+    --sidebar-border: #1e2d4a;
+    --sidebar-ring: #4f6dff;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -204,6 +241,14 @@
     background-size: calc(100% / 12) 100%, 100% 13rem;
     background-repeat: repeat;
     background-position: top left;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .page-grid-background {
+      background-image:
+        linear-gradient(to right, rgb(232 237 247 / 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgb(232 237 247 / 0.03) 1px, transparent 1px);
+    }
   }
   
   .border-sketch {
