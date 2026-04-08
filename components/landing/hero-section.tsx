@@ -4,16 +4,23 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Mic, Paperclip, Sparkles } from "lucide-react";
+import { ArrowRight, Mic, Paperclip, Sparkles, X, Upload, Github, FileText, Globe, TriangleIcon } from "lucide-react";
 import { CodeEmergence } from "./code-emergence";
 import { getStartWithMaxwellHref, siteRoutes } from "@/lib/site-config";
 
+type AttachedFile = {
+  name: string;
+  mimeType: string;
+  dataUrl: string;       // base64 for images
+  textContent?: string;  // for text files
+};
+
 const promptSuggestions = [
-  "Build a reservation platform for my business",
-  "Create an operations dashboard for my team",
-  "I need an AI assistant for customer support",
-  "Build custom software for my workflow",
-  "Create a mobile app for my business",
+  { label: "Reservation platform", prompt: "Build a reservation platform for my business — customers can book appointments, manage availability, and receive confirmation emails." },
+  { label: "Operations dashboard", prompt: "Create an operations dashboard for my team — centralize tasks, KPIs, and team activity in one internal tool." },
+  { label: "AI customer support", prompt: "I need an AI assistant for customer support — it should answer FAQs, escalate complex issues, and integrate with our existing chat." },
+  { label: "Custom workflow tool", prompt: "Build custom software to automate my business workflow — reduce manual steps and connect my existing tools." },
+  { label: "Mobile app", prompt: "Create a mobile app for my business — available on iOS and Android with a clean, modern design." },
 ];
 
 export function HeroSection() {
@@ -23,23 +30,113 @@ export function HeroSection() {
   const [currentSuggestion, setCurrentSuggestion] = useState(0);
   const [canScrollPromptsLeft, setCanScrollPromptsLeft] = useState(false);
   const [canScrollPromptsRight, setCanScrollPromptsRight] = useState(false);
+  const [attachedFile, setAttachedFile] = useState<AttachedFile | null>(null);
+  const [attachMenuOpen, setAttachMenuOpen] = useState(false);
+  const [urlInputMode, setUrlInputMode] = useState<"github" | "vercel" | "image" | null>(null);
+  const [urlInputValue, setUrlInputValue] = useState("");
+  const [urlInputLoading, setUrlInputLoading] = useState(false);
   const promptScrollerRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
+  const attachMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (attachMenuRef.current && !attachMenuRef.current.contains(e.target as Node)) {
+        setAttachMenuOpen(false);
+        setUrlInputMode(null);
+        setUrlInputValue("");
+      }
+    }
+    if (attachMenuOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [attachMenuOpen]);
+
+  async function handleUrlImport() {
+    if (!urlInputValue.trim()) return;
+    setUrlInputLoading(true);
+    try {
+      if (urlInputMode === "github") {
+        // Extract owner/repo from URL
+        const match = urlInputValue.match(/github\.com\/([^/]+\/[^/]+)/);
+        const repo = match ? match[1].replace(/\.git$/, "") : urlInputValue;
+        const apiUrl = `https://api.github.com/repos/${repo}/readme`;
+        const res = await fetch(apiUrl, { headers: { Accept: "application/vnd.github.raw+json" } });
+        if (res.ok) {
+          const text = await res.text();
+          setAttachedFile({ name: `${repo} (README.md)`, mimeType: "text/plain", dataUrl: "", textContent: text.slice(0, 8000) });
+        } else {
+          setAttachedFile({ name: `GitHub: ${repo}`, mimeType: "text/plain", dataUrl: "" });
+        }
+      } else if (urlInputMode === "vercel") {
+        setAttachedFile({ name: `Vercel: ${urlInputValue}`, mimeType: "text/plain", dataUrl: "", textContent: `Vercel project URL: ${urlInputValue}` });
+      } else if (urlInputMode === "image") {
+        setAttachedFile({ name: urlInputValue, mimeType: "image/url", dataUrl: urlInputValue });
+      }
+    } catch {
+      setAttachedFile({ name: urlInputValue, mimeType: "text/plain", dataUrl: "" });
+    } finally {
+      setUrlInputLoading(false);
+      setAttachMenuOpen(false);
+      setUrlInputMode(null);
+      setUrlInputValue("");
+    }
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // reset so same file can be re-selected
+    e.target.value = "";
+
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setAttachedFile({ name: file.name, mimeType: file.type, dataUrl: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    } else if (
+      file.type.startsWith("text/") ||
+      file.name.endsWith(".md") ||
+      file.name.endsWith(".csv") ||
+      file.name.endsWith(".json")
+    ) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setAttachedFile({ name: file.name, mimeType: file.type, dataUrl: "", textContent: reader.result as string });
+      };
+      reader.readAsText(file);
+    } else {
+      // PDF, DOCX, etc. — store name only as context
+      setAttachedFile({ name: file.name, mimeType: file.type, dataUrl: "" });
+    }
+  }
 
   function startWithMaxwell() {
     const prompt = inputValue.trim();
-    if (!prompt) return;
-    router.push(getStartWithMaxwellHref(prompt));
+    if (!prompt && !attachedFile) return;
+
+    if (attachedFile) {
+      try {
+        sessionStorage.setItem("maxwell_attached_file", JSON.stringify(attachedFile));
+      } catch {
+        // sessionStorage full or unavailable — proceed without file
+      }
+    }
+    router.push(getStartWithMaxwellHref(prompt || (attachedFile ? `I've attached a file: ${attachedFile.name}` : "")));
   }
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSuggestion((prev) => (prev + 1) % promptSuggestions.length);
+
     }, 4000);
     return () => clearInterval(interval);
   }, []);
 
-  const handleSuggestionClick = (suggestion: string) => {
-    setInputValue(suggestion);
+  const handleSuggestionClick = (prompt: string) => {
+    setInputValue(prompt);
   };
 
   useEffect(() => {
@@ -131,7 +228,7 @@ export function HeroSection() {
                           key={currentSuggestion}
                           className="block w-full truncate whitespace-nowrap text-sm lg:text-[15px] text-muted-foreground/45 animate-fade-in"
                         >
-                          {promptSuggestions[currentSuggestion]}
+                          {promptSuggestions[currentSuggestion].prompt}
                         </span>
                       </div>
                     )}
@@ -148,15 +245,85 @@ export function HeroSection() {
                       >
                         <Mic className="h-4 w-4" />
                       </button>
-                      <button
-                        type="button"
-                        aria-label="Attach a file"
-                        title="File upload is not available yet."
-                        disabled
-                        className="flex h-9 w-9 cursor-not-allowed items-center justify-center rounded-full bg-secondary/45 text-muted-foreground/60"
-                      >
-                        <Paperclip className="h-4 w-4" />
-                      </button>
+                      {/* Hidden file inputs */}
+                      <input ref={fileInputRef} type="file" accept="image/*,.txt,.md,.csv,.json,.doc,.docx" className="hidden" onChange={handleFileChange} />
+                      <input ref={pdfInputRef} type="file" accept=".pdf" className="hidden" onChange={handleFileChange} />
+
+                      {/* Attach menu */}
+                      <div className="relative" ref={attachMenuRef}>
+                        <button
+                          type="button"
+                          aria-label="Attach"
+                          onClick={() => { setAttachMenuOpen((v) => !v); setUrlInputMode(null); setUrlInputValue(""); }}
+                          className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${attachMenuOpen ? "bg-secondary text-foreground" : "bg-secondary/45 text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                        >
+                          <Paperclip className="h-4 w-4" />
+                        </button>
+
+                        {attachMenuOpen && (
+                          <div className="absolute bottom-11 left-0 z-50 w-56 rounded-[10px] border border-border bg-card shadow-xl overflow-hidden">
+                            {!urlInputMode ? (
+                              <div className="py-1">
+                                <button type="button" onClick={() => { fileInputRef.current?.click(); setAttachMenuOpen(false); }} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors">
+                                  <Upload className="h-4 w-4 text-muted-foreground" />
+                                  Subir archivo
+                                </button>
+                                <button type="button" onClick={() => { pdfInputRef.current?.click(); setAttachMenuOpen(false); }} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors">
+                                  <FileText className="h-4 w-4 text-muted-foreground" />
+                                  Subir PDF
+                                </button>
+                                <div className="my-1 h-px bg-border" />
+                                <button type="button" onClick={() => setUrlInputMode("github")} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors">
+                                  <Github className="h-4 w-4 text-muted-foreground" />
+                                  Importar desde GitHub
+                                </button>
+                                <button type="button" onClick={() => setUrlInputMode("vercel")} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors">
+                                  <TriangleIcon className="h-4 w-4 text-muted-foreground" />
+                                  Importar desde Vercel
+                                </button>
+                                <button type="button" onClick={() => setUrlInputMode("image")} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors">
+                                  <Globe className="h-4 w-4 text-muted-foreground" />
+                                  URL de imagen
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="p-3 space-y-2">
+                                <p className="text-xs font-medium text-muted-foreground">
+                                  {urlInputMode === "github" && "URL o usuario/repo de GitHub"}
+                                  {urlInputMode === "vercel" && "URL del proyecto en Vercel"}
+                                  {urlInputMode === "image" && "URL de la imagen"}
+                                </p>
+                                <input
+                                  type="text"
+                                  autoFocus
+                                  value={urlInputValue}
+                                  onChange={(e) => setUrlInputValue(e.target.value)}
+                                  onKeyDown={(e) => { if (e.key === "Enter") void handleUrlImport(); if (e.key === "Escape") { setUrlInputMode(null); setUrlInputValue(""); } }}
+                                  placeholder={urlInputMode === "github" ? "github.com/user/repo" : urlInputMode === "vercel" ? "vercel.com/project" : "https://..."}
+                                  className="w-full rounded-lg border border-border bg-background px-3 py-1.5 text-sm outline-none focus:border-foreground/30"
+                                />
+                                <div className="flex gap-2">
+                                  <button type="button" onClick={() => void handleUrlImport()} disabled={urlInputLoading || !urlInputValue.trim()} className="flex-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground disabled:opacity-40 hover:bg-primary/90 transition-colors">
+                                    {urlInputLoading ? "Importando…" : "Importar"}
+                                  </button>
+                                  <button type="button" onClick={() => { setUrlInputMode(null); setUrlInputValue(""); }} className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-secondary transition-colors">
+                                    Cancelar
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {attachedFile && (
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/60 px-2.5 py-1 text-[11px] font-medium text-foreground max-w-[140px]">
+                          <span className="truncate">{attachedFile.name}</span>
+                          <button type="button" onClick={() => setAttachedFile(null)} className="shrink-0 text-muted-foreground hover:text-foreground">
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      )}
                       <Link
                         href={siteRoutes.maxwell}
                         className="inline-flex items-center gap-2 rounded-full bg-secondary/45 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
@@ -171,7 +338,7 @@ export function HeroSection() {
                       size="lg"
                       aria-label="Start with Maxwell"
                       onClick={startWithMaxwell}
-                      disabled={!inputValue.trim()}
+                      disabled={!inputValue.trim() && !attachedFile}
                       className="bg-primary hover:bg-primary/90 text-primary-foreground h-9 w-9 self-center p-0 rounded-[10px] group shrink-0 disabled:opacity-40"
                     >
                       <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
@@ -183,7 +350,7 @@ export function HeroSection() {
               {/* Prompt Suggestions */}
               <div className="mt-5 pl-4 lg:pl-5 max-w-xl">
                 <p className="mb-3 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground/55">
-                  Try a prompt
+                  ¿No sabes por dónde empezar? Prueba una de estas opciones
                 </p>
                 <div className="flex items-center gap-2">
                   {canScrollPromptsLeft && (
@@ -201,23 +368,20 @@ export function HeroSection() {
                       ref={promptScrollerRef}
                       onScroll={() => {
                         const node = promptScrollerRef.current;
-                        if (!node) {
-                          return;
-                        }
-
+                        if (!node) return;
                         setCanScrollPromptsLeft(node.scrollLeft > 8);
                         const remainingScroll = node.scrollWidth - node.clientWidth - node.scrollLeft;
                         setCanScrollPromptsRight(remainingScroll > 8);
                       }}
                       className="prompt-scroll flex items-center gap-2 overflow-x-auto whitespace-nowrap"
                     >
-                      {promptSuggestions.slice(0, 3).map((suggestion, index) => (
+                      {promptSuggestions.map((s, index) => (
                         <button
                           key={index}
-                          onClick={() => handleSuggestionClick(suggestion)}
-                          className="shrink-0 rounded-full border border-border bg-background/80 px-3 py-1.5 text-xs text-muted-foreground shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-foreground/20 hover:bg-secondary"
+                          onClick={() => handleSuggestionClick(s.prompt)}
+                          className="shrink-0 rounded-full border border-border bg-background/80 px-3 py-1.5 text-xs text-muted-foreground shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-foreground/20 hover:bg-secondary hover:text-foreground"
                         >
-                          {suggestion}
+                          {s.label}
                         </button>
                       ))}
                     </div>

@@ -79,6 +79,7 @@ const chatRequestSchema = z
     message: z.string().trim().min(1).max(4000).optional(),
     session_id: z.string().optional(),
     prompt: z.string().trim().min(1).max(4000).optional(),
+    image_url: z.string().url().optional(),
   })
   .refine((data) => data.message || data.prompt, {
     message: "Either 'message' or 'prompt' is required.",
@@ -157,6 +158,7 @@ export async function POST(request: Request) {
       prompt: userText,
       history: historyForOpenAI as ChatMessage[],
       systemPrompt: MAXWELL_CHAT_SYSTEM_PROMPT,
+      ...(parsed.image_url ? { imageUrl: parsed.image_url } : {}),
     });
 
     const {

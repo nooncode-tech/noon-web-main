@@ -120,7 +120,7 @@ export function StudioShell({
     hasStartedRef.current = true;
     setMessages([{ role: "user", content: initialPrompt }]);
     setPhase("clarifying");
-    void sendToMaxwell(initialPrompt);
+    void sendToMaxwell(initialPrompt, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialPrompt, initialSessionId]);
 
@@ -176,15 +176,45 @@ export function StudioShell({
 
   // ── Chat ────────────────────────────────────────────────────────────────────
 
-  async function sendToMaxwell(userMessage: string) {
+  async function sendToMaxwell(userMessage: string, isFirstMessage = false) {
     setIsThinking(true);
+
+    // On the first message of a fresh session, pick up any file attached in the hero
+    let imageUrl: string | undefined;
+    let effectiveMessage = userMessage;
+
+    if (isFirstMessage && !sessionId) {
+      try {
+        const stored = sessionStorage.getItem("maxwell_attached_file");
+        if (stored) {
+          sessionStorage.removeItem("maxwell_attached_file");
+          const file = JSON.parse(stored) as {
+            name: string;
+            mimeType: string;
+            dataUrl: string;
+            textContent?: string;
+          };
+          if ((file.mimeType.startsWith("image/") || file.mimeType === "image/url") && file.dataUrl) {
+            imageUrl = file.dataUrl;
+          } else if (file.textContent) {
+            effectiveMessage = `[Attached file: ${file.name}]\n${file.textContent}\n\n${userMessage}`;
+          } else {
+            effectiveMessage = `[Attached file: ${file.name}]\n\n${userMessage}`;
+          }
+        }
+      } catch {
+        // sessionStorage unavailable — proceed without file
+      }
+    }
+
     try {
       const res = await fetch("/api/maxwell/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: userMessage,
+          message: effectiveMessage,
           ...(sessionId ? { session_id: sessionId } : {}),
+          ...(imageUrl ? { image_url: imageUrl } : {}),
         }),
       });
       const data = (await res.json()) as {

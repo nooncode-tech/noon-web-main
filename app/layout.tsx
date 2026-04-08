@@ -2,7 +2,6 @@ import React from "react"
 import type { Metadata } from 'next'
 import { Instrument_Sans, Instrument_Serif, JetBrains_Mono } from 'next/font/google'
 import Script from "next/script"
-import { MaxwellGlobal } from "@/components/maxwell-global"
 import './globals.css'
 
 const instrumentSans = Instrument_Sans({ 
@@ -50,7 +49,6 @@ export default function RootLayout({
           `}
         </Script>
         {children}
-        <MaxwellGlobal />
       </body>
     </html>
   )
