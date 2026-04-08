@@ -76,6 +76,7 @@ export function Navigation() {
   }, [isMobileMenuOpen]);
 
   return (
+    <>
     <header
       className={`fixed z-50 transition-all duration-500 ${
         isHidden && !isMobileMenuOpen ? "-translate-y-[140%] opacity-0" : "translate-y-0 opacity-100"
@@ -167,49 +168,50 @@ export function Navigation() {
           />
         </div>
       </nav>
+    </header>
 
-      {/* Mobile Menu — Full Screen Overlay */}
-      <div
-        className={`md:hidden fixed inset-0 bg-background z-[200] transition-all duration-500 ${
-          isMobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-        }`}
-      >
-        <div className="flex flex-col h-full px-8 pt-28 pb-8">
-          <div className="flex-1 flex flex-col justify-center gap-8">
-            {primaryNavigation.map((link, i) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`text-5xl font-display transition-all duration-500 ${
-                  isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-                } ${isActiveLink(link.match) ? "" : "text-foreground hover:text-muted-foreground"}`}
-                style={{
-                  transitionDelay: isMobileMenuOpen ? `${i * 75}ms` : "0ms",
-                  color: isActiveLink(link.match) ? navigationTone.accent : undefined,
-                }}
-              >
-                {link.name}
-              </Link>
-            ))}
-          </div>
-          <div
-            className={`flex gap-4 pt-8 border-t border-foreground/10 transition-all duration-500 ${
-              isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            }`}
-            style={{ transitionDelay: isMobileMenuOpen ? "300ms" : "0ms" }}
-          >
-            <Button
-              asChild
-              className="flex-1 bg-primary text-primary-foreground rounded-full h-14 text-base hover:bg-primary/90"
+    {/* Mobile Menu — outside header to avoid stacking context issues */}
+    <div
+      className={`md:hidden fixed inset-0 bg-background z-[999] transition-all duration-500 ${
+        isMobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+      }`}
+    >
+      <div className="flex flex-col h-full px-8 pt-28 pb-8">
+        <div className="flex-1 flex flex-col justify-center gap-8">
+          {primaryNavigation.map((link, i) => (
+            <Link
+              key={link.name}
+              href={link.href}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`text-5xl font-display transition-all duration-500 ${
+                isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+              } ${isActiveLink(link.match) ? "" : "text-foreground hover:text-muted-foreground"}`}
+              style={{
+                transitionDelay: isMobileMenuOpen ? `${i * 75}ms` : "0ms",
+                color: isActiveLink(link.match) ? navigationTone.accent : undefined,
+              }}
             >
-              <Link href={getStartWithMaxwellHref()} onClick={() => setIsMobileMenuOpen(false)}>
-                Start with Maxwell
-              </Link>
-            </Button>
-          </div>
+              {link.name}
+            </Link>
+          ))}
+        </div>
+        <div
+          className={`flex gap-4 pt-8 border-t border-foreground/10 transition-all duration-500 ${
+            isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+          }`}
+          style={{ transitionDelay: isMobileMenuOpen ? "300ms" : "0ms" }}
+        >
+          <Button
+            asChild
+            className="flex-1 bg-primary text-primary-foreground rounded-full h-14 text-base hover:bg-primary/90"
+          >
+            <Link href={getStartWithMaxwellHref()} onClick={() => setIsMobileMenuOpen(false)}>
+              Start with Maxwell
+            </Link>
+          </Button>
         </div>
       </div>
-    </header>
+    </div>
+    </>
   );
 }
