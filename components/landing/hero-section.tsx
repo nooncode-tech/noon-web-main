@@ -176,7 +176,7 @@ export function HeroSection() {
   };
 
   return (
-    <section id="hero" className="relative min-h-[100dvh] flex flex-col justify-center overflow-x-hidden">
+    <section id="hero" className="relative min-h-[100dvh] flex flex-col justify-center">
       <div className="relative z-10 w-full max-w-[1400px] mx-auto px-5 lg:px-12 pt-24 pb-16 lg:pt-32 lg:pb-24">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Left column - Content */}
@@ -190,19 +190,41 @@ export function HeroSection() {
             </div>
 
             {/* Main headline */}
-            <div className="mb-5 lg:mb-6">
-              <h1 className="text-[clamp(1.9rem,7vw,3.7rem)] font-display leading-[1.1] tracking-tight break-words">
-                <span className="block max-w-full">Tell us what you want to build.</span>
+            <div className="mb-4 lg:mb-6">
+              <h1 className="text-[2rem] sm:text-[2.4rem] lg:text-[clamp(2.4rem,4.5vw,3.7rem)] font-display leading-[1.1] tracking-tight">
+                Tell us what you<br className="sm:hidden" /> want to build.
               </h1>
             </div>
 
             {/* Description */}
-            <p className="text-[14px] lg:text-[17px] text-muted-foreground leading-relaxed max-w-xl mb-6 lg:mb-8 text-pretty">
+            <p className="text-[14px] lg:text-[17px] text-muted-foreground leading-relaxed mb-8 lg:mb-8 max-w-sm lg:max-w-xl">
               Noon turns ideas into real, scalable software built in code and accelerated by AI.
             </p>
 
-            {/* Chat Input - Main Element */}
-            <div>
+            {/* Mobile CTA — clean button, no textarea */}
+            <div className="lg:hidden mb-6 flex flex-col gap-3">
+              <Link
+                href={siteRoutes.maxwell}
+                className="flex items-center justify-center gap-2 w-full rounded-[10px] bg-primary text-primary-foreground py-3.5 text-sm font-medium hover:bg-primary/90 transition-colors"
+              >
+                <Sparkles className="w-4 h-4" />
+                Start with Maxwell
+              </Link>
+              <div className="flex flex-wrap gap-2">
+                {promptSuggestions.slice(0, 3).map((s) => (
+                  <Link
+                    key={s.label}
+                    href={getStartWithMaxwellHref(s.prompt)}
+                    className="rounded-full border border-border bg-background/80 px-3 py-1.5 text-xs text-muted-foreground"
+                  >
+                    {s.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Desktop Chat Input */}
+            <div className="hidden lg:block">
               <div className="relative">
                 <div className="bg-card border border-border rounded-[10px] p-2 shadow-sm transition-shadow duration-300">
                   <div className="relative min-w-0 overflow-hidden">
@@ -354,7 +376,7 @@ export function HeroSection() {
                 </div>
               </div>
 
-              {/* Prompt Suggestions */}
+              {/* Prompt Suggestions — desktop only */}
               <div className="mt-4 lg:mt-5 pl-1 lg:pl-5 max-w-xl">
                 <p className="mb-3 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground/55">
                   Not sure where to start? Try one of these
@@ -413,7 +435,7 @@ export function HeroSection() {
               </div>
 
               {/* Secondary CTA */}
-              <div className="mt-5 lg:mt-6 hidden sm:flex">
+              <div className="mt-5">
                 <Link
                   href={siteRoutes.homeTemplatesSection}
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group"
@@ -423,7 +445,7 @@ export function HeroSection() {
                 </Link>
               </div>
 
-            </div>
+            </div>{/* end desktop input */}
           </div>
 
           {/* Right column - Code Emergence Animation (desktop only) */}
