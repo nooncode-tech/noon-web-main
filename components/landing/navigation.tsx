@@ -170,40 +170,70 @@ export function Navigation() {
       </nav>
     </header>
 
-    {/* Mobile Menu — outside header to avoid stacking context issues */}
+    {/* Mobile Menu — backdrop */}
     <div
-      className={`md:hidden fixed inset-0 bg-background z-[999] transition-all duration-500 ${
+      className={`md:hidden fixed inset-0 z-[998] transition-all duration-300 ${
         isMobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
       }`}
+      style={{ backgroundColor: "rgba(0,0,0,0.25)", backdropFilter: "blur(2px)" }}
+      onClick={() => setIsMobileMenuOpen(false)}
+    />
+
+    {/* Mobile Menu — slide-down panel */}
+    <div
+      className={`md:hidden fixed left-3 right-3 top-3 z-[999] transition-all duration-500 ${
+        isMobileMenuOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-4 pointer-events-none"
+      }`}
     >
-      <div className="flex flex-col h-full px-8 pt-28 pb-8">
-        <div className="flex-1 flex flex-col justify-center gap-8">
+      <div className="rounded-2xl border border-foreground/10 bg-background/95 backdrop-blur-xl shadow-2xl overflow-hidden">
+        {/* Panel header */}
+        <div className="flex items-center justify-between px-6 py-5 border-b border-foreground/8">
+          <Link href={siteRoutes.home} className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
+            <span className="font-display text-xl">Noon</span>
+            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: navigationTone.accent }} />
+          </Link>
+          <button
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="flex items-center justify-center w-8 h-8 rounded-full border border-foreground/10 bg-secondary/50 text-muted-foreground"
+            aria-label="Close menu"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Nav links */}
+        <div className="px-3 py-3">
           {primaryNavigation.map((link, i) => (
             <Link
               key={link.name}
               href={link.href}
               onClick={() => setIsMobileMenuOpen(false)}
-              className={`text-5xl font-display transition-all duration-500 ${
-                isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-              } ${isActiveLink(link.match) ? "" : "text-foreground hover:text-muted-foreground"}`}
+              className={`flex items-center justify-between px-4 py-3.5 rounded-xl text-base font-medium transition-all duration-300 ${
+                isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+              } ${isActiveLink(link.match) ? "bg-secondary/60" : "hover:bg-secondary/40 text-foreground/80"}`}
               style={{
-                transitionDelay: isMobileMenuOpen ? `${i * 75}ms` : "0ms",
+                transitionDelay: isMobileMenuOpen ? `${80 + i * 50}ms` : "0ms",
                 color: isActiveLink(link.match) ? navigationTone.accent : undefined,
               }}
             >
               {link.name}
+              {isActiveLink(link.match) && (
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: navigationTone.accent }} />
+              )}
             </Link>
           ))}
         </div>
+
+        {/* CTA */}
         <div
-          className={`flex gap-4 pt-8 border-t border-foreground/10 transition-all duration-500 ${
-            isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+          className={`px-4 pb-4 pt-1 transition-all duration-300 ${
+            isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
           }`}
-          style={{ transitionDelay: isMobileMenuOpen ? "300ms" : "0ms" }}
+          style={{ transitionDelay: isMobileMenuOpen ? "280ms" : "0ms" }}
         >
           <Button
             asChild
-            className="flex-1 bg-primary text-primary-foreground rounded-full h-14 text-base hover:bg-primary/90"
+            className="w-full bg-primary text-primary-foreground rounded-xl h-12 text-sm font-medium hover:bg-primary/90"
           >
             <Link href={getStartWithMaxwellHref()} onClick={() => setIsMobileMenuOpen(false)}>
               Start with Maxwell
