@@ -176,7 +176,7 @@ export function HeroSection() {
   };
 
   return (
-    <section id="hero" className="relative min-h-[100dvh] flex flex-col justify-center">
+    <section id="hero" className="relative lg:min-h-[100dvh] flex flex-col justify-center">
       <div className="relative z-10 w-full max-w-[1400px] mx-auto px-5 lg:px-12 pt-24 pb-16 lg:pt-32 lg:pb-24">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Left column - Content */}
