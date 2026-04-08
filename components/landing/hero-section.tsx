@@ -176,8 +176,8 @@ export function HeroSection() {
   };
 
   return (
-    <section id="hero" className="relative min-h-[100dvh] flex flex-col justify-center overflow-hidden">
-      <div className="relative z-10 max-w-[1400px] mx-auto px-5 lg:px-12 pt-24 pb-16 lg:pt-32 lg:pb-24">
+    <section id="hero" className="relative min-h-[100dvh] flex flex-col justify-center overflow-x-hidden">
+      <div className="relative z-10 w-full max-w-[1400px] mx-auto px-5 lg:px-12 pt-24 pb-16 lg:pt-32 lg:pb-24">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Left column - Content */}
           <div className="order-1 lg:order-1">
@@ -191,8 +191,8 @@ export function HeroSection() {
 
             {/* Main headline */}
             <div className="mb-5 lg:mb-6">
-              <h1 className="text-[clamp(2rem,8vw,3.7rem)] font-display leading-[1.08] tracking-tight">
-                <span className="block text-balance">Tell us what you want to build.</span>
+              <h1 className="text-[clamp(1.9rem,7vw,3.7rem)] font-display leading-[1.1] tracking-tight break-words">
+                <span className="block max-w-full">Tell us what you want to build.</span>
               </h1>
             </div>
 
