@@ -234,17 +234,31 @@ export function HeroSection() {
                     )}
                   </div>
 
-                  <div className="mt-1.5 flex flex-wrap items-center justify-between gap-3 border-t border-border/80 pt-2">
-                    <div className="flex items-center gap-2">
+                  {/* Attached file badge */}
+                  {attachedFile && (
+                    <div className="px-3 pb-1">
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/60 px-2.5 py-1 text-[11px] font-medium text-foreground max-w-full">
+                        <span className="truncate">{attachedFile.name}</span>
+                        <button type="button" onClick={() => setAttachedFile(null)} className="shrink-0 text-muted-foreground hover:text-foreground">
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="mt-1.5 flex items-center justify-between gap-2 border-t border-border/80 pt-2 px-1">
+                    {/* Left: tools */}
+                    <div className="flex items-center gap-1">
                       <button
                         type="button"
                         aria-label="Voice input"
                         title="Voice input is not available yet."
                         disabled
-                        className="flex h-9 w-9 cursor-not-allowed items-center justify-center rounded-full bg-secondary/45 text-muted-foreground/60"
+                        className="flex h-8 w-8 cursor-not-allowed items-center justify-center rounded-full bg-secondary/45 text-muted-foreground/60"
                       >
-                        <Mic className="h-4 w-4" />
+                        <Mic className="h-3.5 w-3.5" />
                       </button>
+
                       {/* Hidden file inputs */}
                       <input ref={fileInputRef} type="file" accept="image/*,.txt,.md,.csv,.json,.doc,.docx" className="hidden" onChange={handleFileChange} />
                       <input ref={pdfInputRef} type="file" accept=".pdf" className="hidden" onChange={handleFileChange} />
@@ -255,13 +269,13 @@ export function HeroSection() {
                           type="button"
                           aria-label="Attach"
                           onClick={() => { setAttachMenuOpen((v) => !v); setUrlInputMode(null); setUrlInputValue(""); }}
-                          className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${attachMenuOpen ? "bg-secondary text-foreground" : "bg-secondary/45 text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                          className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${attachMenuOpen ? "bg-secondary text-foreground" : "bg-secondary/45 text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
                         >
-                          <Paperclip className="h-4 w-4" />
+                          <Paperclip className="h-3.5 w-3.5" />
                         </button>
 
                         {attachMenuOpen && (
-                          <div className="absolute bottom-11 left-0 z-50 w-56 rounded-[10px] border border-border bg-card shadow-xl overflow-hidden">
+                          <div className="absolute bottom-10 left-0 z-50 w-52 rounded-[10px] border border-border bg-card shadow-xl overflow-hidden">
                             {!urlInputMode ? (
                               <div className="py-1">
                                 <button type="button" onClick={() => { fileInputRef.current?.click(); setAttachMenuOpen(false); }} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors">
@@ -275,11 +289,11 @@ export function HeroSection() {
                                 <div className="my-1 h-px bg-border" />
                                 <button type="button" onClick={() => setUrlInputMode("github")} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors">
                                   <Github className="h-4 w-4 text-muted-foreground" />
-                                  Importar desde GitHub
+                                  GitHub
                                 </button>
                                 <button type="button" onClick={() => setUrlInputMode("vercel")} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors">
                                   <TriangleIcon className="h-4 w-4 text-muted-foreground" />
-                                  Importar desde Vercel
+                                  Vercel
                                 </button>
                                 <button type="button" onClick={() => setUrlInputMode("image")} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors">
                                   <Globe className="h-4 w-4 text-muted-foreground" />
@@ -316,32 +330,25 @@ export function HeroSection() {
                         )}
                       </div>
 
-                      {attachedFile && (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/60 px-2.5 py-1 text-[11px] font-medium text-foreground max-w-[140px]">
-                          <span className="truncate">{attachedFile.name}</span>
-                          <button type="button" onClick={() => setAttachedFile(null)} className="shrink-0 text-muted-foreground hover:text-foreground">
-                            <X className="h-3 w-3" />
-                          </button>
-                        </span>
-                      )}
                       <Link
                         href={siteRoutes.maxwell}
-                        className="inline-flex items-center gap-2 rounded-full bg-secondary/45 px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                        className="inline-flex items-center gap-1.5 rounded-full bg-secondary/45 px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                       >
-                        <Sparkles className="h-3.5 w-3.5" />
-                        Maxwell
+                        <Sparkles className="h-3 w-3" />
+                        <span className="hidden sm:inline">Maxwell</span>
                       </Link>
                     </div>
 
+                    {/* Right: send button */}
                     <Button
                       type="button"
                       size="lg"
                       aria-label="Start with Maxwell"
                       onClick={startWithMaxwell}
                       disabled={!inputValue.trim() && !attachedFile}
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground h-9 w-9 self-center p-0 rounded-[10px] group shrink-0 disabled:opacity-40"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground h-8 w-8 self-center p-0 rounded-[10px] group shrink-0 disabled:opacity-40"
                     >
-                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                     </Button>
                   </div>
                 </div>
