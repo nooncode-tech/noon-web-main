@@ -15,12 +15,17 @@ CREATE TABLE IF NOT EXISTS contact_leads (
   budget_range     TEXT,
   timeline         TEXT,
   source           TEXT,
+  ip_hash          TEXT,
+  user_agent       TEXT,
+  origin_host      TEXT,
   status           TEXT NOT NULL DEFAULT 'new',
   created_at       TIMESTAMPTZ NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_contact_leads_created_at ON contact_leads (created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_contact_leads_inquiry ON contact_leads (inquiry);
+CREATE INDEX IF NOT EXISTS idx_contact_leads_ip_hash_created_at ON contact_leads (ip_hash, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_contact_leads_email_created_at ON contact_leads (email, created_at DESC);
 
 -- maxwell_sessions (legacy modal flow)
 CREATE TABLE IF NOT EXISTS maxwell_sessions (

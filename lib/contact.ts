@@ -120,52 +120,81 @@ export function getContactTypeOption(inquiry: ContactInquiryKey): ContactTypeOpt
   return "partnership";
 }
 
-export const contactSubmissionSchema = z
-  .object({
-    inquiry: z.enum(Object.keys(contactInquiryDetails) as [ContactInquiryKey, ...ContactInquiryKey[]]),
-    contactType: z.enum(contactTypeOptions),
-    name: z
-      .string()
-      .trim()
-      .min(2, "Enter your full name.")
-      .max(120, "Keep the name under 120 characters."),
-    email: z
-      .string()
-      .trim()
-      .email("Enter a valid email address.")
-      .max(320, "Keep the email under 320 characters."),
-    brief: z
-      .string()
-      .trim()
-      .min(10, "Add a little more detail about what you need.")
-      .max(4000, "Keep the message under 4000 characters."),
-    budget: z
-      .string()
-      .trim()
-      .max(120, "Keep the budget range under 120 characters.")
-      .optional()
-      .default(""),
-    timeline: z
-      .string()
-      .trim()
-      .max(120, "Keep the timeline under 120 characters.")
-      .optional()
-      .default(""),
-    source: z
-      .string()
-      .trim()
-      .max(120, "Keep the source under 120 characters.")
-      .optional()
-      .default(""),
-  })
-  .superRefine((value, ctx) => {
-    if (!contactTypeToInquiryMap[value.contactType].includes(value.inquiry)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["inquiry"],
-        message: "Choose an inquiry path that matches the selected contact type.",
-      });
-    }
-  });
+const contactSubmissionShape = {
+  inquiry: z.enum(Object.keys(contactInquiryDetails) as [ContactInquiryKey, ...ContactInquiryKey[]]),
+  contactType: z.enum(contactTypeOptions),
+  name: z
+    .string()
+    .trim()
+    .min(2, "Enter your full name.")
+    .max(120, "Keep the name under 120 characters."),
+  email: z
+    .string()
+    .trim()
+    .email("Enter a valid email address.")
+    .max(320, "Keep the email under 320 characters."),
+  brief: z
+    .string()
+    .trim()
+    .min(10, "Add a little more detail about what you need.")
+    .max(4000, "Keep the message under 4000 characters."),
+  budget: z
+    .string()
+    .trim()
+    .max(120, "Keep the budget range under 120 characters.")
+    .optional()
+    .default(""),
+  timeline: z
+    .string()
+    .trim()
+    .max(120, "Keep the timeline under 120 characters.")
+    .optional()
+    .default(""),
+  source: z
+    .string()
+    .trim()
+    .max(120, "Keep the source under 120 characters.")
+    .optional()
+    .default(""),
+} satisfies z.ZodRawShape;
+
+const contactSubmissionBaseSchema = z.object(contactSubmissionShape);
+
+type ContactSubmissionRoutingFields = {
+  inquiry: ContactInquiryKey;
+  contactType: ContactTypeOption;
+};
+
+function validateContactSubmissionRouting(
+  value: ContactSubmissionRoutingFields,
+  ctx: z.RefinementCtx
+) {
+  const allowedInquiryPaths = contactTypeToInquiryMap[value.contactType];
+  if (!allowedInquiryPaths.includes(value.inquiry)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["inquiry"],
+      message: "Choose an inquiry path that matches the selected contact type.",
+    });
+  }
+}
+
+export const contactSubmissionSchema = contactSubmissionBaseSchema.superRefine(
+  validateContactSubmissionRouting
+);
 
 export type ContactSubmissionInput = z.infer<typeof contactSubmissionSchema>;
+
+export const contactSubmissionRequestSchema = contactSubmissionBaseSchema
+  .extend({
+    companyWebsite: z
+      .string()
+      .trim()
+      .max(200, "Keep the company website under 200 characters.")
+      .optional()
+      .default(""),
+    startedAt: z.coerce.number().int().positive("Invalid form start time.").optional(),
+  })
+  .superRefine(validateContactSubmissionRouting);
+
+export type ContactSubmissionRequestInput = z.infer<typeof contactSubmissionRequestSchema>;

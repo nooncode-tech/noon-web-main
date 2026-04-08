@@ -57,6 +57,8 @@ export function ContactIntakeForm({
   const [budget, setBudget] = useState("");
   const [timeline, setTimeline] = useState("");
   const [projectBrief, setProjectBrief] = useState(initialDraft);
+  const [companyWebsite, setCompanyWebsite] = useState("");
+  const [startedAt] = useState(() => Date.now());
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [submissionState, setSubmissionState] = useState<SubmissionState>("idle");
   const [fieldErrors, setFieldErrors] = useState<ContactFieldErrors>({});
@@ -130,6 +132,8 @@ export function ContactIntakeForm({
           budget,
           timeline,
           source: initialSource,
+          companyWebsite,
+          startedAt,
         }),
       });
 
@@ -158,7 +162,7 @@ export function ContactIntakeForm({
     } catch {
       setSubmissionState("error");
       setStatusMessage(
-        "Your inquiry could not be sent right now. Please try again in a moment or contact us directly at noon.message@gmail.com."
+        `Your inquiry could not be sent right now. Please try again in a moment or contact us directly at ${contactInbox}.`
       );
     }
   }
@@ -201,6 +205,29 @@ export function ContactIntakeForm({
         ) : null}
 
         <div className="grid gap-4 md:grid-cols-2">
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              left: "-10000px",
+              top: "auto",
+              width: "1px",
+              height: "1px",
+              overflow: "hidden",
+            }}
+          >
+            <Label htmlFor="contact-company-website">Company website</Label>
+            <Input
+              id="contact-company-website"
+              name="companyWebsite"
+              autoComplete="off"
+              tabIndex={-1}
+              value={companyWebsite}
+              onChange={(event) => setCompanyWebsite(event.target.value)}
+              placeholder="Leave this blank"
+            />
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="contact-name">Full name</Label>
             <Input

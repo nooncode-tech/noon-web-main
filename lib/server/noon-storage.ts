@@ -20,8 +20,17 @@ export type ContactLeadRecord = {
   budget: string | null;
   timeline: string | null;
   source: string | null;
+  ipHash: string | null;
+  userAgent: string | null;
+  originHost: string | null;
   status: string;
   createdAt: string;
+};
+
+type ContactLeadSecurityMetadata = {
+  ipHash?: string | null;
+  userAgent?: string | null;
+  originHost?: string | null;
 };
 
 export type MaxwellSessionRecord = {
@@ -42,21 +51,29 @@ function normalizeOptionalText(value?: string) {
 
 // ── Contact leads ─────────────────────────────────────────────────────────────
 
-export async function saveContactLead(input: ContactSubmissionInput): Promise<ContactLeadRecord> {
+export async function saveContactLead(
+  input: ContactSubmissionInput,
+  metadata: ContactLeadSecurityMetadata = {}
+): Promise<ContactLeadRecord> {
   const sql = getDb();
   const id = crypto.randomUUID();
   const createdAt = new Date().toISOString();
   const budget = normalizeOptionalText(input.budget);
   const timeline = normalizeOptionalText(input.timeline);
   const source = normalizeOptionalText(input.source);
+  const ipHash = normalizeOptionalText(metadata.ipHash ?? undefined);
+  const userAgent = normalizeOptionalText(metadata.userAgent ?? undefined);
+  const originHost = normalizeOptionalText(metadata.originHost ?? undefined);
 
   await sql`
     INSERT INTO contact_leads (
       id, inquiry, contact_type, full_name, email,
-      brief, budget_range, timeline, source, status, created_at
+      brief, budget_range, timeline, source,
+      ip_hash, user_agent, origin_host, status, created_at
     ) VALUES (
       ${id}, ${input.inquiry}, ${input.contactType}, ${input.name.trim()}, ${input.email.trim()},
-      ${input.brief.trim()}, ${budget}, ${timeline}, ${source}, 'new', ${createdAt}
+      ${input.brief.trim()}, ${budget}, ${timeline}, ${source},
+      ${ipHash}, ${userAgent}, ${originHost}, 'new', ${createdAt}
     )
   `;
 
@@ -70,6 +87,9 @@ export async function saveContactLead(input: ContactSubmissionInput): Promise<Co
     budget,
     timeline,
     source,
+    ipHash,
+    userAgent,
+    originHost,
     status: "new",
     createdAt,
   };
