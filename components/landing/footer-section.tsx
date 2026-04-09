@@ -17,8 +17,9 @@ export function FooterSection() {
         <div className="py-14 lg:py-20">
           <div className="grid grid-cols-2 gap-12 md:grid-cols-6 lg:gap-8">
             <div className="col-span-2">
-              <Link href={siteRoutes.home} className="mb-6 inline-flex items-center">
-                <NoonLogo variant="wordmark" className="h-8 text-primary" />
+              <Link href={siteRoutes.home} className="mb-6 inline-flex items-center gap-2.5">
+                <NoonLogo variant="icon" className="h-8 w-8 text-primary" />
+                <span className="font-display text-2xl text-primary tracking-tight">Noon</span>
               </Link>
 
               <p className="mb-8 max-w-xs leading-relaxed text-muted-foreground">

@@ -100,11 +100,14 @@ export function Navigation() {
           }`}
         >
           {/* Logo */}
-          <Link href={siteRoutes.home} className="flex items-center gap-2 group">
+          <Link href={siteRoutes.home} className="flex items-center gap-2.5 group">
             <NoonLogo
-              variant="wordmark"
-              className={`text-primary transition-all duration-500 ${isScrolled ? "h-6" : "h-8"}`}
+              variant="icon"
+              className={`text-primary transition-all duration-500 ${isScrolled ? "h-6 w-6" : "h-8 w-8"}`}
             />
+            <span className={`font-display text-primary tracking-tight transition-all duration-500 ${isScrolled ? "text-xl" : "text-2xl"}`}>
+              Noon
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -186,8 +189,9 @@ export function Navigation() {
       <div className="rounded-2xl border border-foreground/10 bg-background/95 backdrop-blur-xl shadow-2xl overflow-hidden">
         {/* Panel header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-foreground/8">
-          <Link href={siteRoutes.home} className="flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
-            <NoonLogo variant="wordmark" className="h-7 text-primary" />
+          <Link href={siteRoutes.home} className="flex items-center gap-2.5" onClick={() => setIsMobileMenuOpen(false)}>
+            <NoonLogo variant="icon" className="h-7 w-7 text-primary" />
+            <span className="font-display text-xl text-primary tracking-tight">Noon</span>
           </Link>
           <button
             onClick={() => setIsMobileMenuOpen(false)}
