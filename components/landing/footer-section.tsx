@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { footerLinkGroups, footerSocialLinks, siteRoutes } from "@/lib/site-config";
 import { AnimatedWave } from "./animated-wave";
+import { NoonLogo } from "@/components/ui/noon-logo";
 
 export function FooterSection() {
   return (
@@ -16,8 +17,8 @@ export function FooterSection() {
         <div className="py-14 lg:py-20">
           <div className="grid grid-cols-2 gap-12 md:grid-cols-6 lg:gap-8">
             <div className="col-span-2">
-              <Link href={siteRoutes.home} className="mb-6 inline-flex items-center gap-2">
-                <span className="text-2xl font-display">Noon</span>
+              <Link href={siteRoutes.home} className="mb-6 inline-flex items-center">
+                <NoonLogo variant="wordmark" className="h-8 text-primary" />
               </Link>
 
               <p className="mb-8 max-w-xs leading-relaxed text-muted-foreground">

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { getStartWithMaxwellHref, primaryNavigation, siteRoutes } from "@/lib/site-config";
 import { siteTones } from "@/lib/site-tones";
+import { NoonLogo } from "@/components/ui/noon-logo";
 
 const navigationTone = siteTones.brand;
 
@@ -99,13 +100,10 @@ export function Navigation() {
           }`}
         >
           {/* Logo */}
-          <Link href={siteRoutes.home} className="flex items-center group">
-            <span className={`font-display tracking-tight transition-all duration-500 ${isScrolled ? "text-xl" : "text-2xl"}`}>
-              Noon
-            </span>
-            <span
-              className="ml-2 h-1.5 w-1.5 rounded-full transition-transform duration-300 group-hover:scale-125"
-              style={{ backgroundColor: navigationTone.accent }}
+          <Link href={siteRoutes.home} className="flex items-center gap-2 group">
+            <NoonLogo
+              variant="wordmark"
+              className={`text-primary transition-all duration-500 ${isScrolled ? "h-6" : "h-8"}`}
             />
           </Link>
 
@@ -188,9 +186,8 @@ export function Navigation() {
       <div className="rounded-2xl border border-foreground/10 bg-background/95 backdrop-blur-xl shadow-2xl overflow-hidden">
         {/* Panel header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-foreground/8">
-          <Link href={siteRoutes.home} className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
-            <span className="font-display text-xl">Noon</span>
-            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: navigationTone.accent }} />
+          <Link href={siteRoutes.home} className="flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
+            <NoonLogo variant="wordmark" className="h-7 text-primary" />
           </Link>
           <button
             onClick={() => setIsMobileMenuOpen(false)}
