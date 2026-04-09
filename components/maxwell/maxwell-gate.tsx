@@ -84,9 +84,9 @@ export function MaxwellGate({
 
   return (
     <>
-      <section className="flex min-h-[calc(100vh-4rem)] flex-col justify-center">
-        <div className="mx-auto w-full max-w-2xl px-6 py-16 lg:py-24">
-          <div className="mb-10">
+      <section className="flex h-full flex-col justify-center">
+        <div className="mx-auto w-full max-w-2xl px-6">
+          <div className="mb-6">
             <div className="mb-5 flex items-center gap-2.5">
               <span
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full"
@@ -140,7 +140,7 @@ export function MaxwellGate({
                 }
               }}
               placeholder="Describe what you want to build…"
-              rows={5}
+              rows={3}
               className="w-full resize-none bg-transparent px-2 py-2 text-sm leading-relaxed outline-none placeholder:text-muted-foreground/50 lg:text-[15px]"
               aria-label="Project description"
               autoFocus
@@ -159,7 +159,7 @@ export function MaxwellGate({
             </div>
           </div>
 
-          <div className="mt-5">
+          <div className="mt-3">
             <p className="mb-3 text-[10px] font-mono uppercase tracking-widest text-muted-foreground/50">
               Try a prompt
             </p>
