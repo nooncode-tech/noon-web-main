@@ -6,7 +6,49 @@
 
 import { getDb } from "@/lib/server/db";
 import type { ContactSubmissionInput, ContactTypeOption, ContactInquiryKey } from "@/lib/contact";
+import { contactInbox, getContactInquiryDetail } from "@/lib/contact";
 import type { MaxwellSessionInput } from "@/lib/maxwell";
+
+async function sendContactNotification(lead: ContactLeadRecord): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  const from = process.env.MAIL_FROM?.trim();
+  if (!apiKey || !from) return;
+
+  const detail = getContactInquiryDetail(lead.inquiry);
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; background:#f6f3ee; margin:0; padding:32px;">
+      <div style="max-width:640px; margin:0 auto; background:#ffffff; border:1px solid #e5ddd1; border-radius:16px; padding:32px;">
+        <p style="margin:0 0 8px; font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:#8a7f71;">New contact — ${detail.label}</p>
+        <h1 style="margin:0 0 20px; font-size:22px; color:#171412;">${lead.name}</h1>
+        <p style="margin:0 0 8px; font-size:14px; color:#3c342f;"><strong>Email:</strong> ${lead.email}</p>
+        <p style="margin:0 0 8px; font-size:14px; color:#3c342f;"><strong>Type:</strong> ${detail.label}</p>
+        ${lead.budget ? `<p style="margin:0 0 8px; font-size:14px; color:#3c342f;"><strong>Budget:</strong> ${lead.budget}</p>` : ""}
+        ${lead.timeline ? `<p style="margin:0 0 8px; font-size:14px; color:#3c342f;"><strong>Timeline:</strong> ${lead.timeline}</p>` : ""}
+        <p style="margin:16px 0 8px; font-size:14px; color:#6a6057; font-style:italic; border-left:3px solid #e5ddd1; padding-left:12px;">${lead.brief}</p>
+        <p style="margin:16px 0 0; font-size:11px; color:#8a7f71;">Ref: ${lead.id.slice(0, 8).toUpperCase()} · ${new Date(lead.createdAt).toUTCString()}</p>
+      </div>
+    </div>
+  `.trim();
+
+  await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from,
+      to: [contactInbox],
+      reply_to: lead.email,
+      subject: `[Contact] ${detail.label} — ${lead.name}`,
+      html,
+      tags: [{ name: "flow", value: "contact_lead" }],
+    }),
+  }).catch((err) => {
+    console.error("Contact notification email failed (non-blocking):", err);
+  });
+}
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -77,7 +119,7 @@ export async function saveContactLead(
     )
   `;
 
-  return {
+  const lead: ContactLeadRecord = {
     id,
     inquiry: input.inquiry,
     contactType: input.contactType,
@@ -93,6 +135,11 @@ export async function saveContactLead(
     status: "new",
     createdAt,
   };
+
+  // Fire-and-forget — never blocks the response
+  void sendContactNotification(lead);
+
+  return lead;
 }
 
 // ── Maxwell sessions (legacy cookie-based) ────────────────────────────────────
