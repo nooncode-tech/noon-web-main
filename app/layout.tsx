@@ -23,6 +23,10 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'Noon - The code-first software company',
   description: 'Noon turns ideas into real, scalable software built in code and accelerated by AI. Tell us what you want to build.',
+  icons: {
+    icon: '/logo-icon.png',
+    apple: '/logo-icon.png',
+  },
   other: {
     'color-scheme': 'light dark',
   },
