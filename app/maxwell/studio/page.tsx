@@ -21,13 +21,12 @@ export default async function MaxwellStudioPage({ searchParams }: Props) {
   const viewerEmail = session?.user?.email ?? null;
 
   if (!viewerEmail) {
-    if (session_id || prompt.trim()) {
-      const redirectTo = session_id
-        ? `${siteRoutes.maxwellStudio}?session_id=${encodeURIComponent(session_id)}`
-        : `${siteRoutes.maxwellStudio}?prompt=${encodeURIComponent(prompt)}`;
-      redirect(buildSignInHref(redirectTo));
-    }
-    redirect(siteRoutes.maxwell);
+    const redirectTo = session_id
+      ? `${siteRoutes.maxwellStudio}?session_id=${encodeURIComponent(session_id)}`
+      : prompt.trim()
+        ? `${siteRoutes.maxwellStudio}?prompt=${encodeURIComponent(prompt)}`
+        : siteRoutes.maxwellStudio;
+    redirect(buildSignInHref(redirectTo));
   }
 
   return (
