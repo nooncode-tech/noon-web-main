@@ -6,7 +6,7 @@ import { useRevealOnView } from "@/hooks/use-reveal-on-view";
 import { siteChromeDots } from "@/lib/site-tones";
 
 const howItWorksTheme = {
-  base: "#04122b",
+  base: "#000000",
   panel: "rgba(255, 255, 255, 0.026)",
   panelStrong: "rgba(255, 255, 255, 0.038)",
   panelCurrent: "rgba(255, 255, 255, 0.052)",
@@ -20,7 +20,7 @@ const howItWorksTheme = {
   textMuted: "rgba(181, 196, 223, 0.52)",
   textFaint: "rgba(150, 166, 196, 0.36)",
   nodeCurrentBg: "#eef3fb",
-  nodeCurrentFg: "#061324",
+  nodeCurrentFg: "#000000",
   nodeActiveBg: "rgba(255, 255, 255, 0.11)",
   nodeActiveFg: "rgba(243, 246, 255, 0.9)",
   nodeIdleBg: "rgba(255, 255, 255, 0.05)",
@@ -859,3 +859,4 @@ export function HowItWorksSection() {
     </section>
   );
 }
+

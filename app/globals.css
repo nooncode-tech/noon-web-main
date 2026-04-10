@@ -5,36 +5,36 @@
 
 :root {
   --background: oklch(0.985 0.002 90);
-  --foreground: #04122b;
+  --foreground: #000000;
   --card: oklch(1 0 0);
-  --card-foreground: #04122b;
+  --card-foreground: #000000;
   --popover: oklch(1 0 0);
-  --popover-foreground: #04122b;
+  --popover-foreground: #000000;
   --primary: #1200c5;
   --primary-foreground: #ffffff;
   --secondary: #f2f5fb;
-  --secondary-foreground: #04122b;
+  --secondary-foreground: #000000;
   --muted: #f6f8fc;
   --muted-foreground: #66738b;
   --accent: #edf1ff;
-  --accent-foreground: #04122b;
+  --accent-foreground: #000000;
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.577 0.245 27.325);
   --border: #dbe3ef;
   --input: #dfe6f1;
   --ring: #1200c5;
-  --chart-1: #04122b;
+  --chart-1: #000000;
   --chart-2: #1200c5;
   --chart-3: #4155ef;
   --chart-4: #90a2ff;
   --chart-5: #dce5ff;
   --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: #04122b;
+  --sidebar-foreground: #000000;
   --sidebar-primary: #1200c5;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #edf1ff;
-  --sidebar-accent-foreground: #04122b;
+  --sidebar-accent-foreground: #000000;
   --sidebar-border: #dbe3ef;
   --sidebar-ring: #1200c5;
 }
@@ -236,8 +236,8 @@
 
   .page-grid-background {
     background-image:
-      linear-gradient(to right, rgb(4 18 43 / 0.035) 1px, transparent 1px),
-      linear-gradient(to bottom, rgb(4 18 43 / 0.035) 1px, transparent 1px);
+      linear-gradient(to right, rgb(0 0 0 / 0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(0 0 0 / 0.035) 1px, transparent 1px);
     background-size: calc(100% / 12) 100%, 100% 13rem;
     background-repeat: repeat;
     background-position: top left;
@@ -295,7 +295,7 @@
   
   .interactive-lift:hover {
     transform: translateY(-4px);
-    box-shadow: 0 20px 40px -10px rgb(4 18 43 / 0.12);
+    box-shadow: 0 20px 40px -10px rgb(0 0 0 / 0.12);
   }
 
   /* Gradient text */
@@ -519,3 +519,4 @@
     }
   }
 }
+

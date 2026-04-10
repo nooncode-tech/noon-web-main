@@ -58,7 +58,7 @@ export const siteTones = {
     strongSurfaceAlpha: 0.2,
     shadowAlpha: 0.26,
   }),
-  brandDeep: createTone("#04122b", [4, 18, 43], {
+  brandDeep: createTone("#000000", [0, 0, 0], {
     borderAlpha: 0.22,
     surfaceAlpha: 0.1,
     mutedSurfaceAlpha: 0.06,
@@ -106,3 +106,4 @@ export const siteChromeDots = {
   amber: "#f1b53d",
   green: "#35c983",
 } as const;
+
