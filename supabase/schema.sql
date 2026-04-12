@@ -340,3 +340,22 @@ GRANT ALL PRIVILEGES ON TABLE client_workspace TO service_role;
 GRANT ALL PRIVILEGES ON TABLE workspace_update TO service_role;
 GRANT ALL PRIVILEGES ON TABLE payment_event TO service_role;
 GRANT ALL PRIVILEGES ON TABLE studio_event TO service_role;
+
+-- website_upgrade tables (see migrations/20260412_008_website_upgrade.sql)
+ALTER TABLE IF EXISTS website_upgrade_session ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS website_upgrade_page    ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS website_upgrade_audit   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS website_upgrade_version ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS website_upgrade_event   ENABLE ROW LEVEL SECURITY;
+
+REVOKE ALL ON TABLE website_upgrade_session FROM anon, authenticated;
+REVOKE ALL ON TABLE website_upgrade_page    FROM anon, authenticated;
+REVOKE ALL ON TABLE website_upgrade_audit   FROM anon, authenticated;
+REVOKE ALL ON TABLE website_upgrade_version FROM anon, authenticated;
+REVOKE ALL ON TABLE website_upgrade_event   FROM anon, authenticated;
+
+GRANT ALL PRIVILEGES ON TABLE website_upgrade_session TO service_role;
+GRANT ALL PRIVILEGES ON TABLE website_upgrade_page    TO service_role;
+GRANT ALL PRIVILEGES ON TABLE website_upgrade_audit   TO service_role;
+GRANT ALL PRIVILEGES ON TABLE website_upgrade_version TO service_role;
+GRANT ALL PRIVILEGES ON TABLE website_upgrade_event   TO service_role;

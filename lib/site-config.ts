@@ -2,6 +2,7 @@ export const siteRoutes = {
   home: "/",
   maxwell: "/maxwell",
   maxwellStudio: "/maxwell/studio",
+  upgrade: "/upgrade",
   services: "/services",
   templates: "/templates",
   about: "/about",
