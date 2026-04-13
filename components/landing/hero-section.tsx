@@ -198,10 +198,6 @@ export function HeroSection() {
               </h1>
             </div>
 
-            {/* Description */}
-            <p className="text-[14px] lg:text-[17px] text-muted-foreground leading-relaxed mb-5 lg:mb-6 max-w-sm lg:max-w-xl mx-auto">
-              Noon turns ideas into real, scalable software built in code and accelerated by AI.
-            </p>
 
             {/* Chat Input */}
             <div className="w-full">
