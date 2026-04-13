@@ -178,8 +178,8 @@ export function HeroSection() {
   };
 
   return (
-    <section id="hero" className="relative h-full flex flex-col justify-start">
-      <div className="relative z-10 w-full max-w-[760px] mx-auto px-5 lg:px-8 pt-24 pb-4 lg:pt-28 lg:pb-6">
+    <section id="hero" className="relative h-full flex flex-col justify-center pt-16 lg:pt-20">
+      <div className="relative z-10 w-full max-w-[760px] mx-auto px-5 lg:px-8">
         <div className="flex flex-col items-center text-center">
           {/* Content */}
           <div className="w-full">
@@ -192,8 +192,8 @@ export function HeroSection() {
             </div>
 
             {/* Main headline */}
-            <div className="mb-24 lg:mb-28">
-              <h1 className="text-[1.5rem] sm:text-[1.8rem] lg:text-[clamp(1.8rem,2.8vw,2.4rem)] font-display leading-[1.1] tracking-tight">
+            <div className="mb-4 lg:mb-5">
+              <h1 className="text-[1.5rem] sm:text-[1.8rem] lg:text-[clamp(1.8rem,2.8vw,2.4rem)] font-display leading-[1.1] tracking-tight text-center">
                 Tell us what you<br className="sm:hidden" /> want to build.
               </h1>
             </div>
@@ -353,8 +353,8 @@ export function HeroSection() {
               </div>
 
               {/* Prompt Suggestions */}
-              <div className="mt-3 lg:mt-4 pl-1">
-                <p className="mb-3 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground/55">
+              <div className="mt-3 lg:mt-4">
+                <p className="mb-3 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground/55 text-center">
                   Not sure where to start? Try one of these
                 </p>
                 <div className="flex items-center gap-2">
@@ -414,7 +414,7 @@ export function HeroSection() {
               <div className="mt-3">
                 <Link
                   href={siteRoutes.homeTemplatesSection}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center gap-2 group"
                 >
                   View all templates
                   <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
