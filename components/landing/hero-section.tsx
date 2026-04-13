@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Mic, Paperclip, Sparkles, X, Upload, Github, FileText, Globe, TriangleIcon } from "lucide-react";
-import { CodeEmergence } from "./code-emergence";
 import { getStartWithMaxwellHref, siteRoutes } from "@/lib/site-config";
 
 type AttachedFile = {
@@ -180,12 +179,12 @@ export function HeroSection() {
 
   return (
     <section id="hero" className="relative h-full flex flex-col justify-center">
-      <div className="relative z-10 w-full max-w-[1400px] mx-auto px-5 lg:px-12 pt-16 pb-4 lg:pt-20 lg:pb-6">
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          {/* Left column - Content */}
-          <div className="order-1 lg:order-1">
+      <div className="relative z-10 w-full max-w-[760px] mx-auto px-5 lg:px-8 pt-16 pb-4 lg:pt-20 lg:pb-6">
+        <div className="flex flex-col items-center text-center">
+          {/* Content */}
+          <div className="w-full">
             {/* Eyebrow */}
-            <div className="mb-4 lg:mb-4 flex justify-start">
+            <div className="mb-4 lg:mb-4 flex justify-center">
               <span className="inline-flex items-center gap-2 text-[11px] lg:text-[13px] font-mono text-muted-foreground bg-secondary/50 px-3 lg:px-3.5 py-1.5 rounded-full border border-border">
                 <span className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-primary animate-pulse" />
                 The code-first software company
@@ -200,41 +199,12 @@ export function HeroSection() {
             </div>
 
             {/* Description */}
-            <p className="text-[14px] lg:text-[17px] text-muted-foreground leading-relaxed mb-5 lg:mb-6 max-w-sm lg:max-w-xl">
+            <p className="text-[14px] lg:text-[17px] text-muted-foreground leading-relaxed mb-5 lg:mb-6 max-w-sm lg:max-w-xl mx-auto">
               Noon turns ideas into real, scalable software built in code and accelerated by AI.
             </p>
 
-            {/* Mobile CTA — clean button + prompt chips */}
-            <div className="lg:hidden mb-6 flex flex-col gap-4">
-              <Link
-                href={siteRoutes.maxwell}
-                className="flex items-center justify-center gap-2 w-full rounded-[10px] bg-primary text-primary-foreground py-3.5 text-sm font-medium hover:bg-primary/90 transition-colors"
-              >
-                <Sparkles className="w-4 h-4" />
-                Start with Maxwell
-              </Link>
-
-              {/* Prompt chips label */}
-              <p className="text-[10px] font-mono uppercase tracking-[0.16em] text-muted-foreground/55">
-                Not sure where to start? Try one of these
-              </p>
-
-              {/* Scrollable chips row */}
-              <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-                {promptSuggestions.map((s) => (
-                  <Link
-                    key={s.label}
-                    href={getStartWithMaxwellHref(s.prompt)}
-                    className="shrink-0 rounded-full border border-border bg-background/80 px-3 py-1.5 text-xs text-muted-foreground whitespace-nowrap"
-                  >
-                    {s.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            {/* Desktop Chat Input */}
-            <div className="hidden lg:block">
+            {/* Chat Input */}
+            <div className="w-full">
               <div className="relative">
                 <div className="bg-card border border-border rounded-[10px] p-2 shadow-sm transition-shadow duration-300">
                   <div className="relative min-w-0 overflow-hidden">
@@ -386,8 +356,8 @@ export function HeroSection() {
                 </div>
               </div>
 
-              {/* Prompt Suggestions — desktop only */}
-              <div className="mt-3 lg:mt-4 pl-1 lg:pl-5 max-w-xl">
+              {/* Prompt Suggestions */}
+              <div className="mt-3 lg:mt-4 pl-1">
                 <p className="mb-3 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground/55">
                   Not sure where to start? Try one of these
                 </p>
@@ -456,11 +426,6 @@ export function HeroSection() {
               </div>
 
             </div>{/* end desktop input */}
-          </div>
-
-          {/* Right column - Code Emergence Animation (desktop only) */}
-          <div className="hidden lg:block lg:order-2">
-            <CodeEmergence />
           </div>
         </div>
       </div>
