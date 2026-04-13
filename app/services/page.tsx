@@ -7,6 +7,7 @@ import { SitePageFrame } from "@/app/_components/site/site-page-frame";
 import { useRevealOnView } from "@/hooks/use-reveal-on-view";
 import { siteRoutes } from "@/lib/site-config";
 import { siteChromeDots, siteTones } from "@/lib/site-tones";
+import { HowItWorksSection } from "@/components/landing/how-it-works-section";
 
 const servicesEyebrowTone = siteTones.brand;
 
@@ -844,6 +845,8 @@ export default function ServicesPage() {
           </div>
         </div>
       </section>
+
+      <HowItWorksSection />
 
       {/* CTA */}
       <section className="site-section-lg bg-foreground text-background">

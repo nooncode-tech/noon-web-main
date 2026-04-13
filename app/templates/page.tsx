@@ -7,8 +7,9 @@ import { ArrowRight } from "lucide-react";
 import { SitePageFrame } from "@/app/_components/site/site-page-frame";
 import { useRevealOnView } from "@/hooks/use-reveal-on-view";
 import { templateCategories, templates } from "@/data/templates";
-import { getTemplateHref, siteRoutes } from "@/lib/site-config";
+import { siteRoutes } from "@/lib/site-config";
 import { siteChromeDots, siteTones } from "@/lib/site-tones";
+import { TemplateCard as AnimatedTemplateCard } from "@/components/landing/explore-builds-section";
 
 type TemplateItem = (typeof templates)[number];
 type TemplateCategory = (typeof templateCategories)[number];
@@ -52,21 +53,9 @@ function TemplatePreviewVisual() {
   const { ref: previewRef, isVisible } = useRevealOnView<HTMLDivElement>({ threshold: 0.3 });
 
   const templatePreviews = [
-    {
-      name: "Dashboard",
-      icon: "grid",
-      tone: templateToneStructural,
-    },
-    {
-      name: "Portal",
-      icon: "layout",
-      tone: templateTonePrimary,
-    },
-    {
-      name: "Platform",
-      icon: "layers",
-      tone: templateToneLifted,
-    },
+    { name: "Dashboard", tone: templateToneStructural },
+    { name: "Portal",    tone: templateTonePrimary },
+    { name: "Platform",  tone: templateToneLifted },
   ] as const;
 
   useEffect(() => {
@@ -108,11 +97,7 @@ function TemplatePreviewVisual() {
               className={`flex-1 rounded-md border border-transparent px-3 py-2 text-xs font-medium transition-all duration-300 ${index === activeTemplate ? "shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
               style={
                 index === activeTemplate
-                  ? {
-                      backgroundColor: template.tone.surface,
-                      borderColor: template.tone.border,
-                      color: template.tone.accent,
-                    }
+                  ? { backgroundColor: template.tone.surface, borderColor: template.tone.border, color: template.tone.accent }
                   : undefined
               }
             >
@@ -129,17 +114,15 @@ function TemplatePreviewVisual() {
 
         {/* Preview window */}
         <div className="relative rounded-xl border border-border bg-background overflow-hidden aspect-[4/3]">
-          {/* Browser chrome mini */}
           <div className="flex items-center gap-2 px-3 py-2 border-b border-border bg-secondary/30">
-          <div className="flex gap-1">
+            <div className="flex gap-1">
               <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: siteChromeDots.red }} />
               <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: siteChromeDots.amber }} />
               <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: siteChromeDots.green }} />
-          </div>
+            </div>
             <div className="flex-1 mx-2 h-4 bg-secondary rounded-md" />
           </div>
 
-          {/* Template layout preview */}
           <div className="p-3 h-full">
             {/* Dashboard preview */}
             {activeTemplate === 0 && (
@@ -155,16 +138,9 @@ function TemplatePreviewVisual() {
                     <div
                       key={i}
                       className="aspect-square rounded-lg border p-2"
-                      style={
-                        i === 1
-                          ? { borderColor: templatePreviews[0].tone.border, backgroundColor: templatePreviews[0].tone.surface }
-                          : undefined
-                      }
+                      style={i === 1 ? { borderColor: templatePreviews[0].tone.border, backgroundColor: templatePreviews[0].tone.surface } : undefined}
                     >
-                      <div
-                        className="mb-1 h-1 w-full rounded"
-                        style={i === 1 ? { backgroundColor: templatePreviews[0].tone.accent } : undefined}
-                      />
+                      <div className="mb-1 h-1 w-full rounded" style={i === 1 ? { backgroundColor: templatePreviews[0].tone.accent } : undefined} />
                       <div className="w-2/3 h-3 bg-foreground/10 rounded" />
                     </div>
                   ))}
@@ -178,19 +154,14 @@ function TemplatePreviewVisual() {
               <div className={`flex gap-2 h-full transition-all duration-500 ${isVisible ? "opacity-100" : "opacity-0"}`}>
                 <div className="w-16 bg-secondary rounded-lg p-2 space-y-2">
                   {[1, 2, 3, 4].map(i => (
-                    <div
-                      key={i}
-                      className={`h-2 rounded ${i === 1 ? "" : "bg-foreground/20"}`}
-                      style={i === 1 ? { backgroundColor: templatePreviews[1].tone.accent } : undefined}
-                    />
+                    <div key={i} className={`h-2 rounded ${i === 1 ? "" : "bg-foreground/20"}`}
+                      style={i === 1 ? { backgroundColor: templatePreviews[1].tone.accent } : undefined} />
                   ))}
                 </div>
                 <div className="flex-1 space-y-2">
                   <div className="h-6 rounded-lg border" style={{ borderColor: templatePreviews[1].tone.border, backgroundColor: templatePreviews[1].tone.surface }} />
                   <div className="grid grid-cols-2 gap-2 flex-1">
-                    {[1, 2, 3, 4].map(i => (
-                      <div key={i} className="aspect-video bg-secondary rounded-lg" />
-                    ))}
+                    {[1, 2, 3, 4].map(i => <div key={i} className="aspect-video bg-secondary rounded-lg" />)}
                   </div>
                 </div>
               </div>
@@ -209,11 +180,8 @@ function TemplatePreviewVisual() {
                 <div className="mt-3 h-16 rounded-lg border" style={{ borderColor: templatePreviews[2].tone.border, backgroundColor: templatePreviews[2].tone.surface }} />
                 <div className="grid grid-cols-3 gap-2">
                   {[1, 2, 3].map(i => (
-                    <div
-                      key={i}
-                      className="h-10 rounded-lg"
-                      style={i === 2 ? { backgroundColor: templatePreviews[2].tone.surface, border: `1px solid ${templatePreviews[2].tone.border}` } : undefined}
-                    />
+                    <div key={i} className="h-10 rounded-lg"
+                      style={i === 2 ? { backgroundColor: templatePreviews[2].tone.surface, border: `1px solid ${templatePreviews[2].tone.border}` } : undefined} />
                   ))}
                 </div>
               </div>
@@ -228,11 +196,7 @@ function TemplatePreviewVisual() {
           </span>
           <span
             className="inline-flex items-center gap-1.5 rounded-full border px-2 py-1"
-            style={{
-              borderColor: activeTone.border,
-              backgroundColor: activeTone.surface,
-              color: activeTone.accent,
-            }}
+            style={{ borderColor: activeTone.border, backgroundColor: activeTone.surface, color: activeTone.accent }}
           >
             <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: activeTone.accent }} />
             <span className="text-[10px]">Ready to customize</span>
@@ -242,6 +206,10 @@ function TemplatePreviewVisual() {
     </div>
   );
 }
+
+// ============================================================================
+// PAGE
+// ============================================================================
 
 export default function TemplatesPage() {
   const templatesByCategory = getTemplatesByCategory();
@@ -258,26 +226,26 @@ export default function TemplatesPage() {
         <div className="site-shell">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div>
-              <span 
+              <span
                 className={`inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-6 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
               >
                 <span className="w-8 h-px" style={{ backgroundColor: templateBrandTone.accent }} />
                 Templates
               </span>
-              <h1 
+              <h1
                 className={`text-4xl lg:text-5xl font-display tracking-tight mb-6 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
                 style={{ transitionDelay: "100ms" }}
               >
                 Choose a starting point
               </h1>
-              <p 
+              <p
                 className={`text-base lg:text-lg text-muted-foreground leading-relaxed mb-8 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
                 style={{ transitionDelay: "200ms" }}
               >
-                Structured baselines to accelerate scoping and delivery. 
+                Structured baselines to accelerate scoping and delivery.
                 Not themes, not boxed products, just credible starting points.
               </p>
-              <div 
+              <div
                 className={`flex flex-wrap gap-4 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
                 style={{ transitionDelay: "300ms" }}
               >
@@ -296,7 +264,7 @@ export default function TemplatesPage() {
                 </Link>
               </div>
             </div>
-            
+
             {/* Template Preview Visual */}
             <div className="hidden lg:block">
               <TemplatePreviewVisual />
@@ -319,10 +287,10 @@ export default function TemplatesPage() {
           </div>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {categoriesWithTemplates.map((category, index) => (
-              <CategoryCard 
-                key={category} 
-                category={category} 
-                templates={templatesByCategory[category]} 
+              <CategoryCard
+                key={category}
+                category={category}
+                templates={templatesByCategory[category]}
                 index={index}
               />
             ))}
@@ -330,7 +298,7 @@ export default function TemplatesPage() {
         </div>
       </section>
 
-      {/* All Templates */}
+      {/* All Templates — animated mockup cards */}
       <section className="site-section">
         <div className="site-shell">
           <div className="flex items-center justify-between mb-8">
@@ -342,9 +310,9 @@ export default function TemplatesPage() {
               {templates.length} templates
             </span>
           </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {templates.map((template, index) => (
-              <TemplateCard key={template.slug} template={template} index={index} />
+              <AnimatedTemplateCard key={template.slug} template={template} index={index} />
             ))}
           </div>
         </div>
@@ -376,17 +344,17 @@ export default function TemplatesPage() {
 // SUB-COMPONENTS
 // ============================================================================
 
-function CategoryCard({ 
-  category, 
-  templates: categoryTemplates, 
-  index 
-}: { 
-  category: TemplateCategory; 
-  templates: TemplateItem[]; 
+function CategoryCard({
+  category,
+  templates: categoryTemplates,
+  index,
+}: {
+  category: TemplateCategory;
+  templates: TemplateItem[];
   index: number;
 }) {
   const [isHovered, setIsHovered] = useState(false);
-  const { ref: cardRef, isVisible } = useRevealOnView<HTMLAnchorElement>({ threshold: 0.2 });
+  const { ref: cardRef, isVisible } = useRevealOnView<HTMLAnchorElement>({ threshold: 0.15 });
   const firstTemplate = categoryTemplates[0];
   const tone = templateCategoryTones[category];
 
@@ -394,115 +362,65 @@ function CategoryCard({
     <Link
       ref={cardRef}
       href={`#${category.toLowerCase().replace(/\s+/g, "-")}`}
-      className={`group relative overflow-hidden rounded-xl border border-border bg-card transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+      className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-card transition-all duration-500 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
       style={{
-        transitionDelay: `${index * 60}ms`,
-        borderColor: isHovered ? tone.border : undefined,
-        boxShadow: isHovered ? `0 18px 36px -30px ${tone.border}` : undefined,
+        transitionDelay: `${index * 55}ms`,
+        borderColor: isHovered ? tone.border : "var(--border)",
+        boxShadow: isHovered ? `0 24px 48px -28px ${tone.border}` : "none",
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="aspect-[4/3] relative overflow-hidden bg-secondary/40">
+      {/* Image area */}
+      <div className="relative aspect-[4/3] overflow-hidden bg-secondary/40">
         {firstTemplate?.image && (
           <Image
             src={firstTemplate.image}
             alt={category}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover transition-transform duration-700 group-hover:scale-[1.07]"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-card/90 to-transparent" />
-        <div className="absolute right-4 top-4">
+        {/* Gradient overlay — stronger on hover */}
+        <div
+          className="absolute inset-0 transition-opacity duration-500"
+          style={{
+            background: `linear-gradient(to top, ${tone.accent}cc 0%, transparent 60%)`,
+            opacity: isHovered ? 0.7 : 0.35,
+          }}
+        />
+        {/* Top badge */}
+        <div className="absolute left-3 top-3">
           <span
-            className="inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-[10px] font-mono"
+            className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-mono backdrop-blur-sm transition-all duration-300"
             style={{
               borderColor: tone.border,
-              backgroundColor: isHovered ? tone.surface : "rgba(255, 255, 255, 0.88)",
+              backgroundColor: isHovered ? tone.surface : "rgba(255,255,255,0.85)",
               color: tone.accent,
             }}
           >
-            <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: tone.accent }} />
-            {categoryTemplates.length}
+            <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ backgroundColor: tone.accent }} />
+            {categoryTemplates.length} template{categoryTemplates.length !== 1 ? "s" : ""}
           </span>
         </div>
       </div>
-      <div className="absolute bottom-0 left-0 right-0 p-4">
-        <h3 className="flex items-center gap-2 text-sm font-medium text-foreground">
-          <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: tone.accent }} />
-          {category}
-        </h3>
-        <p className="mt-0.5 text-xs text-muted-foreground" style={isHovered ? { color: tone.accent } : undefined}>
-          {categoryTemplates.length} template{categoryTemplates.length !== 1 ? "s" : ""}
-        </p>
-      </div>
-    </Link>
-  );
-}
 
-function TemplateCard({ 
-  template, 
-  index 
-}: { 
-  template: TemplateItem; 
-  index: number;
-}) {
-  const [isHovered, setIsHovered] = useState(false);
-  const { ref: cardRef, isVisible } = useRevealOnView<HTMLAnchorElement>({ threshold: 0.1 });
-  const tone = templateCategoryTones[template.category];
+      {/* Bottom content */}
+      <div className="flex items-center justify-between px-4 py-3.5">
+        <h3 className="text-sm font-medium">{category}</h3>
+        <span
+          className="text-[10px] font-mono transition-colors duration-300"
+          style={{ color: isHovered ? tone.accent : "var(--muted-foreground)" }}
+        >
+          →
+        </span>
+      </div>
 
-  return (
-    <Link
-      ref={cardRef}
-      href={getTemplateHref(template.slug)}
-      className={`group relative overflow-hidden rounded-xl border border-border bg-card transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-      style={{
-        transitionDelay: `${(index % 6) * 60}ms`,
-        borderColor: isHovered ? tone.border : undefined,
-        boxShadow: isHovered ? `0 18px 36px -30px ${tone.border}` : undefined,
-      }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div className="aspect-video relative overflow-hidden bg-secondary/40">
-        {template.image && (
-          <Image
-            src={template.image}
-            alt={template.name}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        )}
-      </div>
-      <div className="p-4">
-        <div className="flex items-center gap-2 mb-2">
-          <span
-            className="rounded border px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider"
-            style={{
-              borderColor: tone.border,
-              backgroundColor: tone.surface,
-              color: tone.accent,
-            }}
-          >
-            {template.category}
-          </span>
-        </div>
-        <h3 className="text-sm font-medium text-foreground mb-1 group-hover:text-foreground/80 transition-colors">
-          {template.name}
-        </h3>
-        <p className="text-xs text-muted-foreground line-clamp-2">
-          {template.summary}
-        </p>
-        <div className="mt-3 pt-3 border-t border-border">
-          <span
-            className="inline-flex items-center gap-1 text-xs font-medium transition-all group-hover:gap-2"
-            style={isHovered ? { color: tone.accent } : undefined}
-          >
-            View template
-            <ArrowRight className="w-3 h-3" />
-          </span>
-        </div>
-      </div>
+      {/* Accent bar bottom */}
+      <div
+        className="absolute bottom-0 left-0 h-[2px] transition-all duration-500"
+        style={{ backgroundColor: tone.accent, width: isHovered ? "100%" : "0%" }}
+      />
     </Link>
   );
 }

@@ -7,6 +7,7 @@ import { SitePageFrame } from "@/app/_components/site/site-page-frame";
 import { useRevealOnView } from "@/hooks/use-reveal-on-view";
 import { siteRoutes } from "@/lib/site-config";
 import { siteChromeDots, siteTones } from "@/lib/site-tones";
+import { FaqSection } from "@/components/landing/faq-section";
 
 // ============================================================================
 // DATA
@@ -533,6 +534,8 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+
+      <FaqSection />
 
       {/* CTA */}
       <section className="site-section-lg bg-foreground text-background">

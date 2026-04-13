@@ -360,7 +360,7 @@ const MockupByCategory: Record<string, React.ComponentType<{ enhanced: boolean }
 // Template Card
 // ============================================================================
 
-function TemplateCard({ template, index }: { template: typeof templates[number]; index: number }) {
+export function TemplateCard({ template, index }: { template: typeof templates[number]; index: number }) {
   const [hovered, setHovered] = useState(false);
   const { ref, isVisible } = useRevealOnView<HTMLDivElement>({ threshold: 0.15 });
   const tone = categoryTone(template.category);

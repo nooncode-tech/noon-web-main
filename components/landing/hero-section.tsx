@@ -179,13 +179,13 @@ export function HeroSection() {
   };
 
   return (
-    <section id="hero" className="relative lg:min-h-[100dvh] flex flex-col justify-center">
-      <div className="relative z-10 w-full max-w-[1400px] mx-auto px-5 lg:px-12 pt-24 pb-16 lg:pt-32 lg:pb-24">
+    <section id="hero" className="relative h-full flex flex-col justify-center">
+      <div className="relative z-10 w-full max-w-[1400px] mx-auto px-5 lg:px-12 pt-16 pb-4 lg:pt-20 lg:pb-6">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Left column - Content */}
           <div className="order-1 lg:order-1">
             {/* Eyebrow */}
-            <div className="mb-5 lg:mb-6 flex justify-start">
+            <div className="mb-4 lg:mb-4 flex justify-start">
               <span className="inline-flex items-center gap-2 text-[11px] lg:text-[13px] font-mono text-muted-foreground bg-secondary/50 px-3 lg:px-3.5 py-1.5 rounded-full border border-border">
                 <span className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-primary animate-pulse" />
                 The code-first software company
@@ -193,14 +193,14 @@ export function HeroSection() {
             </div>
 
             {/* Main headline */}
-            <div className="mb-4 lg:mb-6">
+            <div className="mb-3 lg:mb-4">
               <h1 className="text-[2rem] sm:text-[2.4rem] lg:text-[clamp(2.4rem,4.5vw,3.7rem)] font-display leading-[1.1] tracking-tight">
                 Tell us what you<br className="sm:hidden" /> want to build.
               </h1>
             </div>
 
             {/* Description */}
-            <p className="text-[14px] lg:text-[17px] text-muted-foreground leading-relaxed mb-8 lg:mb-8 max-w-sm lg:max-w-xl">
+            <p className="text-[14px] lg:text-[17px] text-muted-foreground leading-relaxed mb-5 lg:mb-6 max-w-sm lg:max-w-xl">
               Noon turns ideas into real, scalable software built in code and accelerated by AI.
             </p>
 
@@ -387,7 +387,7 @@ export function HeroSection() {
               </div>
 
               {/* Prompt Suggestions — desktop only */}
-              <div className="mt-4 lg:mt-5 pl-1 lg:pl-5 max-w-xl">
+              <div className="mt-3 lg:mt-4 pl-1 lg:pl-5 max-w-xl">
                 <p className="mb-3 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground/55">
                   Not sure where to start? Try one of these
                 </p>
@@ -445,7 +445,7 @@ export function HeroSection() {
               </div>
 
               {/* Secondary CTA */}
-              <div className="mt-5">
+              <div className="mt-3">
                 <Link
                   href={siteRoutes.homeTemplatesSection}
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 group"
