@@ -224,7 +224,7 @@ export function HeroSection() {
                       <div className="absolute left-0 right-0 top-0 px-4 py-3 pointer-events-none overflow-hidden">
                         <span
                           key={currentSuggestion}
-                          className="block w-full truncate whitespace-nowrap text-sm lg:text-[15px] text-muted-foreground/45 animate-fade-in"
+                          className="block w-full truncate whitespace-nowrap text-sm lg:text-[15px] text-muted-foreground/45 animate-fade-in text-right"
                         >
                           {promptSuggestions[currentSuggestion].prompt}
                         </span>
