@@ -278,11 +278,11 @@ export function HeroSection() {
                               <div className="py-1">
                                 <button type="button" onClick={() => { fileInputRef.current?.click(); setAttachMenuOpen(false); }} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors">
                                   <Upload className="h-4 w-4 text-muted-foreground" />
-                                  Subir archivo
+                                  Upload file
                                 </button>
                                 <button type="button" onClick={() => { pdfInputRef.current?.click(); setAttachMenuOpen(false); }} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors">
                                   <FileText className="h-4 w-4 text-muted-foreground" />
-                                  Subir PDF
+                                  Upload PDF
                                 </button>
                                 <div className="my-1 h-px bg-border" />
                                 <button type="button" onClick={() => setUrlInputMode("github")} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors">
@@ -316,10 +316,10 @@ export function HeroSection() {
                                 />
                                 <div className="flex gap-2">
                                   <button type="button" onClick={() => void handleUrlImport()} disabled={urlInputLoading || !urlInputValue.trim()} className="flex-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground disabled:opacity-40 hover:bg-primary/90 transition-colors">
-                                    {urlInputLoading ? "Importando…" : "Importar"}
+                                    {urlInputLoading ? "Importing…" : "Import"}
                                   </button>
                                   <button type="button" onClick={() => { setUrlInputMode(null); setUrlInputValue(""); }} className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-secondary transition-colors">
-                                    Cancelar
+                                    Cancel
                                   </button>
                                 </div>
                               </div>

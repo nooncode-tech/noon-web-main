@@ -39,20 +39,20 @@ const notNoon = [
 
 const optimizeFor = [
   {
-    title: "Alcance antes de ejecutar",
-    description: "La dirección se define y acuerda antes de escribir código en producción. La ambigüedad se resuelve desde el inicio, no durante el desarrollo.",
+    title: "Scope before execution",
+    description: "Direction is defined and agreed before production code is written. Ambiguity is resolved at the start, not during development.",
   },
   {
-    title: "Software funcionando, no documentación",
-    description: "Cada proyecto termina con código desplegado y ejecutable — no con especificaciones, wireframes o prototipos entregados como producto final.",
+    title: "Working software, not documentation",
+    description: "Every project ends with deployed, runnable code — not specs, wireframes, or prototypes delivered as a final product.",
   },
   {
-    title: "Exclusiones explícitas",
-    description: "Lo que no está incluido se declara con claridad. El alcance vago es la causa principal de expectativas desalineadas; lo eliminamos por diseño.",
+    title: "Explicit exclusions",
+    description: "What is not included is clearly stated. Vague scope is the main cause of misaligned expectations; we eliminate it by design.",
   },
   {
-    title: "Criterio, no ejecución ciega",
-    description: "La pregunta correcta es qué se debe construir, no solo qué se pidió. El juicio de producto es parte de cada proyecto.",
+    title: "Judgment, not blind execution",
+    description: "The right question is what should be built, not just what was asked for. Product judgment is part of every project.",
   },
 ];
 
@@ -490,10 +490,10 @@ export default function AboutPage() {
           <div className="max-w-2xl mb-10">
             <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
               <span className="w-8 h-px" style={{ backgroundColor: siteTones.brand.accent }} />
-              Criterios
+              Criteria
             </span>
             <h2 className="text-2xl lg:text-3xl font-display tracking-tight">
-              En qué nos enfocamos
+              What we focus on
             </h2>
           </div>
 
