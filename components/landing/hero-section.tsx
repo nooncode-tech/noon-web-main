@@ -202,7 +202,7 @@ export function HeroSection() {
             {/* Chat Input */}
             <div className="w-full">
               <div className="relative">
-                <div className="bg-card border border-border rounded-[10px] p-2 shadow-sm transition-shadow duration-300">
+                <div className="bg-card dark:bg-[#1f1f1f] border border-border rounded-[10px] p-2 shadow-sm transition-shadow duration-300">
                   <div className="relative min-w-0 overflow-hidden">
                     <textarea
                       value={inputValue}
