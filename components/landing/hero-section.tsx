@@ -217,7 +217,7 @@ export function HeroSection() {
                       }}
                       placeholder={isInputFocused ? "Describe what you want to build..." : ""}
                       rows={3}
-                      className="min-h-[72px] lg:min-h-[80px] w-full resize-none bg-transparent px-3 lg:px-4 py-2 text-sm leading-relaxed lg:text-[15px] outline-none placeholder:text-muted-foreground/60"
+                      className="min-h-[48px] lg:min-h-[56px] w-full resize-none bg-transparent px-3 lg:px-4 py-2 text-sm leading-relaxed lg:text-[15px] outline-none placeholder:text-muted-foreground/60"
                       aria-label="Describe what you want to build"
                     />
                     {!inputValue && !isInputFocused && (
