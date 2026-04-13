@@ -193,7 +193,7 @@ export function HeroSection() {
 
             {/* Main headline */}
             <div className="mb-3 lg:mb-4">
-              <h1 className="text-[2rem] sm:text-[2.4rem] lg:text-[clamp(2.4rem,4.5vw,3.7rem)] font-display leading-[1.1] tracking-tight">
+              <h1 className="text-[1.5rem] sm:text-[1.8rem] lg:text-[clamp(1.8rem,2.8vw,2.4rem)] font-display leading-[1.1] tracking-tight">
                 Tell us what you<br className="sm:hidden" /> want to build.
               </h1>
             </div>
