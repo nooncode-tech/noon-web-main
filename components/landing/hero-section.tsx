@@ -178,8 +178,8 @@ export function HeroSection() {
   };
 
   return (
-    <section id="hero" className="relative h-full flex flex-col justify-center">
-      <div className="relative z-10 w-full max-w-[760px] mx-auto px-5 lg:px-8 pt-16 pb-4 lg:pt-20 lg:pb-6">
+    <section id="hero" className="relative h-full flex flex-col justify-start">
+      <div className="relative z-10 w-full max-w-[760px] mx-auto px-5 lg:px-8 pt-24 pb-4 lg:pt-28 lg:pb-6">
         <div className="flex flex-col items-center text-center">
           {/* Content */}
           <div className="w-full">
@@ -192,7 +192,7 @@ export function HeroSection() {
             </div>
 
             {/* Main headline */}
-            <div className="mb-3 lg:mb-4">
+            <div className="mb-24 lg:mb-28">
               <h1 className="text-[1.5rem] sm:text-[1.8rem] lg:text-[clamp(1.8rem,2.8vw,2.4rem)] font-display leading-[1.1] tracking-tight">
                 Tell us what you<br className="sm:hidden" /> want to build.
               </h1>
