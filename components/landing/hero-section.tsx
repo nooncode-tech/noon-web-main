@@ -179,7 +179,7 @@ export function HeroSection() {
 
   return (
     <section id="hero" className="relative h-full flex flex-col justify-center pt-16 lg:pt-20">
-      <div className="relative z-10 w-full max-w-[760px] mx-auto px-5 lg:px-8">
+      <div className="relative z-10 w-full max-w-[840px] mx-auto px-5 lg:px-8">
         <div className="flex flex-col items-center text-center">
           {/* Content */}
           <div className="w-full">
