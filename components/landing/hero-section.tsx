@@ -244,7 +244,7 @@ export function HeroSection() {
                     </div>
                   )}
 
-                  <div className="mt-1.5 flex items-center justify-between gap-2 border-t border-border/80 pt-2 px-1">
+                  <div className="mt-1.5 flex items-center justify-between gap-2 pt-2 px-1">
                     {/* Left: tools */}
                     <div className="flex items-center gap-1">
                       <button
