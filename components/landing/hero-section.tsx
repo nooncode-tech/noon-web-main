@@ -217,14 +217,14 @@ export function HeroSection() {
                       }}
                       placeholder={isInputFocused ? "Describe what you want to build..." : ""}
                       rows={3}
-                      className="min-h-[48px] lg:min-h-[56px] w-full resize-none bg-transparent px-3 lg:px-4 py-2 text-sm leading-relaxed lg:text-[15px] outline-none placeholder:text-muted-foreground/60"
+                      className="min-h-[48px] lg:min-h-[56px] w-full resize-none bg-transparent px-3 lg:px-4 py-2 text-sm leading-relaxed lg:text-[15px] outline-none placeholder:text-muted-foreground/60 text-left"
                       aria-label="Describe what you want to build"
                     />
                     {!inputValue && !isInputFocused && (
                       <div className="absolute left-0 right-0 top-0 px-4 py-3 pointer-events-none overflow-hidden">
                         <span
                           key={currentSuggestion}
-                          className="block w-full truncate whitespace-nowrap text-sm lg:text-[15px] text-muted-foreground/45 animate-fade-in text-right"
+                          className="block w-full truncate whitespace-nowrap text-sm lg:text-[15px] text-muted-foreground/45 animate-fade-in text-left"
                         >
                           {promptSuggestions[currentSuggestion].prompt}
                         </span>
