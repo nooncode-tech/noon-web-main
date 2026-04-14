@@ -8,12 +8,16 @@ import { SitePageFrame } from "@/app/_components/site/site-page-frame";
 import { templates } from "@/data/templates";
 import { getContactHref, getStartWithMaxwellHref, siteRoutes } from "@/lib/site-config";
 
+import { routing } from "@/i18n/routing";
+
 type TemplateDetailPageProps = {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 };
 
 export async function generateStaticParams() {
-  return templates.map((template) => ({ slug: template.slug }));
+  return routing.locales.flatMap((locale) =>
+    templates.map((template) => ({ locale, slug: template.slug }))
+  );
 }
 
 export async function generateMetadata({ params }: TemplateDetailPageProps): Promise<Metadata> {

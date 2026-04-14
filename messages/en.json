@@ -1,0 +1,312 @@
+{
+  "nav": {
+    "services": "Services",
+    "templates": "Templates",
+    "about": "About",
+    "startWithMaxwell": "Start with Maxwell"
+  },
+  "hero": {
+    "eyebrow": "The code-first software company",
+    "headline": "Tell us what you want to build.",
+    "placeholder": "Describe what you want to build...",
+    "notSure": "Not sure where to start? Try one of these",
+    "viewTemplates": "View all templates",
+    "importing": "Importing…",
+    "import": "Import",
+    "cancel": "Cancel",
+    "attachMenu": {
+      "uploadFile": "Upload file",
+      "uploadPdf": "Upload PDF",
+      "github": "GitHub",
+      "vercel": "Vercel",
+      "imageUrl": "Image URL",
+      "githubLabel": "GitHub URL or user/repo",
+      "vercelLabel": "Vercel project URL",
+      "imageLabel": "Image URL"
+    },
+    "suggestions": [
+      { "label": "Reservation platform", "prompt": "Build a reservation platform for my business — customers can book appointments, manage availability, and receive confirmation emails." },
+      { "label": "Operations dashboard", "prompt": "Create an operations dashboard for my team — centralize tasks, KPIs, and team activity in one internal tool." },
+      { "label": "AI customer support", "prompt": "I need an AI assistant for customer support — it should answer FAQs, escalate complex issues, and integrate with our existing chat." },
+      { "label": "Custom workflow tool", "prompt": "Build custom software to automate my business workflow — reduce manual steps and connect my existing tools." },
+      { "label": "Mobile app", "prompt": "Create a mobile app for my business — available on iOS and Android with a clean, modern design." },
+      { "label": "E-commerce store", "prompt": "I need an e-commerce store for my products — with catalog management, cart, checkout, and order tracking." },
+      { "label": "Client portal", "prompt": "Build a client portal where my customers can log in, view their projects, upload documents, and communicate with my team." },
+      { "label": "Internal tool", "prompt": "Create an internal tool for my team to manage operations — track tasks, approvals, and performance metrics in one place." }
+    ]
+  },
+  "footer": {
+    "tagline": "Custom software built in real code. From idea to production-ready applications, powered by AI.",
+    "rights": "© 2026 Noon. All rights reserved.",
+    "builtWith": "Built with",
+    "groups": {
+      "Company": "Company",
+      "Solutions": "Solutions",
+      "Legal": "Legal"
+    },
+    "links": {
+      "aboutNoon": "About Noon",
+      "nextProduct": "Next product",
+      "workWithNoon": "Work with Noon",
+      "contact": "Contact",
+      "whatWeBuild": "What we build",
+      "howItWorks": "How it works",
+      "technologyWeUse": "Technology we use",
+      "templates": "Templates",
+      "privacyPolicy": "Privacy Policy",
+      "termsAndConditions": "Terms and Conditions",
+      "cookiesPolicy": "Cookies Policy",
+      "legalNotice": "Legal Notice"
+    }
+  },
+  "about": {
+    "hero": {
+      "eyebrow": "Company",
+      "headline": "A code-first company",
+      "headlineMuted": "built around real delivery.",
+      "description": "Noon turns ambiguous software demand into concrete scope and delivers it in code. Execution quality, product judgment, AI-assisted leverage.",
+      "startWithMaxwell": "Start with Maxwell",
+      "contactNoon": "Contact Noon"
+    },
+    "thesis": {
+      "eyebrow": "Thesis",
+      "headline": "Why the model exists",
+      "mainTitle": "Turn ambiguity into real delivery.",
+      "mainDescription": "Noon is built for situations where the need is real but the software shape is still unclear. The job is to turn that ambiguity into scoped, production-minded execution.",
+      "productionGrade": "Production-grade",
+      "clearProcess": "Clear process",
+      "clearProcessDescription": "From initial conversation to deployment, every step is transparent.",
+      "aiAccelerated": "AI-accelerated",
+      "aiAcceleratedDescription": "Maxwell handles scoping, and our tools accelerate development without sacrificing quality.",
+      "maxwellProcessing": "Maxwell processing",
+      "enterpriseReady": "Enterprise-ready",
+      "enterpriseReadyDescription": "Built for scale, security, and long-term maintainability.",
+      "codeOwnership": "Code ownership",
+      "codeOwnershipDescription": "Ownership depends on the engagement model, while client data remains the client's."
+    },
+    "operatingModel": {
+      "eyebrow": "Operating model",
+      "headline": "How we work",
+      "boundariesEyebrow": "Boundaries",
+      "boundariesHeadline": "What Noon is not",
+      "principles": [
+        {
+          "number": "01",
+          "title": "Start from the problem",
+          "description": "Most valuable conversations start with operational friction, not a stack wishlist."
+        },
+        {
+          "number": "02",
+          "title": "Translate to a real build path",
+          "description": "The path becomes explicit enough to scope and deliver: internal system, product, workflow, or custom architecture."
+        },
+        {
+          "number": "03",
+          "title": "Execute with AI as leverage",
+          "description": "AI compresses repetitive work but does not remove the need for architecture or product judgment."
+        }
+      ],
+      "notNoon": [
+        "No-code shortcuts that collapse when logic gets serious",
+        "Generic marketplace for every kind of interest",
+        "Product theater hiding weak delivery behind polish"
+      ]
+    },
+    "metrics": [
+      { "label": "Code-first delivery", "value": "100%", "description": "Every project ships as production code" },
+      { "label": "Scope direction", "value": "Clear", "description": "The first direction is defined before build work starts" },
+      { "label": "AI-assisted workflows", "value": "Active", "description": "Tooling accelerates execution without replacing judgment" }
+    ],
+    "criteria": {
+      "eyebrow": "Criteria",
+      "headline": "What we focus on",
+      "items": [
+        {
+          "title": "Scope before execution",
+          "description": "Direction is defined and agreed before production code is written. Ambiguity is resolved at the start, not during development."
+        },
+        {
+          "title": "Working software, not documentation",
+          "description": "Every project ends with deployed, runnable code — not specs, wireframes, or prototypes delivered as a final product."
+        },
+        {
+          "title": "Explicit exclusions",
+          "description": "What is not included is clearly stated. Vague scope is the main cause of misaligned expectations; we eliminate it by design."
+        },
+        {
+          "title": "Judgment, not blind execution",
+          "description": "The right question is what should be built, not just what was asked for. Product judgment is part of every project."
+        }
+      ]
+    },
+    "stack": {
+      "eyebrow": "Stack",
+      "headline": "Technology we use",
+      "description": "Technology choices follow the product, not the other way around.",
+      "inStack": "In stack",
+      "tools": "tools"
+    },
+    "cta": {
+      "headline": "Ready to build?",
+      "description": "Start a conversation with Maxwell or reach out directly.",
+      "startWithMaxwell": "Start with Maxwell",
+      "viewServices": "View services"
+    }
+  },
+  "services": {
+    "hero": {
+      "eyebrow": "Services",
+      "headline": "What we build",
+      "description": "Noon delivers production-grade software across a wide range of product types. The right choice depends on the problem, not the category.",
+      "startWithMaxwell": "Start with Maxwell",
+      "viewTemplates": "View templates"
+    },
+    "serviceTypes": [
+      {
+        "title": "AI & Automation",
+        "description": "Intelligent assistants, workflow automation, and AI-powered tooling for teams that need speed without losing operational control.",
+        "examples": ["AI assistants", "Automated workflows", "Smart integrations"]
+      },
+      {
+        "title": "Web Solutions",
+        "description": "From customer-facing experiences to internal platforms, built as real software with production-grade architecture.",
+        "examples": ["Web platforms", "Dashboards", "Portals"]
+      },
+      {
+        "title": "Mobile Solutions",
+        "description": "Native and cross-platform mobile applications focused on clear flows and operational reliability.",
+        "examples": ["iOS apps", "Android apps", "Cross-platform"]
+      },
+      {
+        "title": "Custom Software",
+        "description": "Software shaped around your internal logic and non-standard workflows when generic systems stop being useful.",
+        "examples": ["Internal tools", "Custom integrations", "Business systems"]
+      }
+    ],
+    "whatWeBuildEyebrow": "What we build",
+    "whatWeBuildHeadline": "Four delivery areas",
+    "problemAreas": {
+      "eyebrow": "Problem areas",
+      "headline": "When software becomes the answer",
+      "items": [
+        {
+          "problem": "Manual work that should be automated",
+          "summary": "AI-assisted workflows for teams losing time to repetitive work and human bottlenecks.",
+          "signals": ["Copying data between tools", "Progress depends on one operator"]
+        },
+        {
+          "problem": "Operations that need one central system",
+          "summary": "Dashboards and portals that consolidate data, workflows, and reporting into one surface.",
+          "signals": ["Data across disconnected tools", "No clear source of truth"]
+        },
+        {
+          "problem": "A product that needs to launch as real software",
+          "summary": "Production-minded builds for founders who understand the problem and need something real.",
+          "signals": ["Customer problem is validated", "Bottleneck is execution"]
+        },
+        {
+          "problem": "Workflows that generic tools don't fit",
+          "summary": "Custom software built around business logic that breaks inside generic tools.",
+          "signals": ["Relying on workarounds", "Off-the-shelf tools don't fit"]
+        }
+      ]
+    },
+    "process": {
+      "eyebrow": "Process",
+      "headline": "How a project starts",
+      "steps": [
+        {
+          "diagramLabel": "Constraint",
+          "title": "Clarify the constraint",
+          "description": "Isolate the business problem and the bottleneck that justifies software work.",
+          "status": "Clarifying the constraint",
+          "output": "A clear problem statement and the bottleneck worth solving in software."
+        },
+        {
+          "diagramLabel": "Path",
+          "title": "Translate to software path",
+          "description": "Choose the right shape: workflow system, platform, product, or custom architecture.",
+          "status": "Mapping the software path",
+          "output": "A recommended software direction matched to the actual operating need."
+        },
+        {
+          "diagramLabel": "Delivery",
+          "title": "Move into scoped delivery",
+          "description": "Turn direction into proposal, build scope, and delivery plan.",
+          "status": "Preparing scoped delivery",
+          "output": "Proposal, build scope, and delivery plan ready for execution."
+        }
+      ]
+    },
+    "fitLabels": ["Best fit", "Strong fit", "Likely fit", "Custom fit"],
+    "cta": {
+      "headline": "Ready to scope your project?",
+      "description": "Start with Maxwell to clarify the problem, or reach out directly.",
+      "startWithMaxwell": "Start with Maxwell",
+      "viewTemplates": "View templates"
+    }
+  },
+  "templates": {
+    "hero": {
+      "eyebrow": "Templates",
+      "headline": "Pre-scoped builds",
+      "description": "A starting point for common software types. Each template maps to a clear delivery scope.",
+      "startWithMaxwell": "Start with Maxwell",
+      "viewAll": "View all templates"
+    },
+    "categories": "Categories",
+    "allTemplates": "All Templates",
+    "cta": {
+      "headline": "Don't see what you need?",
+      "description": "Start with Maxwell and describe what you want to build.",
+      "startWithMaxwell": "Start with Maxwell"
+    }
+  },
+  "contact": {
+    "hero": {
+      "eyebrow": "Contact",
+      "headline": "Contact Noon",
+      "description": "Tell us what you need, and we'll route it correctly. For project requests, we usually review the inquiry first and then continue with the right next step.",
+      "responseTime": "We usually respond within 1-2 business days."
+    },
+    "routes": {
+      "eyebrow": "Routes",
+      "headline": "Choose the right path"
+    },
+    "inquiryPaths": [
+      {
+        "title": "Project request",
+        "description": "Scope, propose, or build custom software."
+      },
+      {
+        "title": "General question",
+        "description": "Company, legal, or broader questions about Noon."
+      },
+      {
+        "title": "Partnership or collaboration",
+        "description": "Seller, developer, or collaboration inquiries."
+      },
+      {
+        "title": "Next product interest",
+        "description": "Investor or next product conversations."
+      }
+    ],
+    "openRoute": "Open route",
+    "continueWithMaxwell": "Continue with Maxwell",
+    "cta": {
+      "headline": "Need a first direction before you reach out?",
+      "description": "Let Maxwell help structure the initial request before Noon reviews it.",
+      "startWithMaxwell": "Start with Maxwell"
+    },
+    "routing": {
+      "project": "Routing: Project request",
+      "general": "Routing: General question",
+      "partner": "Routing: Partnership route",
+      "next": "Routing: Next product interest"
+    }
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "headline": "Frequently asked questions"
+  }
+}

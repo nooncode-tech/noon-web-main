@@ -1,15 +1,99 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
-import { getStartWithMaxwellHref, primaryNavigation, siteRoutes } from "@/lib/site-config";
+import { Menu, X, Globe, ChevronDown } from "lucide-react";
+import { getStartWithMaxwellHref, siteRoutes } from "@/lib/site-config";
 import { siteTones } from "@/lib/site-tones";
 import { NoonLogo } from "@/components/ui/noon-logo";
+import { useRouter } from "next/navigation";
+
+// Inline nav label translations (nav is used outside NextIntlClientProvider too)
+const NAV_LABELS: Record<string, { services: string; templates: string; about: string; startWithMaxwell: string }> = {
+  en: { services: "Services", templates: "Templates", about: "About", startWithMaxwell: "Start with Maxwell" },
+  es: { services: "Servicios", templates: "Plantillas", about: "Nosotros", startWithMaxwell: "Empezar con Maxwell" },
+  fr: { services: "Services", templates: "Modèles", about: "À propos", startWithMaxwell: "Commencer avec Maxwell" },
+  de: { services: "Dienste", templates: "Vorlagen", about: "Über uns", startWithMaxwell: "Mit Maxwell starten" },
+};
 
 const navigationTone = siteTones.brand;
+
+
+const localeNames: Record<string, string> = {
+  en: "English",
+  es: "Español",
+  fr: "Français",
+  de: "Deutsch",
+};
+
+const LOCALES = ["en", "es", "fr", "de"];
+
+function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useParams();
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Derive locale from URL params or pathname
+  const paramLocale = typeof params?.locale === "string" ? params.locale : null;
+  const pathLocale = LOCALES.find((l) => pathname.startsWith(`/${l}/`) || pathname === `/${l}`);
+  const locale = (paramLocale && LOCALES.includes(paramLocale) ? paramLocale : pathLocale) ?? "en";
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  function switchLocale(newLocale: string) {
+    const segments = pathname.split("/");
+    const cleanPath = LOCALES.includes(segments[1])
+      ? "/" + segments.slice(2).join("/")
+      : pathname;
+
+    router.push(`/${newLocale}${cleanPath === "/" ? "" : cleanPath}`);
+    setIsOpen(false);
+  }
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={`flex items-center gap-1.5 rounded-full border border-foreground/10 bg-secondary/50 px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground ${compact ? "h-7" : "h-8"}`}
+      >
+        <Globe className="w-3 h-3" />
+        {locale.toUpperCase()}
+        <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-2 z-[60] min-w-[130px] rounded-xl border border-foreground/10 bg-background/95 backdrop-blur-xl shadow-xl overflow-hidden">
+          {Object.entries(localeNames).map(([code, name]) => (
+            <button
+              key={code}
+              onClick={() => switchLocale(code)}
+              className={`w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-secondary/60 flex items-center justify-between ${
+                locale === code ? "font-medium text-foreground" : "text-muted-foreground"
+              }`}
+            >
+              {name}
+              {locale === code && (
+                <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -22,9 +106,28 @@ export function Navigation() {
   const lastScrollYRef = useRef(0);
   const isHiddenRef = useRef(false);
   const pathname = usePathname();
+  const params = useParams();
+
+  // Derive locale from URL
+  const paramLocale = typeof params?.locale === "string" ? params.locale : null;
+  const pathLocale = LOCALES.find((l) => pathname.startsWith(`/${l}/`) || pathname === `/${l}`);
+  const currentLocale = (paramLocale && LOCALES.includes(paramLocale) ? paramLocale : pathLocale) ?? "en";
+  const navLabels = NAV_LABELS[currentLocale] ?? NAV_LABELS.en;
+
+  const translatedNav = [
+    { name: navLabels.services, href: siteRoutes.services, match: [siteRoutes.services] },
+    { name: navLabels.templates, href: siteRoutes.templates, match: [siteRoutes.templates] },
+    { name: navLabels.about, href: siteRoutes.about, match: [siteRoutes.about] },
+  ];
+
+  // Prepend locale to internal links so navigation preserves the current locale
+  const localHref = (href: string) => {
+    if (href.startsWith("http") || href.startsWith("//")) return href;
+    return `/${currentLocale}${href}`;
+  };
 
   const isActiveLink = (matches: string[]) =>
-    matches.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+    matches.some((route) => pathname === route || pathname.endsWith(route) || pathname.includes(`${route}/`));
 
   useEffect(() => {
     const updateScrollState = () => {
@@ -100,7 +203,7 @@ export function Navigation() {
           }`}
         >
           {/* Logo */}
-          <Link href={siteRoutes.home} className="flex items-center group">
+          <Link href={localHref(siteRoutes.home)} className="flex items-center group">
             <NoonLogo
               variant="wordmark"
               height={isScrolled ? 18 : 22}
@@ -109,10 +212,10 @@ export function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-12">
-            {primaryNavigation.map((link) => (
+            {translatedNav.map((link) => (
               <Link
                 key={link.name}
-                href={link.href}
+                href={localHref(link.href)}
                 className={`text-sm transition-colors duration-300 relative group ${
                   isActiveLink(link.match) ? "" : "text-foreground/70 hover:text-foreground"
                 }`}
@@ -129,8 +232,9 @@ export function Navigation() {
             ))}
           </div>
 
-          {/* Desktop CTA */}
-          <div className="hidden md:flex items-center gap-4">
+          {/* Desktop CTA + Language switcher */}
+          <div className="hidden md:flex items-center gap-3">
+            <LanguageSwitcher compact={isScrolled} />
             <Button
               asChild
               size="sm"
@@ -139,7 +243,7 @@ export function Navigation() {
               }`}
               style={{ boxShadow: `inset 0 0 0 1px ${navigationTone.border}` }}
             >
-              <Link href={getStartWithMaxwellHref()}>Start with Maxwell</Link>
+              <a href={getStartWithMaxwellHref()}>{navLabels.startWithMaxwell}</a>
             </Button>
           </div>
 
@@ -186,7 +290,7 @@ export function Navigation() {
       <div className="rounded-2xl border border-foreground/10 bg-background/95 backdrop-blur-xl shadow-2xl overflow-hidden">
         {/* Panel header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-foreground/8">
-          <Link href={siteRoutes.home} className="flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
+          <Link href={localHref(siteRoutes.home)} className="flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
             <NoonLogo variant="wordmark" height={26} />
           </Link>
           <button
@@ -200,10 +304,10 @@ export function Navigation() {
 
         {/* Nav links */}
         <div className="px-3 py-3">
-          {primaryNavigation.map((link, i) => (
+          {translatedNav.map((link, i) => (
             <Link
               key={link.name}
-              href={link.href}
+              href={localHref(link.href)}
               onClick={() => setIsMobileMenuOpen(false)}
               className={`flex items-center justify-between px-4 py-3.5 rounded-xl text-base font-medium transition-all duration-300 ${
                 isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
@@ -221,20 +325,23 @@ export function Navigation() {
           ))}
         </div>
 
-        {/* CTA */}
+        {/* Language switcher + CTA */}
         <div
-          className={`px-4 pb-4 pt-1 transition-all duration-300 ${
+          className={`px-4 pb-4 pt-1 space-y-3 transition-all duration-300 ${
             isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
           }`}
           style={{ transitionDelay: isMobileMenuOpen ? "280ms" : "0ms" }}
         >
+          <div className="flex justify-center">
+            <LanguageSwitcher />
+          </div>
           <Button
             asChild
             className="w-full bg-primary text-primary-foreground rounded-xl h-12 text-sm font-medium hover:bg-primary/90"
           >
-            <Link href={getStartWithMaxwellHref()} onClick={() => setIsMobileMenuOpen(false)}>
-              Start with Maxwell
-            </Link>
+            <a href={getStartWithMaxwellHref()} onClick={() => setIsMobileMenuOpen(false)}>
+              {navLabels.startWithMaxwell}
+            </a>
           </Button>
         </div>
       </div>

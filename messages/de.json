@@ -1,0 +1,312 @@
+{
+  "nav": {
+    "services": "Dienste",
+    "templates": "Vorlagen",
+    "about": "Über uns",
+    "startWithMaxwell": "Mit Maxwell starten"
+  },
+  "hero": {
+    "eyebrow": "Das code-first Softwareunternehmen",
+    "headline": "Sagen Sie uns, was Sie bauen möchten.",
+    "placeholder": "Beschreiben Sie, was Sie bauen möchten...",
+    "notSure": "Unsicher, wo Sie anfangen sollen? Probieren Sie eines davon",
+    "viewTemplates": "Alle Vorlagen ansehen",
+    "importing": "Wird importiert…",
+    "import": "Importieren",
+    "cancel": "Abbrechen",
+    "attachMenu": {
+      "uploadFile": "Datei hochladen",
+      "uploadPdf": "PDF hochladen",
+      "github": "GitHub",
+      "vercel": "Vercel",
+      "imageUrl": "Bild-URL",
+      "githubLabel": "GitHub-URL oder Benutzer/Repo",
+      "vercelLabel": "Vercel-Projekt-URL",
+      "imageLabel": "Bild-URL"
+    },
+    "suggestions": [
+      { "label": "Buchungsplattform", "prompt": "Eine Buchungsplattform für mein Unternehmen erstellen — Kunden können Termine buchen, Verfügbarkeit verwalten und Bestätigungs-E-Mails erhalten." },
+      { "label": "Betriebsdashboard", "prompt": "Ein Betriebsdashboard für mein Team erstellen — Aufgaben, KPIs und Teamaktivitäten in einem internen Tool zentralisieren." },
+      { "label": "KI-Kundensupport", "prompt": "Ich benötige einen KI-Assistenten für den Kundensupport — er soll häufige Fragen beantworten, komplexe Probleme eskalieren und sich in unseren bestehenden Chat integrieren." },
+      { "label": "Workflow-Automatisierung", "prompt": "Individuelle Software erstellen, um meinen Geschäftsprozess zu automatisieren — manuelle Schritte reduzieren und bestehende Tools verbinden." },
+      { "label": "Mobile App", "prompt": "Eine mobile App für mein Unternehmen erstellen — auf iOS und Android verfügbar mit einem sauberen, modernen Design." },
+      { "label": "Online-Shop", "prompt": "Ich benötige einen Online-Shop für meine Produkte — mit Katalogverwaltung, Warenkorb, Checkout und Bestellverfolgung." },
+      { "label": "Kundenportal", "prompt": "Ein Kundenportal erstellen, in dem sich meine Kunden anmelden, ihre Projekte einsehen, Dokumente hochladen und mit meinem Team kommunizieren können." },
+      { "label": "Internes Tool", "prompt": "Ein internes Tool für mein Team erstellen, um Abläufe zu verwalten — Aufgaben, Genehmigungen und Leistungskennzahlen an einem Ort verfolgen." }
+    ]
+  },
+  "footer": {
+    "tagline": "Individuelle Software in echtem Code. Von der Idee bis zur produktionsfertigen Anwendung, unterstützt durch KI.",
+    "rights": "© 2026 Noon. Alle Rechte vorbehalten.",
+    "builtWith": "Erstellt mit",
+    "groups": {
+      "Company": "Unternehmen",
+      "Solutions": "Lösungen",
+      "Legal": "Rechtliches"
+    },
+    "links": {
+      "aboutNoon": "Über Noon",
+      "nextProduct": "Nächstes Produkt",
+      "workWithNoon": "Mit Noon arbeiten",
+      "contact": "Kontakt",
+      "whatWeBuild": "Was wir bauen",
+      "howItWorks": "Wie es funktioniert",
+      "technologyWeUse": "Verwendete Technologien",
+      "templates": "Vorlagen",
+      "privacyPolicy": "Datenschutzrichtlinie",
+      "termsAndConditions": "Allgemeine Geschäftsbedingungen",
+      "cookiesPolicy": "Cookie-Richtlinie",
+      "legalNotice": "Impressum"
+    }
+  },
+  "about": {
+    "hero": {
+      "eyebrow": "Unternehmen",
+      "headline": "Ein code-first Unternehmen",
+      "headlineMuted": "aufgebaut auf echter Lieferung.",
+      "description": "Noon verwandelt ambiguöse Softwarenachfrage in konkreten Umfang und liefert ihn in Code. Ausführungsqualität, Produkturteil, KI-gestützter Hebel.",
+      "startWithMaxwell": "Mit Maxwell starten",
+      "contactNoon": "Noon kontaktieren"
+    },
+    "thesis": {
+      "eyebrow": "These",
+      "headline": "Warum das Modell existiert",
+      "mainTitle": "Ambiguität in echte Lieferung verwandeln.",
+      "mainDescription": "Noon ist für Situationen gedacht, in denen der Bedarf real ist, aber die Softwareform noch unklar ist. Die Aufgabe besteht darin, diese Ambiguität in begrenzte, produktionsorientierte Ausführung zu überführen.",
+      "productionGrade": "Produktionsreif",
+      "clearProcess": "Klarer Prozess",
+      "clearProcessDescription": "Von der ersten Konversation bis zum Deployment ist jeder Schritt transparent.",
+      "aiAccelerated": "KI-beschleunigt",
+      "aiAcceleratedDescription": "Maxwell übernimmt den Umfang, unsere Tools beschleunigen die Entwicklung ohne Qualitätseinbußen.",
+      "maxwellProcessing": "Maxwell verarbeitet",
+      "enterpriseReady": "Unternehmensbereit",
+      "enterpriseReadyDescription": "Gebaut für Skalierung, Sicherheit und langfristige Wartbarkeit.",
+      "codeOwnership": "Code-Eigentümerschaft",
+      "codeOwnershipDescription": "Eigentümerschaft hängt vom Engagement-Modell ab, während Kundendaten beim Kunden verbleiben."
+    },
+    "operatingModel": {
+      "eyebrow": "Betriebsmodell",
+      "headline": "Wie wir arbeiten",
+      "boundariesEyebrow": "Grenzen",
+      "boundariesHeadline": "Was Noon nicht ist",
+      "principles": [
+        {
+          "number": "01",
+          "title": "Vom Problem ausgehen",
+          "description": "Die wertvollsten Gespräche beginnen mit operativer Reibung, nicht mit einer Technologie-Wunschliste."
+        },
+        {
+          "number": "02",
+          "title": "In einen echten Baupfad übersetzen",
+          "description": "Der Pfad wird explizit genug, um Umfang zu definieren und zu liefern: internes System, Produkt, Workflow oder benutzerdefinierte Architektur."
+        },
+        {
+          "number": "03",
+          "title": "Mit KI als Hebel ausführen",
+          "description": "KI komprimiert repetitive Arbeit, beseitigt aber nicht die Notwendigkeit von Architektur oder Produkturteil."
+        }
+      ],
+      "notNoon": [
+        "No-Code-Abkürzungen, die versagen, wenn die Logik ernst wird",
+        "Generischer Marktplatz für alle Arten von Interessen",
+        "Produkttheater, das schwache Lieferung hinter Politur versteckt"
+      ]
+    },
+    "metrics": [
+      { "label": "Code-first Lieferung", "value": "100%", "description": "Jedes Projekt wird als Produktionscode geliefert" },
+      { "label": "Umfangsrichtung", "value": "Klar", "description": "Die erste Richtung wird vor dem Beginn der Bauarbeit definiert" },
+      { "label": "KI-gestützte Workflows", "value": "Aktiv", "description": "Tooling beschleunigt die Ausführung ohne das Urteil zu ersetzen" }
+    ],
+    "criteria": {
+      "eyebrow": "Kriterien",
+      "headline": "Worauf wir uns konzentrieren",
+      "items": [
+        {
+          "title": "Umfang vor Ausführung",
+          "description": "Die Richtung wird vor dem Schreiben von Produktionscode definiert und vereinbart. Ambiguität wird am Anfang gelöst, nicht während der Entwicklung."
+        },
+        {
+          "title": "Funktionierendes Software, keine Dokumentation",
+          "description": "Jedes Projekt endet mit bereitgestelltem, ausführbarem Code — nicht mit Spezifikationen, Wireframes oder Prototypen als Endprodukt."
+        },
+        {
+          "title": "Explizite Ausschlüsse",
+          "description": "Was nicht enthalten ist, wird klar angegeben. Vager Umfang ist die Hauptursache für falsch ausgerichtete Erwartungen; wir eliminieren ihn by Design."
+        },
+        {
+          "title": "Urteil, keine blinde Ausführung",
+          "description": "Die richtige Frage ist, was gebaut werden sollte, nicht nur was angefragt wurde. Produkturteil ist Teil jedes Projekts."
+        }
+      ]
+    },
+    "stack": {
+      "eyebrow": "Stack",
+      "headline": "Verwendete Technologien",
+      "description": "Technologieentscheidungen folgen dem Produkt, nicht umgekehrt.",
+      "inStack": "Im Stack",
+      "tools": "Tools"
+    },
+    "cta": {
+      "headline": "Bereit zu bauen?",
+      "description": "Starten Sie ein Gespräch mit Maxwell oder wenden Sie sich direkt an uns.",
+      "startWithMaxwell": "Mit Maxwell starten",
+      "viewServices": "Dienste ansehen"
+    }
+  },
+  "services": {
+    "hero": {
+      "eyebrow": "Dienste",
+      "headline": "Was wir bauen",
+      "description": "Noon liefert produktionsreife Software über eine breite Palette von Produkttypen. Die richtige Wahl hängt vom Problem ab, nicht von der Kategorie.",
+      "startWithMaxwell": "Mit Maxwell starten",
+      "viewTemplates": "Vorlagen ansehen"
+    },
+    "serviceTypes": [
+      {
+        "title": "KI & Automatisierung",
+        "description": "Intelligente Assistenten, Workflow-Automatisierung und KI-gestützte Tools für Teams, die Geschwindigkeit brauchen, ohne die operative Kontrolle zu verlieren.",
+        "examples": ["KI-Assistenten", "Automatisierte Workflows", "Intelligente Integrationen"]
+      },
+      {
+        "title": "Web-Lösungen",
+        "description": "Von kundenorientierten Erfahrungen bis zu internen Plattformen, als echte Software mit produktionsreifer Architektur gebaut.",
+        "examples": ["Web-Plattformen", "Dashboards", "Portale"]
+      },
+      {
+        "title": "Mobile Lösungen",
+        "description": "Native und plattformübergreifende mobile Anwendungen mit Fokus auf klare Abläufe und operative Zuverlässigkeit.",
+        "examples": ["iOS-Apps", "Android-Apps", "Plattformübergreifend"]
+      },
+      {
+        "title": "Individuelle Software",
+        "description": "Software, die um Ihre interne Logik und nicht standardmäßige Workflows herum gestaltet ist, wenn generische Systeme nicht mehr nützlich sind.",
+        "examples": ["Interne Tools", "Individuelle Integrationen", "Geschäftssysteme"]
+      }
+    ],
+    "whatWeBuildEyebrow": "Was wir bauen",
+    "whatWeBuildHeadline": "Vier Lieferbereiche",
+    "problemAreas": {
+      "eyebrow": "Problembereiche",
+      "headline": "Wenn Software die Antwort ist",
+      "items": [
+        {
+          "problem": "Manuelle Arbeit, die automatisiert werden sollte",
+          "summary": "KI-gestützte Workflows für Teams, die Zeit durch repetitive Arbeit und menschliche Engpässe verlieren.",
+          "signals": ["Daten zwischen Tools kopieren", "Fortschritt hängt von einem Operator ab"]
+        },
+        {
+          "problem": "Abläufe, die ein zentrales System brauchen",
+          "summary": "Dashboards und Portale, die Daten, Workflows und Berichte auf einer Oberfläche konsolidieren.",
+          "signals": ["Daten in getrennten Tools", "Keine klare Quelle der Wahrheit"]
+        },
+        {
+          "problem": "Ein Produkt, das als echte Software starten muss",
+          "summary": "Produktionsorientierte Builds für Gründer, die das Problem verstehen und etwas Reales brauchen.",
+          "signals": ["Kundenproblem ist validiert", "Engpass ist die Ausführung"]
+        },
+        {
+          "problem": "Workflows, die generische Tools nicht abdecken",
+          "summary": "Individuelle Software, die um Geschäftslogik herum gebaut ist, die in generischen Tools versagt.",
+          "signals": ["Abhängigkeit von Workarounds", "Standardtools passen nicht"]
+        }
+      ]
+    },
+    "process": {
+      "eyebrow": "Prozess",
+      "headline": "Wie ein Projekt beginnt",
+      "steps": [
+        {
+          "diagramLabel": "Einschränkung",
+          "title": "Einschränkung klären",
+          "description": "Das Geschäftsproblem und den Engpass isolieren, der Softwarearbeit rechtfertigt.",
+          "status": "Einschränkung wird geklärt",
+          "output": "Eine klare Problemaussage und der Engpass, der in Software gelöst werden soll."
+        },
+        {
+          "diagramLabel": "Pfad",
+          "title": "In Software-Pfad übersetzen",
+          "description": "Die richtige Form wählen: Workflow-System, Plattform, Produkt oder individuelle Architektur.",
+          "status": "Software-Pfad wird kartiert",
+          "output": "Eine empfohlene Softwarerichtung, die dem tatsächlichen Betriebsbedarf entspricht."
+        },
+        {
+          "diagramLabel": "Lieferung",
+          "title": "In begrenzter Lieferung vorankommen",
+          "description": "Richtung in Vorschlag, Build-Umfang und Lieferplan umwandeln.",
+          "status": "Begrenzte Lieferung wird vorbereitet",
+          "output": "Vorschlag, Build-Umfang und Lieferplan bereit für die Ausführung."
+        }
+      ]
+    },
+    "fitLabels": ["Beste Wahl", "Gute Wahl", "Wahrscheinliche Wahl", "Individuelle Anpassung"],
+    "cta": {
+      "headline": "Bereit, Ihr Projekt zu definieren?",
+      "description": "Starten Sie mit Maxwell, um das Problem zu klären, oder wenden Sie sich direkt an uns.",
+      "startWithMaxwell": "Mit Maxwell starten",
+      "viewTemplates": "Vorlagen ansehen"
+    }
+  },
+  "templates": {
+    "hero": {
+      "eyebrow": "Vorlagen",
+      "headline": "Vordefinierte Builds",
+      "description": "Ein Ausgangspunkt für gängige Softwaretypen. Jede Vorlage entspricht einem klaren Lieferumfang.",
+      "startWithMaxwell": "Mit Maxwell starten",
+      "viewAll": "Alle Vorlagen ansehen"
+    },
+    "categories": "Kategorien",
+    "allTemplates": "Alle Vorlagen",
+    "cta": {
+      "headline": "Finden Sie nicht, was Sie brauchen?",
+      "description": "Starten Sie mit Maxwell und beschreiben Sie, was Sie bauen möchten.",
+      "startWithMaxwell": "Mit Maxwell starten"
+    }
+  },
+  "contact": {
+    "hero": {
+      "eyebrow": "Kontakt",
+      "headline": "Noon kontaktieren",
+      "description": "Sagen Sie uns, was Sie brauchen, und wir leiten es korrekt weiter. Für Projektanfragen prüfen wir die Anfrage zunächst und fahren dann mit dem richtigen nächsten Schritt fort.",
+      "responseTime": "Wir antworten in der Regel innerhalb von 1-2 Werktagen."
+    },
+    "routes": {
+      "eyebrow": "Routen",
+      "headline": "Wählen Sie den richtigen Weg"
+    },
+    "inquiryPaths": [
+      {
+        "title": "Projektanfrage",
+        "description": "Umfang definieren, vorschlagen oder individuelle Software bauen."
+      },
+      {
+        "title": "Allgemeine Frage",
+        "description": "Fragen zum Unternehmen, rechtliche oder allgemeine Fragen über Noon."
+      },
+      {
+        "title": "Partnerschaft oder Zusammenarbeit",
+        "description": "Anfragen von Verkäufern, Entwicklern oder zur Zusammenarbeit."
+      },
+      {
+        "title": "Interesse am nächsten Produkt",
+        "description": "Gespräche mit Investoren oder über das nächste Produkt."
+      }
+    ],
+    "openRoute": "Route öffnen",
+    "continueWithMaxwell": "Mit Maxwell fortfahren",
+    "cta": {
+      "headline": "Brauchen Sie eine erste Richtung, bevor Sie sich melden?",
+      "description": "Lassen Sie Maxwell die erste Anfrage strukturieren, bevor Noon sie prüft.",
+      "startWithMaxwell": "Mit Maxwell starten"
+    },
+    "routing": {
+      "project": "Weiterleitung: Projektanfrage",
+      "general": "Weiterleitung: Allgemeine Frage",
+      "partner": "Weiterleitung: Partnerschaftsroute",
+      "next": "Weiterleitung: Interesse nächstes Produkt"
+    }
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "headline": "Häufig gestellte Fragen"
+  }
+}

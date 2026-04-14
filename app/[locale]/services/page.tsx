@@ -3,6 +3,8 @@
 import { Fragment, useEffect, useState, memo } from "react";
 import { ArrowRight, Bot, Globe, Smartphone, Wrench, RefreshCw, LayoutDashboard, Rocket, Puzzle } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { SitePageFrame } from "@/app/_components/site/site-page-frame";
 import { useRevealOnView } from "@/hooks/use-reveal-on-view";
 import { siteRoutes } from "@/lib/site-config";
@@ -10,6 +12,7 @@ import { siteChromeDots, siteTones } from "@/lib/site-tones";
 import { HowItWorksSection } from "@/components/landing/how-it-works-section";
 
 const servicesEyebrowTone = siteTones.brand;
+const LOCALES = ["en", "es", "fr", "de"];
 
 // ============================================================================
 // PREVIEW MOCKUPS (same style as home)
@@ -30,7 +33,7 @@ function AIPreviewMockup({ isActive }: { isActive: boolean }) {
         <div className="flex-1 flex items-center justify-center gap-3">
           {["Input", "Process", "Output"].map((step, i) => (
             <div key={step} className="flex items-center gap-3">
-              <div 
+              <div
                 className={`w-12 h-12 rounded-xl bg-secondary flex items-center justify-center transition-all duration-300 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
                 style={{ transitionDelay: `${i * 150}ms` }}
               >
@@ -108,7 +111,7 @@ function MobilePreviewMockup({ isActive }: { isActive: boolean }) {
             </div>
             <div className="flex-1 space-y-2 overflow-hidden">
               {[1, 2, 3].map((i) => (
-                <div 
+                <div
                   key={i}
                   className={`bg-secondary rounded-lg p-2 transition-all duration-300 ${isActive ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}
                   style={{ transitionDelay: `${250 + i * 100}ms` }}
@@ -154,7 +157,7 @@ function CustomPreviewMockup({ isActive }: { isActive: boolean }) {
             { width: "90%", delay: 350 },
             { width: "60%", delay: 450 },
           ].map((line, i) => (
-            <div 
+            <div
               key={i}
               className={`h-2.5 bg-secondary rounded transition-all duration-300 ${isActive ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}
               style={{ width: line.width, transitionDelay: `${line.delay}ms` }}
@@ -177,118 +180,58 @@ function CustomPreviewMockup({ isActive }: { isActive: boolean }) {
 }
 
 // ============================================================================
-// DATA
+// STATIC METADATA (no translatable text)
 // ============================================================================
 
-const buildCategories = [
-  {
-    number: "01",
-    slug: "ai-and-automation",
-    title: "AI & Automation",
-    description: "Intelligent assistants, workflow automation, and AI-powered tooling for teams that need speed without losing operational control.",
-    icon: Bot,
-    examples: ["AI assistants", "Automated workflows", "Smart integrations"],
-    PreviewMockup: AIPreviewMockup,
-    tone: siteTones.gateway,
-  },
-  {
-    number: "02",
-    slug: "web-solutions",
-    title: "Web Solutions",
-    description: "From customer-facing experiences to internal platforms, built as real software with production-grade architecture.",
-    icon: Globe,
-    examples: ["Web platforms", "Dashboards", "Portals"],
-    PreviewMockup: WebPreviewMockup,
-    tone: siteTones.client,
-  },
-  {
-    number: "03",
-    slug: "mobile-solutions",
-    title: "Mobile Solutions",
-    description: "Native and cross-platform mobile applications focused on clear flows and operational reliability.",
-    icon: Smartphone,
-    examples: ["iOS apps", "Android apps", "Cross-platform"],
-    PreviewMockup: MobilePreviewMockup,
-    tone: siteTones.data,
-  },
-  {
-    number: "04",
-    slug: "custom-software",
-    title: "Custom Software",
-    description: "Software shaped around your internal logic and non-standard workflows when generic systems stop being useful.",
-    icon: Wrench,
-    examples: ["Internal tools", "Custom integrations", "Business systems"],
-    PreviewMockup: CustomPreviewMockup,
-    tone: siteTones.brandDeep,
-  },
+const buildCategoryMeta = [
+  { number: "01", slug: "ai-and-automation", icon: Bot, PreviewMockup: AIPreviewMockup, tone: siteTones.gateway },
+  { number: "02", slug: "web-solutions", icon: Globe, PreviewMockup: WebPreviewMockup, tone: siteTones.client },
+  { number: "03", slug: "mobile-solutions", icon: Smartphone, PreviewMockup: MobilePreviewMockup, tone: siteTones.data },
+  { number: "04", slug: "custom-software", icon: Wrench, PreviewMockup: CustomPreviewMockup, tone: siteTones.brandDeep },
 ];
 
-const solutionPaths = [
-  {
-    icon: RefreshCw,
-    problem: "Manual work that should be automated",
-    summary: "AI-assisted workflows for teams losing time to repetitive work and human bottlenecks.",
-    signals: ["Copying data between tools", "Progress depends on one operator"],
-    tone: siteTones.gateway,
-  },
-  {
-    icon: LayoutDashboard,
-    problem: "Operations that need one central system",
-    summary: "Dashboards and portals that consolidate data, workflows, and reporting into one surface.",
-    signals: ["Data across disconnected tools", "No clear source of truth"],
-    tone: siteTones.client,
-  },
-  {
-    icon: Rocket,
-    problem: "A product that needs to launch as real software",
-    summary: "Production-minded builds for founders who understand the problem and need something real.",
-    signals: ["Customer problem is validated", "Bottleneck is execution"],
-    tone: siteTones.brand,
-  },
-  {
-    icon: Puzzle,
-    problem: "Workflows that generic tools don't fit",
-    summary: "Custom software built around business logic that breaks inside generic tools.",
-    signals: ["Relying on workarounds", "Off-the-shelf tools don't fit"],
-    tone: siteTones.data,
-  },
+const solutionMeta = [
+  { icon: RefreshCw, tone: siteTones.gateway },
+  { icon: LayoutDashboard, tone: siteTones.client },
+  { icon: Rocket, tone: siteTones.brand },
+  { icon: Puzzle, tone: siteTones.data },
 ];
 
-const processSteps = [
-  {
-    number: "01",
-    diagramLabel: "Constraint",
-    title: "Clarify the constraint",
-    description: "Isolate the business problem and the bottleneck that justifies software work.",
-    status: "Clarifying the constraint",
-    output: "A clear problem statement and the bottleneck worth solving in software.",
-    tone: siteTones.services,
-  },
-  {
-    number: "02",
-    diagramLabel: "Path",
-    title: "Translate to software path",
-    description: "Choose the right shape: workflow system, platform, product, or custom architecture.",
-    status: "Mapping the software path",
-    output: "A recommended software direction matched to the actual operating need.",
-    tone: siteTones.brand,
-  },
-  {
-    number: "03",
-    diagramLabel: "Delivery",
-    title: "Move into scoped delivery",
-    description: "Turn direction into proposal, build scope, and delivery plan.",
-    status: "Preparing scoped delivery",
-    output: "Proposal, build scope, and delivery plan ready for execution.",
-    tone: siteTones.data,
-  },
+const processMeta = [
+  { number: "01", tone: siteTones.services },
+  { number: "02", tone: siteTones.brand },
+  { number: "03", tone: siteTones.data },
 ];
+
+// ============================================================================
+// TYPES
+// ============================================================================
+
+type BuildCategory = typeof buildCategoryMeta[0] & {
+  title: string;
+  description: string;
+  examples: string[];
+};
+
+type SolutionPath = typeof solutionMeta[0] & {
+  problem: string;
+  summary: string;
+  signals: string[];
+};
+
+type ProcessStep = typeof processMeta[0] & {
+  diagramLabel: string;
+  title: string;
+  description: string;
+  status: string;
+  output: string;
+};
 
 // ============================================================================
 // PROCESS FLOW DIAGRAM
 // ============================================================================
 
-function ProcessFlowDiagram() {
+function ProcessFlowDiagram({ processSteps }: { processSteps: ProcessStep[] }) {
   const [activeStep, setActiveStep] = useState(0);
   const { ref: diagramRef, isVisible } = useRevealOnView<HTMLDivElement>({ threshold: 0.3 });
 
@@ -298,7 +241,8 @@ function ProcessFlowDiagram() {
       setActiveStep((prev) => (prev + 1) % processSteps.length);
     }, 2000);
     return () => clearInterval(interval);
-  }, [isVisible]);
+  }, [isVisible, processSteps.length]);
+
   const currentStep = processSteps[activeStep];
 
   return (
@@ -438,16 +382,16 @@ function ProcessFlowDiagram() {
   );
 }
 
-// ============================================================================ 
+// ============================================================================
 // COMPONENTS
 // ============================================================================
 
-function ProcessStep({ 
-  step, 
-  index, 
-  isLast 
-}: { 
-  step: (typeof processSteps)[number]; 
+function ProcessStep({
+  step,
+  index,
+  isLast
+}: {
+  step: ProcessStep;
   index: number;
   isLast: boolean;
 }) {
@@ -484,7 +428,7 @@ function ProcessStep({
             />
           )}
         </div>
-        
+
         {/* Content */}
         <div className="pb-8">
           <h3 className="mb-2 flex items-center gap-2 text-lg font-display">
@@ -510,14 +454,11 @@ function ProcessStep({
   );
 }
 
-// ============================================================================ 
-// COMPONENTS
-// ============================================================================
-const CategoryCard = memo(function CategoryCard({ 
-  category, 
-  index 
-}: { 
-  category: typeof buildCategories[0]; 
+const CategoryCard = memo(function CategoryCard({
+  category,
+  index
+}: {
+  category: BuildCategory;
   index: number;
 }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -549,7 +490,7 @@ const CategoryCard = memo(function CategoryCard({
             <Icon className="w-5 h-5" />
           </div>
         </div>
-        
+
         {/* Content */}
         <div className="flex-1 grid lg:grid-cols-2 gap-6 lg:gap-10 items-start">
           <div>
@@ -560,13 +501,13 @@ const CategoryCard = memo(function CategoryCard({
               {category.description}
             </p>
           </div>
-          
+
           {/* Preview / Examples */}
           <div className="relative h-36 lg:h-44">
             {/* Default: examples */}
             <div className={`absolute inset-0 flex flex-wrap gap-2 content-start transition-all duration-300 ${isHovered ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
               {category.examples.map((example, i) => (
-                <span 
+                <span
                   key={i}
                   className="text-xs px-3 py-1.5 rounded-full border transition-colors duration-300"
                   style={{
@@ -579,7 +520,7 @@ const CategoryCard = memo(function CategoryCard({
                 </span>
               ))}
             </div>
-            
+
             {/* Hover: mockup */}
             <div className={`absolute inset-0 transition-all duration-500 ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
               <PreviewMockup isActive={isHovered} />
@@ -591,12 +532,14 @@ const CategoryCard = memo(function CategoryCard({
   );
 });
 
-function SolutionCard({ 
-  solution, 
-  index 
-}: { 
-  solution: typeof solutionPaths[0]; 
+function SolutionCard({
+  solution,
+  index,
+  fitLabel,
+}: {
+  solution: SolutionPath;
   index: number;
+  fitLabel: string;
 }) {
   const [isHovered, setIsHovered] = useState(false);
   const { ref: cardRef, isVisible } = useRevealOnView<HTMLDivElement>({ threshold: 0.2 });
@@ -651,13 +594,13 @@ function SolutionCard({
         <p className="text-sm text-muted-foreground leading-relaxed mb-4">
           {solution.summary}
         </p>
-        
+
         {/* Signal indicators with animation */}
         <div className="space-y-2">
           <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">Signals</span>
           {solution.signals.map((signal, i) => (
-            <div 
-              key={i} 
+            <div
+              key={i}
               className={`flex items-center gap-2 text-xs transition-all duration-300 ${isHovered ? "text-foreground translate-x-1" : "text-muted-foreground translate-x-0"}`}
               style={{ transitionDelay: `${i * 100}ms` }}
             >
@@ -676,7 +619,7 @@ function SolutionCard({
             className="inline-block rounded-full px-2.5 py-0.5 text-[10px] font-medium"
             style={{ backgroundColor: `${tone.accent}18`, color: tone.accent }}
           >
-            {(["Best fit", "Strong fit", "Likely fit", "Custom fit"] as const)[Math.min(index, 3)]}
+            {fitLabel}
           </span>
         </div>
       </div>
@@ -689,6 +632,41 @@ function SolutionCard({
 // ============================================================================
 
 export default function ServicesPage() {
+  const params = useParams();
+  const paramLocale = typeof params?.locale === "string" ? params.locale : null;
+  const locale = (paramLocale && LOCALES.includes(paramLocale) ? paramLocale : "en");
+  const lp = (href: string) => `/${locale}${href}`;
+
+  const t = useTranslations("services");
+
+  const serviceTypes = t.raw("serviceTypes") as Array<{ title: string; description: string; examples: string[] }>;
+  const problemItems = t.raw("problemAreas.items") as Array<{ problem: string; summary: string; signals: string[] }>;
+  const processStepsRaw = t.raw("process.steps") as Array<{ diagramLabel: string; title: string; description: string; status: string; output: string }>;
+  const fitLabels = t.raw("fitLabels") as string[];
+
+  const buildCategories: BuildCategory[] = buildCategoryMeta.map((meta, i) => ({
+    ...meta,
+    title: serviceTypes[i]?.title ?? "",
+    description: serviceTypes[i]?.description ?? "",
+    examples: serviceTypes[i]?.examples ?? [],
+  }));
+
+  const solutionPaths: SolutionPath[] = solutionMeta.map((meta, i) => ({
+    ...meta,
+    problem: problemItems[i]?.problem ?? "",
+    summary: problemItems[i]?.summary ?? "",
+    signals: problemItems[i]?.signals ?? [],
+  }));
+
+  const processSteps: ProcessStep[] = processMeta.map((meta, i) => ({
+    ...meta,
+    diagramLabel: processStepsRaw[i]?.diagramLabel ?? "",
+    title: processStepsRaw[i]?.title ?? "",
+    description: processStepsRaw[i]?.description ?? "",
+    status: processStepsRaw[i]?.status ?? "",
+    output: processStepsRaw[i]?.output ?? "",
+  }));
+
   const { ref: headerRef, isVisible: headerVisible } = useRevealOnView<HTMLDivElement>({ threshold: 0.1 });
 
   return (
@@ -697,28 +675,25 @@ export default function ServicesPage() {
       <section ref={headerRef} className="site-hero-section">
         <div className="site-shell">
           <div className="max-w-3xl">
-            <span 
+            <span
               className={`inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-6 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
             >
               <span className="w-8 h-px" style={{ backgroundColor: servicesEyebrowTone.accent }} />
-              Services
+              {t("hero.eyebrow")}
             </span>
-            <h1 
+            <h1
               className={`text-4xl lg:text-5xl font-display tracking-tight mb-6 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
               style={{ transitionDelay: "100ms" }}
             >
-              What we build and
-              <br />
-              <span className="text-muted-foreground">how we approach it.</span>
+              {t("hero.headline")}
             </h1>
-            <p 
+            <p
               className={`text-base lg:text-lg text-muted-foreground leading-relaxed mb-8 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
               style={{ transitionDelay: "200ms" }}
             >
-              AI systems, web platforms, mobile applications, and custom internal software. 
-              Every project starts from a real business problem.
+              {t("hero.description")}
             </p>
-            <div 
+            <div
               className={`flex flex-wrap gap-4 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
               style={{ transitionDelay: "300ms" }}
             >
@@ -726,14 +701,14 @@ export default function ServicesPage() {
                 href={siteRoutes.maxwell}
                 className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
               >
-                Start a conversation
+                {t("hero.startWithMaxwell")}
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                href={siteRoutes.templates}
+                href={lp(siteRoutes.templates)}
                 className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium transition-colors hover:bg-secondary"
               >
-                View templates
+                {t("hero.viewTemplates")}
               </Link>
             </div>
           </div>
@@ -746,14 +721,11 @@ export default function ServicesPage() {
           <div className="max-w-3xl mb-12">
             <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
               <span className="w-8 h-px" style={{ backgroundColor: servicesEyebrowTone.accent }} />
-              Build categories
+              {t("whatWeBuildEyebrow")}
             </span>
             <h2 className="text-2xl lg:text-3xl font-display tracking-tight mb-4">
-              What we build
+              {t("whatWeBuildHeadline")}
             </h2>
-            <p className="text-muted-foreground">
-              Four primary categories of software, each with its own implementation discipline.
-            </p>
           </div>
 
           <div>
@@ -770,19 +742,21 @@ export default function ServicesPage() {
           <div className="max-w-3xl mb-12">
             <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
               <span className="w-8 h-px" style={{ backgroundColor: servicesEyebrowTone.accent }} />
-              Solution paths
+              {t("problemAreas.eyebrow")}
             </span>
             <h2 className="text-2xl lg:text-3xl font-display tracking-tight mb-4">
-              How we approach problems
+              {t("problemAreas.headline")}
             </h2>
-            <p className="text-muted-foreground">
-              When the software category is not yet obvious, start from the operational pain.
-            </p>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
             {solutionPaths.map((solution, index) => (
-              <SolutionCard key={solution.problem} solution={solution} index={index} />
+              <SolutionCard
+                key={index}
+                solution={solution}
+                index={index}
+                fitLabel={fitLabels[Math.min(index, fitLabels.length - 1)] ?? ""}
+              />
             ))}
           </div>
         </div>
@@ -794,37 +768,34 @@ export default function ServicesPage() {
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
               <span className="w-8 h-px" style={{ backgroundColor: servicesEyebrowTone.accent }} />
-              Process
+              {t("process.eyebrow")}
             </span>
             <h2 className="text-2xl lg:text-3xl font-display tracking-tight mb-4">
-              From problem to delivery
+              {t("process.headline")}
             </h2>
-            <p className="text-muted-foreground">
-              Every engagement follows a structured path that reduces ambiguity and moves toward an executable scope.
-            </p>
           </div>
 
           <div className="mt-10 grid items-start gap-8 lg:mt-12 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-12 xl:gap-16">
             <div className="lg:sticky lg:top-8">
-              <ProcessFlowDiagram />
+              <ProcessFlowDiagram processSteps={processSteps} />
             </div>
 
             <div>
               {processSteps.map((step, index) => (
-                <ProcessStep 
-                  key={step.number} 
-                  step={step} 
-                  index={index} 
+                <ProcessStep
+                  key={step.number}
+                  step={step}
+                  index={index}
                   isLast={index === processSteps.length - 1}
                 />
               ))}
 
-              <div className="rounded-2xl border border-border bg-secondary/30 p-6" style={{ borderColor: processSteps[1].tone.border }}>
+              <div className="rounded-2xl border border-border bg-secondary/30 p-6" style={{ borderColor: processSteps[1]?.tone.border }}>
                 <span
                   className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.18em]"
-                  style={{ color: processSteps[1].tone.accent }}
+                  style={{ color: processSteps[1]?.tone.accent }}
                 >
-                  <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: processSteps[1].tone.accent }} />
+                  <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: processSteps[1]?.tone.accent }} />
                   Best entry point
                 </span>
                 <h3 className="mt-3 text-xl font-display tracking-tight">
@@ -837,7 +808,7 @@ export default function ServicesPage() {
                   href={siteRoutes.maxwell}
                   className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
                 >
-                  Start with Maxwell
+                  {t("hero.startWithMaxwell")}
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
@@ -852,30 +823,24 @@ export default function ServicesPage() {
       <section className="site-section-lg bg-foreground text-background">
         <div className="site-shell text-center">
           <h2 className="text-2xl lg:text-3xl font-display tracking-tight mb-4">
-            Ready to start?
+            {t("cta.headline")}
           </h2>
           <p className="text-background/70 mb-8 max-w-md mx-auto">
-            Choose the entry point that fits where you are in the process.
+            {t("cta.description")}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               href={siteRoutes.maxwell}
               className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
             >
-              Start with Maxwell
+              {t("cta.startWithMaxwell")}
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href={siteRoutes.templates}
+              href={lp(siteRoutes.templates)}
               className="inline-flex items-center gap-2 rounded-full border border-background/20 px-6 py-3 text-sm font-medium transition-colors hover:bg-background/10"
             >
-              Browse templates
-            </Link>
-            <Link
-              href={siteRoutes.contact}
-              className="inline-flex items-center gap-2 rounded-full border border-background/20 px-6 py-3 text-sm font-medium transition-colors hover:bg-background/10"
-            >
-              Contact us
+              {t("cta.viewTemplates")}
             </Link>
           </div>
         </div>

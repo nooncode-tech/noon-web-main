@@ -1,7 +1,10 @@
 import path from "node:path"
 import { fileURLToPath } from "node:url"
+import createNextIntlPlugin from "next-intl/plugin"
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url))
+
+const withNextIntl = createNextIntlPlugin("./i18n/request.ts")
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -16,37 +19,37 @@ const nextConfig = {
       // Consolidated pages redirects
       {
         source: "/solutions",
-        destination: "/services",
+        destination: "/en/services",
         permanent: true,
       },
       {
         source: "/capabilities",
-        destination: "/services",
+        destination: "/en/services",
         permanent: true,
       },
       {
         source: "/what-we-build",
-        destination: "/services",
+        destination: "/en/services",
         permanent: true,
       },
       {
         source: "/technology-we-use",
-        destination: "/about#technology",
+        destination: "/en/about#technology",
         permanent: true,
       },
       {
         source: "/about-noon",
-        destination: "/about",
+        destination: "/en/about",
         permanent: true,
       },
       {
         source: "/work-with-noon",
-        destination: "/contact",
+        destination: "/en/contact",
         permanent: true,
       },
       {
         source: "/next-product",
-        destination: "/contact",
+        destination: "/en/contact",
         permanent: true,
       },
       {
@@ -58,4 +61,4 @@ const nextConfig = {
   },
 }
 
-export default nextConfig
+export default withNextIntl(nextConfig)

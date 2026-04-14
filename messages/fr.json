@@ -1,0 +1,312 @@
+{
+  "nav": {
+    "services": "Services",
+    "templates": "Modèles",
+    "about": "À propos",
+    "startWithMaxwell": "Commencer avec Maxwell"
+  },
+  "hero": {
+    "eyebrow": "L'entreprise logicielle code-first",
+    "headline": "Dites-nous ce que vous voulez créer.",
+    "placeholder": "Décrivez ce que vous voulez créer...",
+    "notSure": "Vous ne savez pas par où commencer ? Essayez l'un de ces exemples",
+    "viewTemplates": "Voir tous les modèles",
+    "importing": "Importation…",
+    "import": "Importer",
+    "cancel": "Annuler",
+    "attachMenu": {
+      "uploadFile": "Télécharger un fichier",
+      "uploadPdf": "Télécharger un PDF",
+      "github": "GitHub",
+      "vercel": "Vercel",
+      "imageUrl": "URL de l'image",
+      "githubLabel": "URL GitHub ou utilisateur/dépôt",
+      "vercelLabel": "URL du projet Vercel",
+      "imageLabel": "URL de l'image"
+    },
+    "suggestions": [
+      { "label": "Plateforme de réservation", "prompt": "Créer une plateforme de réservation pour mon entreprise — les clients peuvent prendre rendez-vous, gérer les disponibilités et recevoir des e-mails de confirmation." },
+      { "label": "Tableau de bord opérationnel", "prompt": "Créer un tableau de bord opérationnel pour mon équipe — centraliser les tâches, KPIs et l'activité de l'équipe dans un seul outil interne." },
+      { "label": "Support client IA", "prompt": "J'ai besoin d'un assistant IA pour le support client — il doit répondre aux FAQ, escalader les problèmes complexes et s'intégrer à notre chat existant." },
+      { "label": "Outil de flux personnalisé", "prompt": "Créer un logiciel personnalisé pour automatiser mon flux de travail — réduire les étapes manuelles et connecter mes outils existants." },
+      { "label": "Application mobile", "prompt": "Créer une application mobile pour mon entreprise — disponible sur iOS et Android avec un design épuré et moderne." },
+      { "label": "Boutique en ligne", "prompt": "J'ai besoin d'une boutique en ligne pour mes produits — avec gestion du catalogue, panier, paiement et suivi des commandes." },
+      { "label": "Portail client", "prompt": "Créer un portail client où mes clients peuvent se connecter, voir leurs projets, télécharger des documents et communiquer avec mon équipe." },
+      { "label": "Outil interne", "prompt": "Créer un outil interne pour mon équipe afin de gérer les opérations — suivre les tâches, approbations et métriques de performance en un seul endroit." }
+    ]
+  },
+  "footer": {
+    "tagline": "Logiciel personnalisé construit en vrai code. De l'idée aux applications prêtes pour la production, propulsées par l'IA.",
+    "rights": "© 2026 Noon. Tous droits réservés.",
+    "builtWith": "Construit avec",
+    "groups": {
+      "Company": "Entreprise",
+      "Solutions": "Solutions",
+      "Legal": "Légal"
+    },
+    "links": {
+      "aboutNoon": "À propos de Noon",
+      "nextProduct": "Prochain produit",
+      "workWithNoon": "Travailler avec Noon",
+      "contact": "Contact",
+      "whatWeBuild": "Ce que nous construisons",
+      "howItWorks": "Comment ça fonctionne",
+      "technologyWeUse": "Technologies utilisées",
+      "templates": "Modèles",
+      "privacyPolicy": "Politique de confidentialité",
+      "termsAndConditions": "Conditions générales",
+      "cookiesPolicy": "Politique de cookies",
+      "legalNotice": "Mentions légales"
+    }
+  },
+  "about": {
+    "hero": {
+      "eyebrow": "Entreprise",
+      "headline": "Une entreprise code-first",
+      "headlineMuted": "construite autour d'une livraison réelle.",
+      "description": "Noon transforme la demande logicielle ambiguë en périmètre concret et la livre en code. Qualité d'exécution, jugement produit, levier assisté par IA.",
+      "startWithMaxwell": "Commencer avec Maxwell",
+      "contactNoon": "Contacter Noon"
+    },
+    "thesis": {
+      "eyebrow": "Thèse",
+      "headline": "Pourquoi le modèle existe",
+      "mainTitle": "Transformer l'ambiguïté en livraison réelle.",
+      "mainDescription": "Noon est conçu pour les situations où le besoin est réel mais la forme du logiciel n'est pas encore claire. Le travail consiste à transformer cette ambiguïté en exécution délimitée.",
+      "productionGrade": "Niveau production",
+      "clearProcess": "Processus clair",
+      "clearProcessDescription": "De la conversation initiale au déploiement, chaque étape est transparente.",
+      "aiAccelerated": "Accéléré par IA",
+      "aiAcceleratedDescription": "Maxwell gère le périmètre, et nos outils accélèrent le développement sans sacrifier la qualité.",
+      "maxwellProcessing": "Maxwell en traitement",
+      "enterpriseReady": "Prêt pour l'entreprise",
+      "enterpriseReadyDescription": "Conçu pour l'échelle, la sécurité et la maintenabilité à long terme.",
+      "codeOwnership": "Propriété du code",
+      "codeOwnershipDescription": "La propriété dépend du modèle d'engagement, les données client restant la propriété du client."
+    },
+    "operatingModel": {
+      "eyebrow": "Modèle opérationnel",
+      "headline": "Comment nous travaillons",
+      "boundariesEyebrow": "Limites",
+      "boundariesHeadline": "Ce que Noon n'est pas",
+      "principles": [
+        {
+          "number": "01",
+          "title": "Partir du problème",
+          "description": "Les conversations les plus précieuses commencent par la friction opérationnelle, pas par une liste de technologies souhaitées."
+        },
+        {
+          "number": "02",
+          "title": "Traduire en chemin de construction réel",
+          "description": "Le chemin devient suffisamment explicite pour définir le périmètre et livrer : système interne, produit, flux de travail ou architecture personnalisée."
+        },
+        {
+          "number": "03",
+          "title": "Exécuter avec l'IA comme levier",
+          "description": "L'IA compresse le travail répétitif mais ne supprime pas le besoin d'architecture ou de jugement produit."
+        }
+      ],
+      "notNoon": [
+        "Des raccourcis no-code qui s'effondrent quand la logique devient sérieuse",
+        "Un marché générique pour tous types d'intérêts",
+        "Du théâtre produit cachant une livraison faible derrière du polish"
+      ]
+    },
+    "metrics": [
+      { "label": "Livraison code-first", "value": "100%", "description": "Chaque projet est livré en code de production" },
+      { "label": "Direction du périmètre", "value": "Claire", "description": "La première direction est définie avant le début du travail de construction" },
+      { "label": "Flux assistés par IA", "value": "Actifs", "description": "Les outils accélèrent l'exécution sans remplacer le jugement" }
+    ],
+    "criteria": {
+      "eyebrow": "Critères",
+      "headline": "Ce sur quoi nous nous concentrons",
+      "items": [
+        {
+          "title": "Périmètre avant exécution",
+          "description": "La direction est définie et convenue avant que le code de production soit écrit. L'ambiguïté est résolue au début, pas pendant le développement."
+        },
+        {
+          "title": "Logiciel fonctionnel, pas documentation",
+          "description": "Chaque projet se termine par du code déployé et exécutable — pas des specs, maquettes ou prototypes livrés comme produit final."
+        },
+        {
+          "title": "Exclusions explicites",
+          "description": "Ce qui n'est pas inclus est clairement indiqué. Le périmètre vague est la principale cause d'attentes mal alignées ; nous l'éliminons par conception."
+        },
+        {
+          "title": "Jugement, pas exécution aveugle",
+          "description": "La bonne question est ce qui devrait être construit, pas seulement ce qui a été demandé. Le jugement produit fait partie de chaque projet."
+        }
+      ]
+    },
+    "stack": {
+      "eyebrow": "Stack",
+      "headline": "Technologies utilisées",
+      "description": "Les choix technologiques suivent le produit, pas l'inverse.",
+      "inStack": "Dans le stack",
+      "tools": "outils"
+    },
+    "cta": {
+      "headline": "Prêt à construire ?",
+      "description": "Commencez une conversation avec Maxwell ou contactez-nous directement.",
+      "startWithMaxwell": "Commencer avec Maxwell",
+      "viewServices": "Voir les services"
+    }
+  },
+  "services": {
+    "hero": {
+      "eyebrow": "Services",
+      "headline": "Ce que nous construisons",
+      "description": "Noon livre des logiciels de niveau production sur une large gamme de types de produits. Le bon choix dépend du problème, pas de la catégorie.",
+      "startWithMaxwell": "Commencer avec Maxwell",
+      "viewTemplates": "Voir les modèles"
+    },
+    "serviceTypes": [
+      {
+        "title": "IA et Automatisation",
+        "description": "Assistants intelligents, automatisation des flux de travail et outils propulsés par IA pour les équipes qui ont besoin de vitesse sans perdre le contrôle opérationnel.",
+        "examples": ["Assistants IA", "Flux automatisés", "Intégrations intelligentes"]
+      },
+      {
+        "title": "Solutions Web",
+        "description": "Des expériences clients aux plateformes internes, construites en vrai logiciel avec une architecture de niveau production.",
+        "examples": ["Plateformes web", "Tableaux de bord", "Portails"]
+      },
+      {
+        "title": "Solutions Mobiles",
+        "description": "Applications mobiles natives et multiplateformes axées sur des flux clairs et une fiabilité opérationnelle.",
+        "examples": ["Apps iOS", "Apps Android", "Multiplateforme"]
+      },
+      {
+        "title": "Logiciel Personnalisé",
+        "description": "Logiciel façonné autour de votre logique interne et de vos flux non standard quand les systèmes génériques cessent d'être utiles.",
+        "examples": ["Outils internes", "Intégrations personnalisées", "Systèmes métier"]
+      }
+    ],
+    "whatWeBuildEyebrow": "Ce que nous construisons",
+    "whatWeBuildHeadline": "Quatre domaines de livraison",
+    "problemAreas": {
+      "eyebrow": "Domaines problématiques",
+      "headline": "Quand le logiciel est la réponse",
+      "items": [
+        {
+          "problem": "Travail manuel qui devrait être automatisé",
+          "summary": "Flux assistés par IA pour les équipes perdant du temps en travail répétitif et goulots d'étranglement humains.",
+          "signals": ["Copie de données entre outils", "La progression dépend d'un seul opérateur"]
+        },
+        {
+          "problem": "Opérations nécessitant un système central",
+          "summary": "Tableaux de bord et portails consolidant données, flux de travail et rapports en une seule surface.",
+          "signals": ["Données dans des outils déconnectés", "Aucune source unique de vérité"]
+        },
+        {
+          "problem": "Un produit qui doit se lancer en vrai logiciel",
+          "summary": "Constructions orientées production pour les fondateurs qui comprennent le problème et ont besoin de quelque chose de réel.",
+          "signals": ["Le problème client est validé", "Le goulot d'étranglement est l'exécution"]
+        },
+        {
+          "problem": "Flux de travail que les outils génériques ne couvrent pas",
+          "summary": "Logiciel personnalisé construit autour de la logique métier qui se brise dans les outils génériques.",
+          "signals": ["Dépendance aux contournements", "Les outils standard ne conviennent pas"]
+        }
+      ]
+    },
+    "process": {
+      "eyebrow": "Processus",
+      "headline": "Comment un projet commence",
+      "steps": [
+        {
+          "diagramLabel": "Contrainte",
+          "title": "Clarifier la contrainte",
+          "description": "Isoler le problème métier et le goulot d'étranglement qui justifie le travail logiciel.",
+          "status": "Clarification de la contrainte",
+          "output": "Un énoncé clair du problème et le goulot d'étranglement à résoudre en logiciel."
+        },
+        {
+          "diagramLabel": "Chemin",
+          "title": "Traduire en chemin logiciel",
+          "description": "Choisir la bonne forme : système de flux, plateforme, produit ou architecture personnalisée.",
+          "status": "Cartographie du chemin logiciel",
+          "output": "Une direction logicielle recommandée correspondant au besoin opérationnel réel."
+        },
+        {
+          "diagramLabel": "Livraison",
+          "title": "Passer à la livraison délimitée",
+          "description": "Transformer la direction en proposition, périmètre de construction et plan de livraison.",
+          "status": "Préparation de la livraison délimitée",
+          "output": "Proposition, périmètre de construction et plan de livraison prêts pour l'exécution."
+        }
+      ]
+    },
+    "fitLabels": ["Meilleur choix", "Fort potentiel", "Choix probable", "Ajustement personnalisé"],
+    "cta": {
+      "headline": "Prêt à définir votre projet ?",
+      "description": "Commencez avec Maxwell pour clarifier le problème, ou contactez-nous directement.",
+      "startWithMaxwell": "Commencer avec Maxwell",
+      "viewTemplates": "Voir les modèles"
+    }
+  },
+  "templates": {
+    "hero": {
+      "eyebrow": "Modèles",
+      "headline": "Constructions pré-définies",
+      "description": "Un point de départ pour les types de logiciels courants. Chaque modèle correspond à un périmètre de livraison clair.",
+      "startWithMaxwell": "Commencer avec Maxwell",
+      "viewAll": "Voir tous les modèles"
+    },
+    "categories": "Catégories",
+    "allTemplates": "Tous les modèles",
+    "cta": {
+      "headline": "Vous ne trouvez pas ce dont vous avez besoin ?",
+      "description": "Commencez avec Maxwell et décrivez ce que vous voulez construire.",
+      "startWithMaxwell": "Commencer avec Maxwell"
+    }
+  },
+  "contact": {
+    "hero": {
+      "eyebrow": "Contact",
+      "headline": "Contacter Noon",
+      "description": "Dites-nous ce dont vous avez besoin et nous l'orienterons correctement. Pour les demandes de projet, nous examinons généralement d'abord la demande puis continuons avec la prochaine étape appropriée.",
+      "responseTime": "Nous répondons généralement dans 1-2 jours ouvrables."
+    },
+    "routes": {
+      "eyebrow": "Routes",
+      "headline": "Choisissez le bon chemin"
+    },
+    "inquiryPaths": [
+      {
+        "title": "Demande de projet",
+        "description": "Définir le périmètre, proposer ou construire un logiciel personnalisé."
+      },
+      {
+        "title": "Question générale",
+        "description": "Questions sur l'entreprise, aspects légaux ou questions générales sur Noon."
+      },
+      {
+        "title": "Partenariat ou collaboration",
+        "description": "Demandes de vendeurs, développeurs ou collaborations."
+      },
+      {
+        "title": "Intérêt pour le prochain produit",
+        "description": "Conversations avec des investisseurs ou sur le prochain produit."
+      }
+    ],
+    "openRoute": "Ouvrir la route",
+    "continueWithMaxwell": "Continuer avec Maxwell",
+    "cta": {
+      "headline": "Besoin d'une première direction avant de nous contacter ?",
+      "description": "Laissez Maxwell structurer la demande initiale avant que Noon l'examine.",
+      "startWithMaxwell": "Commencer avec Maxwell"
+    },
+    "routing": {
+      "project": "Routage : Demande de projet",
+      "general": "Routage : Question générale",
+      "partner": "Routage : Route partenariat",
+      "next": "Routage : Intérêt prochain produit"
+    }
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "headline": "Questions fréquemment posées"
+  }
+}

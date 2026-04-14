@@ -6,27 +6,25 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Mic, Paperclip, Sparkles, X, Upload, Github, FileText, Globe, TriangleIcon } from "lucide-react";
 import { getStartWithMaxwellHref, siteRoutes } from "@/lib/site-config";
+import { useTranslations } from "next-intl";
+import { useParams } from "next/navigation";
 
 type AttachedFile = {
   name: string;
   mimeType: string;
-  dataUrl: string;       // base64 for images
-  textContent?: string;  // for text files
+  dataUrl: string;
+  textContent?: string;
 };
 
-const promptSuggestions = [
-  { label: "Reservation platform", prompt: "Build a reservation platform for my business — customers can book appointments, manage availability, and receive confirmation emails." },
-  { label: "Operations dashboard", prompt: "Create an operations dashboard for my team — centralize tasks, KPIs, and team activity in one internal tool." },
-  { label: "AI customer support", prompt: "I need an AI assistant for customer support — it should answer FAQs, escalate complex issues, and integrate with our existing chat." },
-  { label: "Custom workflow tool", prompt: "Build custom software to automate my business workflow — reduce manual steps and connect my existing tools." },
-  { label: "Mobile app", prompt: "Create a mobile app for my business — available on iOS and Android with a clean, modern design." },
-  { label: "E-commerce store", prompt: "I need an e-commerce store for my products — with catalog management, cart, checkout, and order tracking." },
-  { label: "Client portal", prompt: "Build a client portal where my customers can log in, view their projects, upload documents, and communicate with my team." },
-  { label: "Internal tool", prompt: "Create an internal tool for my team to manage operations — track tasks, approvals, and performance metrics in one place." },
-];
+type Suggestion = { label: string; prompt: string };
 
 export function HeroSection() {
   const router = useRouter();
+  const params = useParams();
+  const locale = (typeof params?.locale === "string" ? params.locale : null) ?? "en";
+  const t = useTranslations("hero");
+  const suggestions = t.raw("suggestions") as Suggestion[];
+
   const [inputValue, setInputValue] = useState("");
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [currentSuggestion, setCurrentSuggestion] = useState(0);
@@ -42,7 +40,6 @@ export function HeroSection() {
   const pdfInputRef = useRef<HTMLInputElement>(null);
   const attachMenuRef = useRef<HTMLDivElement>(null);
 
-  // Close menu on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (attachMenuRef.current && !attachMenuRef.current.contains(e.target as Node)) {
@@ -60,7 +57,6 @@ export function HeroSection() {
     setUrlInputLoading(true);
     try {
       if (urlInputMode === "github") {
-        // Extract owner/repo from URL
         const match = urlInputValue.match(/github\.com\/([^/]+\/[^/]+)/);
         const repo = match ? match[1].replace(/\.git$/, "") : urlInputValue;
         const apiUrl = `https://api.github.com/repos/${repo}/readme`;
@@ -89,7 +85,6 @@ export function HeroSection() {
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    // reset so same file can be re-selected
     e.target.value = "";
 
     if (file.type.startsWith("image/")) {
@@ -110,7 +105,6 @@ export function HeroSection() {
       };
       reader.readAsText(file);
     } else {
-      // PDF, DOCX, etc. — store name only as context
       setAttachedFile({ name: file.name, mimeType: file.type, dataUrl: "" });
     }
   }
@@ -123,7 +117,7 @@ export function HeroSection() {
       try {
         sessionStorage.setItem("maxwell_attached_file", JSON.stringify(attachedFile));
       } catch {
-        // sessionStorage full or unavailable — proceed without file
+        // sessionStorage full or unavailable
       }
     }
     router.push(getStartWithMaxwellHref(prompt || (attachedFile ? `I've attached a file: ${attachedFile.name}` : "")));
@@ -131,11 +125,10 @@ export function HeroSection() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSuggestion((prev) => (prev + 1) % promptSuggestions.length);
-
+      setCurrentSuggestion((prev) => (prev + 1) % suggestions.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, []);
+  }, [suggestions.length]);
 
   const handleSuggestionClick = (prompt: string) => {
     setInputValue(prompt);
@@ -144,10 +137,7 @@ export function HeroSection() {
   useEffect(() => {
     const updatePromptScrollState = () => {
       const node = promptScrollerRef.current;
-      if (!node) {
-        return;
-      }
-
+      if (!node) return;
       setCanScrollPromptsLeft(node.scrollLeft > 8);
       const remainingScroll = node.scrollWidth - node.clientWidth - node.scrollLeft;
       setCanScrollPromptsRight(remainingScroll > 8);
@@ -155,49 +145,43 @@ export function HeroSection() {
 
     updatePromptScrollState();
     window.addEventListener("resize", updatePromptScrollState);
-
     return () => window.removeEventListener("resize", updatePromptScrollState);
   }, []);
 
   const handlePromptCarouselAdvance = () => {
-    const node = promptScrollerRef.current;
-    if (!node) {
-      return;
-    }
-
-    node.scrollBy({ left: 220, behavior: "smooth" });
+    promptScrollerRef.current?.scrollBy({ left: 220, behavior: "smooth" });
   };
 
   const handlePromptCarouselBack = () => {
-    const node = promptScrollerRef.current;
-    if (!node) {
-      return;
-    }
-
-    node.scrollBy({ left: -220, behavior: "smooth" });
+    promptScrollerRef.current?.scrollBy({ left: -220, behavior: "smooth" });
   };
+
+  const urlInputLabel =
+    urlInputMode === "github"
+      ? t("attachMenu.githubLabel")
+      : urlInputMode === "vercel"
+      ? t("attachMenu.vercelLabel")
+      : t("attachMenu.imageLabel");
 
   return (
     <section id="hero" className="relative h-full flex flex-col justify-center pt-16 lg:pt-20">
       <div className="relative z-10 w-full max-w-[840px] mx-auto px-5 lg:px-8">
         <div className="flex flex-col items-center text-center">
-          {/* Content */}
           <div className="w-full">
             {/* Eyebrow */}
             <div className="mb-4 lg:mb-4 flex justify-center">
               <span className="inline-flex items-center gap-2 text-[11px] lg:text-[13px] font-mono text-muted-foreground bg-secondary/50 px-3 lg:px-3.5 py-1.5 rounded-full border border-border">
                 <span className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-primary animate-pulse" />
-                The code-first software company
+                {t("eyebrow")}
               </span>
             </div>
 
             {/* Main headline */}
             <div className="mb-4 lg:mb-5">
               <h1 className="text-[1.5rem] sm:text-[1.8rem] lg:text-[clamp(1.8rem,2.8vw,2.4rem)] font-display leading-[1.1] tracking-tight text-center">
-                Tell us what you<br className="sm:hidden" /> want to build.
+                {t("headline")}
               </h1>
             </div>
-
 
             {/* Chat Input */}
             <div className="w-full">
@@ -215,10 +199,10 @@ export function HeroSection() {
                           startWithMaxwell();
                         }
                       }}
-                      placeholder={isInputFocused ? "Describe what you want to build..." : ""}
+                      placeholder={isInputFocused ? t("placeholder") : ""}
                       rows={3}
                       className="min-h-[48px] lg:min-h-[56px] w-full resize-none bg-transparent px-3 lg:px-4 py-2 text-sm leading-relaxed lg:text-[15px] outline-none placeholder:text-muted-foreground/60 text-left"
-                      aria-label="Describe what you want to build"
+                      aria-label={t("placeholder")}
                     />
                     {!inputValue && !isInputFocused && (
                       <div className="absolute left-0 right-0 top-0 px-4 py-3 pointer-events-none overflow-hidden">
@@ -226,7 +210,7 @@ export function HeroSection() {
                           key={currentSuggestion}
                           className="block w-full truncate whitespace-nowrap text-sm lg:text-[15px] text-muted-foreground/45 animate-fade-in text-left"
                         >
-                          {promptSuggestions[currentSuggestion].prompt}
+                          {suggestions[currentSuggestion]?.prompt}
                         </span>
                       </div>
                     )}
@@ -257,7 +241,6 @@ export function HeroSection() {
                         <Mic className="h-3.5 w-3.5" />
                       </button>
 
-                      {/* Hidden file inputs */}
                       <input ref={fileInputRef} type="file" accept="image/*,.txt,.md,.csv,.json,.doc,.docx" className="hidden" onChange={handleFileChange} />
                       <input ref={pdfInputRef} type="file" accept=".pdf" className="hidden" onChange={handleFileChange} />
 
@@ -278,33 +261,29 @@ export function HeroSection() {
                               <div className="py-1">
                                 <button type="button" onClick={() => { fileInputRef.current?.click(); setAttachMenuOpen(false); }} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors">
                                   <Upload className="h-4 w-4 text-muted-foreground" />
-                                  Upload file
+                                  {t("attachMenu.uploadFile")}
                                 </button>
                                 <button type="button" onClick={() => { pdfInputRef.current?.click(); setAttachMenuOpen(false); }} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors">
                                   <FileText className="h-4 w-4 text-muted-foreground" />
-                                  Upload PDF
+                                  {t("attachMenu.uploadPdf")}
                                 </button>
                                 <div className="my-1 h-px bg-border" />
                                 <button type="button" onClick={() => setUrlInputMode("github")} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors">
                                   <Github className="h-4 w-4 text-muted-foreground" />
-                                  GitHub
+                                  {t("attachMenu.github")}
                                 </button>
                                 <button type="button" onClick={() => setUrlInputMode("vercel")} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors">
                                   <TriangleIcon className="h-4 w-4 text-muted-foreground" />
-                                  Vercel
+                                  {t("attachMenu.vercel")}
                                 </button>
                                 <button type="button" onClick={() => setUrlInputMode("image")} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors">
                                   <Globe className="h-4 w-4 text-muted-foreground" />
-                                  URL de imagen
+                                  {t("attachMenu.imageUrl")}
                                 </button>
                               </div>
                             ) : (
                               <div className="p-3 space-y-2">
-                                <p className="text-xs font-medium text-muted-foreground">
-                                  {urlInputMode === "github" && "URL o usuario/repo de GitHub"}
-                                  {urlInputMode === "vercel" && "URL del proyecto en Vercel"}
-                                  {urlInputMode === "image" && "URL de la imagen"}
-                                </p>
+                                <p className="text-xs font-medium text-muted-foreground">{urlInputLabel}</p>
                                 <input
                                   type="text"
                                   autoFocus
@@ -316,10 +295,10 @@ export function HeroSection() {
                                 />
                                 <div className="flex gap-2">
                                   <button type="button" onClick={() => void handleUrlImport()} disabled={urlInputLoading || !urlInputValue.trim()} className="flex-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground disabled:opacity-40 hover:bg-primary/90 transition-colors">
-                                    {urlInputLoading ? "Importing…" : "Import"}
+                                    {urlInputLoading ? t("importing") : t("import")}
                                   </button>
                                   <button type="button" onClick={() => { setUrlInputMode(null); setUrlInputValue(""); }} className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-secondary transition-colors">
-                                    Cancel
+                                    {t("cancel")}
                                   </button>
                                 </div>
                               </div>
@@ -329,7 +308,7 @@ export function HeroSection() {
                       </div>
 
                       <Link
-                        href={siteRoutes.maxwell}
+                        href={`/${locale}${siteRoutes.maxwell}`}
                         className="inline-flex items-center gap-1.5 rounded-full bg-secondary/45 px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                       >
                         <Sparkles className="h-3 w-3" />
@@ -355,7 +334,7 @@ export function HeroSection() {
               {/* Prompt Suggestions */}
               <div className="mt-3 lg:mt-4">
                 <p className="mb-3 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground/55 text-center">
-                  Not sure where to start? Try one of these
+                  {t("notSure")}
                 </p>
                 <div className="flex items-center gap-2">
                   {canScrollPromptsLeft && (
@@ -380,7 +359,7 @@ export function HeroSection() {
                       }}
                       className="prompt-scroll flex items-center gap-2 overflow-x-auto whitespace-nowrap"
                     >
-                      {promptSuggestions.map((s, index) => (
+                      {suggestions.map((s, index) => (
                         <button
                           key={index}
                           onClick={() => handleSuggestionClick(s.prompt)}
@@ -413,15 +392,15 @@ export function HeroSection() {
               {/* Secondary CTA */}
               <div className="mt-3">
                 <Link
-                  href={siteRoutes.homeTemplatesSection}
+                  href={`/${locale}${siteRoutes.templates}`}
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center gap-2 group"
                 >
-                  View all templates
+                  {t("viewTemplates")}
                   <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
                 </Link>
               </div>
 
-            </div>{/* end desktop input */}
+            </div>
           </div>
         </div>
       </div>
@@ -430,7 +409,6 @@ export function HeroSection() {
           scrollbar-width: none;
           -ms-overflow-style: none;
         }
-
         .prompt-scroll::-webkit-scrollbar {
           display: none;
         }

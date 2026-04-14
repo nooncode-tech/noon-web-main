@@ -3,58 +3,15 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, Code2, Route, Zap, Terminal, Shield, X } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { SitePageFrame } from "@/app/_components/site/site-page-frame";
 import { useRevealOnView } from "@/hooks/use-reveal-on-view";
 import { siteRoutes } from "@/lib/site-config";
 import { siteChromeDots, siteTones } from "@/lib/site-tones";
 import { FaqSection } from "@/components/landing/faq-section";
 
-// ============================================================================
-// DATA
-// ============================================================================
-
-const principles = [
-  {
-    number: "01",
-    title: "Start from the problem",
-    description: "Most valuable conversations start with operational friction, not a stack wishlist.",
-  },
-  {
-    number: "02",
-    title: "Translate to a real build path",
-    description: "The path becomes explicit enough to scope and deliver: internal system, product, workflow, or custom architecture.",
-  },
-  {
-    number: "03",
-    title: "Execute with AI as leverage",
-    description: "AI compresses repetitive work but does not remove the need for architecture or product judgment.",
-  },
-];
-
-const notNoon = [
-  "No-code shortcuts that collapse when logic gets serious",
-  "Generic marketplace for every kind of interest",
-  "Product theater hiding weak delivery behind polish",
-];
-
-const optimizeFor = [
-  {
-    title: "Scope before execution",
-    description: "Direction is defined and agreed before production code is written. Ambiguity is resolved at the start, not during development.",
-  },
-  {
-    title: "Working software, not documentation",
-    description: "Every project ends with deployed, runnable code — not specs, wireframes, or prototypes delivered as a final product.",
-  },
-  {
-    title: "Explicit exclusions",
-    description: "What is not included is clearly stated. Vague scope is the main cause of misaligned expectations; we eliminate it by design.",
-  },
-  {
-    title: "Judgment, not blind execution",
-    description: "The right question is what should be built, not just what was asked for. Product judgment is part of every project.",
-  },
-];
+const LOCALES = ["en", "es", "fr", "de"];
 
 const technologyGroups = [
   { title: "Frontend", items: ["Next.js", "React", "TypeScript", "Tailwind"], tone: siteTones.client },
@@ -69,14 +26,10 @@ const technologyGroups = [
 // OPERATING METRICS
 // ============================================================================
 
-function OperatingMetrics() {
-  const { ref: metricsRef, isVisible } = useRevealOnView<HTMLDivElement>({ threshold: 0.3 });
+type Metric = { label: string; value: string; description: string };
 
-  const metrics = [
-    { label: "Code-first delivery", value: "100%", description: "Every project ships as production code" },
-    { label: "Scope direction", value: "Clear", description: "The first direction is defined before build work starts" },
-    { label: "AI-assisted workflows", value: "Active", description: "Tooling accelerates execution without replacing judgment" },
-  ];
+function OperatingMetrics({ metrics }: { metrics: Metric[] }) {
+  const { ref: metricsRef, isVisible } = useRevealOnView<HTMLDivElement>({ threshold: 0.3 });
 
   return (
     <div
@@ -89,19 +42,17 @@ function OperatingMetrics() {
           className={`relative rounded-2xl border border-border bg-card p-6 overflow-hidden transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
           style={{ transitionDelay: `${index * 150}ms` }}
         >
-          {/* Animated background bar */}
-          <div 
+          <div
             className="absolute bottom-0 left-0 h-1 transition-all duration-1000"
-            style={{ 
+            style={{
               width: isVisible ? "100%" : "0%",
               transitionDelay: `${index * 200 + 500}ms`,
-              backgroundColor: "#1200c5"
+              backgroundColor: "#1200c5",
             }}
           />
-          
           <div className="relative z-10">
             <div className="flex items-baseline gap-1 mb-2">
-              <span 
+              <span
                 className={`text-4xl font-display transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`}
                 style={{ transitionDelay: `${index * 150 + 200}ms` }}
               >
@@ -145,7 +96,6 @@ function ArchitectureDiagram() {
       ref={diagramRef}
       className={`rounded-2xl border border-border bg-card overflow-hidden transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
     >
-      {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-secondary/30">
         <div className="flex gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: siteChromeDots.red }} />
@@ -155,7 +105,6 @@ function ArchitectureDiagram() {
         <span className="text-xs font-mono text-muted-foreground">architecture.sys</span>
       </div>
 
-      {/* Diagram */}
       <div className="p-5 space-y-2">
         {layers.map((layer, index) => (
           <div
@@ -194,8 +143,6 @@ function ArchitectureDiagram() {
             </div>
           </div>
         ))}
-
-        {/* Data flow indicator */}
         <div className="flex items-center justify-center gap-2 pt-2">
           <div className="flex-1 h-px bg-foreground/15" />
           <span className="text-[10px] text-muted-foreground font-mono">Data Flow</span>
@@ -207,15 +154,15 @@ function ArchitectureDiagram() {
 }
 
 // ============================================================================
-// COMPONENTS
+// SPOTLIGHT CARD
 // ============================================================================
 
-function SpotlightCard({ 
-  children, 
+function SpotlightCard({
+  children,
   className = "",
   delay = 0,
-}: { 
-  children: React.ReactNode; 
+}: {
+  children: React.ReactNode;
   className?: string;
   delay?: number;
 }) {
@@ -225,10 +172,7 @@ function SpotlightCard({
 
   const handleMouseMove = (e: React.MouseEvent) => {
     const card = e.currentTarget.getBoundingClientRect();
-    setMousePos({
-      x: e.clientX - card.left,
-      y: e.clientY - card.top,
-    });
+    setMousePos({ x: e.clientX - card.left, y: e.clientY - card.top });
     setIsHovered(true);
   };
 
@@ -240,7 +184,6 @@ function SpotlightCard({
       onMouseMove={handleMouseMove}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Spotlight effect */}
       {isHovered && (
         <div
           className="absolute pointer-events-none transition-opacity duration-300"
@@ -254,9 +197,7 @@ function SpotlightCard({
           }}
         />
       )}
-      <div className="relative z-10">
-        {children}
-      </div>
+      <div className="relative z-10">{children}</div>
     </div>
   );
 }
@@ -266,6 +207,22 @@ function SpotlightCard({
 // ============================================================================
 
 export default function AboutPage() {
+  const t = useTranslations("about");
+  const params = useParams();
+  const paramLocale = typeof params?.locale === "string" ? params.locale : null;
+  const locale = (paramLocale && LOCALES.includes(paramLocale) ? paramLocale : null) ?? "en";
+
+  const lp = (href: string) => `/${locale}${href}`;
+
+  type PrincipleItem = { number: string; title: string; description: string };
+  type OptimizeItem = { title: string; description: string };
+  type MetricItem = { label: string; value: string; description: string };
+
+  const principles = t.raw("operatingModel.principles") as PrincipleItem[];
+  const notNoon = t.raw("operatingModel.notNoon") as string[];
+  const optimizeFor = t.raw("criteria.items") as OptimizeItem[];
+  const metrics = t.raw("metrics") as MetricItem[];
+
   const { ref: headerRef, isVisible: headerVisible } = useRevealOnView<HTMLDivElement>({ threshold: 0.1 });
 
   return (
@@ -274,28 +231,27 @@ export default function AboutPage() {
       <section ref={headerRef} className="site-hero-section">
         <div className="site-shell">
           <div className="max-w-3xl">
-            <span 
+            <span
               className={`inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-6 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
             >
               <span className="w-8 h-px" style={{ backgroundColor: siteTones.brand.accent }} />
-              Company
+              {t("hero.eyebrow")}
             </span>
-            <h1 
+            <h1
               className={`text-4xl lg:text-5xl font-display tracking-tight mb-6 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
               style={{ transitionDelay: "100ms" }}
             >
-              A code-first company
+              {t("hero.headline")}
               <br />
-              <span className="text-muted-foreground">built around real delivery.</span>
+              <span className="text-muted-foreground">{t("hero.headlineMuted")}</span>
             </h1>
-            <p 
+            <p
               className={`text-base lg:text-lg text-muted-foreground leading-relaxed mb-8 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
               style={{ transitionDelay: "200ms" }}
             >
-              Noon turns ambiguous software demand into concrete scope and delivers it in code. 
-              Execution quality, product judgment, AI-assisted leverage.
+              {t("hero.description")}
             </p>
-            <div 
+            <div
               className={`flex flex-wrap gap-4 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
               style={{ transitionDelay: "300ms" }}
             >
@@ -303,14 +259,14 @@ export default function AboutPage() {
                 href={siteRoutes.maxwell}
                 className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
               >
-                Start with Maxwell
+                {t("hero.startWithMaxwell")}
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                href={siteRoutes.contact}
+                href={lp(siteRoutes.contact)}
                 className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium transition-colors hover:bg-secondary"
               >
-                Contact Noon
+                {t("hero.contactNoon")}
               </Link>
             </div>
           </div>
@@ -323,30 +279,27 @@ export default function AboutPage() {
           <div className="max-w-3xl mb-12">
             <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
               <span className="w-8 h-px" style={{ backgroundColor: siteTones.brand.accent }} />
-              Thesis
+              {t("thesis.eyebrow")}
             </span>
             <h2 className="text-2xl lg:text-3xl font-display tracking-tight">
-              Why the model exists
+              {t("thesis.headline")}
             </h2>
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12 lg:gap-6">
-            {/* Large card - Main thesis */}
             <SpotlightCard className="md:col-span-2 lg:col-span-7 p-6 lg:p-8" delay={0}>
               <div className="w-12 h-12 rounded-xl bg-foreground text-background flex items-center justify-center mb-5">
                 <Code2 className="w-6 h-6" />
               </div>
               <span className="inline-block text-xs font-mono text-muted-foreground bg-secondary/50 px-3 py-1 rounded-full mb-4">
-                Production-grade
+                {t("thesis.productionGrade")}
               </span>
               <h3 className="text-2xl lg:text-3xl font-display mb-4">
-                Turn ambiguity into real delivery.
+                {t("thesis.mainTitle")}
               </h3>
               <p className="text-base lg:text-[17px] text-muted-foreground leading-relaxed max-w-xl mb-6">
-                Noon is built for situations where the need is real but the software shape is still unclear. 
-                The job is to turn that ambiguity into scoped, production-minded execution.
+                {t("thesis.mainDescription")}
               </p>
-              {/* Code preview */}
               <div className="bg-foreground/5 rounded-xl p-4 lg:p-5 font-mono text-sm border border-border">
                 <div className="flex items-center gap-2 mb-3 text-muted-foreground">
                   <Terminal className="w-4 h-4" />
@@ -354,10 +307,7 @@ export default function AboutPage() {
                 </div>
                 <div className="space-y-1.5">
                   {["src/", "  components/", "  app/", "  api/", "package.json"].map((item, i) => (
-                    <div
-                      key={i}
-                      className={`flex items-center gap-2 ${i === 0 || i === 2 ? "text-foreground" : "text-muted-foreground/60"}`}
-                    >
+                    <div key={i} className={`flex items-center gap-2 ${i === 0 || i === 2 ? "text-foreground" : "text-muted-foreground/60"}`}>
                       <span className="w-1 h-1 rounded-full bg-current" />
                       {item}
                     </div>
@@ -366,59 +316,44 @@ export default function AboutPage() {
               </div>
             </SpotlightCard>
 
-            {/* Right column */}
             <div className="md:col-span-2 lg:col-span-5 grid gap-4 lg:gap-6">
-              {/* Clear process */}
               <SpotlightCard className="p-6 lg:p-7" delay={100}>
                 <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
                   <Route className="w-5 h-5" />
                 </div>
-                <h3 className="text-lg lg:text-xl font-display mb-3">
-                  Clear process
-                </h3>
-                <p className="text-muted-foreground leading-relaxed text-sm mb-6">
-                  From initial conversation to deployment, every step is transparent.
-                </p>
+                <h3 className="text-lg lg:text-xl font-display mb-3">{t("thesis.clearProcess")}</h3>
+                <p className="text-muted-foreground leading-relaxed text-sm mb-6">{t("thesis.clearProcessDescription")}</p>
                 <div className="flex items-center gap-2">
                   {[1, 2, 3, 4, 5].map((step) => (
-                    <div
-                      key={step}
-                      className={`h-1.5 flex-1 rounded-full ${step <= 3 ? "bg-foreground" : "bg-foreground/20"}`}
-                    />
+                    <div key={step} className={`h-1.5 flex-1 rounded-full ${step <= 3 ? "bg-foreground" : "bg-foreground/20"}`} />
                   ))}
                 </div>
               </SpotlightCard>
 
-              {/* AI-accelerated */}
               <SpotlightCard className="p-6 lg:p-7" delay={200}>
                 <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
                   <Zap className="w-5 h-5" />
                 </div>
-                <h3 className="text-lg lg:text-xl font-display mb-3">
-                  AI-accelerated
-                </h3>
-                <p className="text-muted-foreground leading-relaxed text-sm mb-6">
-                  Maxwell handles scoping, and our tools accelerate development without sacrificing quality.
-                </p>
+                <h3 className="text-lg lg:text-xl font-display mb-3">{t("thesis.aiAccelerated")}</h3>
+                <p className="text-muted-foreground leading-relaxed text-sm mb-6">{t("thesis.aiAcceleratedDescription")}</p>
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <div className="w-3 h-3 rounded-full bg-primary" />
                     <div className="absolute inset-0 w-3 h-3 rounded-full bg-primary animate-ping" />
                   </div>
-                  <span className="text-xs font-mono text-muted-foreground">Maxwell processing</span>
+                  <span className="text-xs font-mono text-muted-foreground">{t("thesis.maxwellProcessing")}</span>
                 </div>
               </SpotlightCard>
             </div>
 
-            {/* Bottom row - horizontal cards */}
             <SpotlightCard className="lg:col-span-6 p-6 lg:p-7" delay={300}>
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
                   <Shield className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-display">Enterprise-ready</h3>
-                  <p className="text-sm text-muted-foreground">Built for scale, security, and long-term maintainability.</p>
+                  <h3 className="text-lg font-display">{t("thesis.enterpriseReady")}</h3>
+                  <p className="text-sm text-muted-foreground">{t("thesis.enterpriseReadyDescription")}</p>
                 </div>
               </div>
             </SpotlightCard>
@@ -429,10 +364,8 @@ export default function AboutPage() {
                   <Code2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-display">Code ownership</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Ownership depends on the engagement model, while client data remains the client&apos;s.
-                  </p>
+                  <h3 className="text-lg font-display">{t("thesis.codeOwnership")}</h3>
+                  <p className="text-sm text-muted-foreground">{t("thesis.codeOwnershipDescription")}</p>
                 </div>
               </div>
             </SpotlightCard>
@@ -443,20 +376,17 @@ export default function AboutPage() {
       {/* Operating Model */}
       <section className="site-section-lg bg-secondary/30">
         <div className="site-shell">
-          {/* Metrics visualization */}
-          <OperatingMetrics />
-          
+          <OperatingMetrics metrics={metrics} />
+
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 mt-16">
-            {/* Left: principles */}
             <div>
               <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
                 <span className="w-8 h-px" style={{ backgroundColor: siteTones.brand.accent }} />
-                Operating model
+                {t("operatingModel.eyebrow")}
               </span>
               <h2 className="text-2xl lg:text-3xl font-display tracking-tight mb-8">
-                How we work
+                {t("operatingModel.headline")}
               </h2>
-              
               <div className="space-y-8">
                 {principles.map((principle, index) => (
                   <PrincipleItem key={principle.number} principle={principle} index={index} />
@@ -464,19 +394,17 @@ export default function AboutPage() {
               </div>
             </div>
 
-            {/* Right: what we're not */}
             <div>
               <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
                 <span className="w-8 h-px" style={{ backgroundColor: siteTones.brand.accent }} />
-                Boundaries
+                {t("operatingModel.boundariesEyebrow")}
               </span>
               <h2 className="text-2xl lg:text-3xl font-display tracking-tight mb-8">
-                What Noon is not
+                {t("operatingModel.boundariesHeadline")}
               </h2>
-              
               <div className="space-y-4">
                 {notNoon.map((item, index) => (
-                  <NotNoonItem key={item} text={item} index={index} />
+                  <NotNoonItem key={index} text={item} index={index} />
                 ))}
               </div>
             </div>
@@ -490,16 +418,15 @@ export default function AboutPage() {
           <div className="max-w-2xl mb-10">
             <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
               <span className="w-8 h-px" style={{ backgroundColor: siteTones.brand.accent }} />
-              Criteria
+              {t("criteria.eyebrow")}
             </span>
             <h2 className="text-2xl lg:text-3xl font-display tracking-tight">
-              What we focus on
+              {t("criteria.headline")}
             </h2>
           </div>
-
           <div className="grid gap-4 sm:grid-cols-2">
             {optimizeFor.map((item, index) => (
-              <OptimizeCard key={item.title} item={item} index={index} />
+              <OptimizeCard key={index} item={item} index={index} />
             ))}
           </div>
         </div>
@@ -511,23 +438,20 @@ export default function AboutPage() {
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
               <span className="w-8 h-px" style={{ backgroundColor: siteTones.brand.accent }} />
-              Stack
+              {t("stack.eyebrow")}
             </span>
             <h2 className="text-2xl lg:text-3xl font-display tracking-tight mb-4">
-              Technology we use
+              {t("stack.headline")}
             </h2>
-            <p className="text-muted-foreground">
-              Technology choices follow the product, not the other way around.
-            </p>
+            <p className="text-muted-foreground">{t("stack.description")}</p>
           </div>
 
           <div className="mt-10 grid items-start gap-8 lg:mt-12 lg:grid-cols-[minmax(0,1fr)_minmax(500px,0.95fr)] lg:gap-12 xl:gap-16">
             <div className="grid gap-4 sm:grid-cols-2">
               {technologyGroups.map((group, index) => (
-                <TechCard key={group.title} group={group} index={index} />
+                <TechCard key={group.title} group={group} index={index} inStack={t("stack.inStack")} tools={t("stack.tools")} />
               ))}
             </div>
-
             <div className="hidden lg:block lg:sticky lg:top-8">
               <ArchitectureDiagram />
             </div>
@@ -541,24 +465,24 @@ export default function AboutPage() {
       <section className="site-section-lg bg-foreground text-background">
         <div className="site-shell text-center">
           <h2 className="text-2xl lg:text-3xl font-display tracking-tight mb-4">
-            Ready to build?
+            {t("cta.headline")}
           </h2>
           <p className="text-background/70 mb-8 max-w-md mx-auto">
-            Start a conversation with Maxwell or reach out directly.
+            {t("cta.description")}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               href={siteRoutes.maxwell}
               className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
             >
-              Start with Maxwell
+              {t("cta.startWithMaxwell")}
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href={siteRoutes.services}
+              href={lp(siteRoutes.services)}
               className="inline-flex items-center gap-2 rounded-full border border-background/20 px-6 py-3 text-sm font-medium transition-colors hover:bg-background/10"
             >
-              View services
+              {t("cta.viewServices")}
             </Link>
           </div>
         </div>
@@ -571,9 +495,8 @@ export default function AboutPage() {
 // SUB-COMPONENTS
 // ============================================================================
 
-function PrincipleItem({ principle, index }: { principle: typeof principles[0]; index: number }) {
+function PrincipleItem({ principle, index }: { principle: { number: string; title: string; description: string }; index: number }) {
   const { ref, isVisible } = useRevealOnView<HTMLDivElement>({ threshold: 0.3 });
-
   return (
     <div
       ref={ref}
@@ -593,7 +516,6 @@ function PrincipleItem({ principle, index }: { principle: typeof principles[0]; 
 
 function NotNoonItem({ text, index }: { text: string; index: number }) {
   const { ref, isVisible } = useRevealOnView<HTMLDivElement>({ threshold: 0.3 });
-
   return (
     <div
       ref={ref}
@@ -608,9 +530,8 @@ function NotNoonItem({ text, index }: { text: string; index: number }) {
   );
 }
 
-function OptimizeCard({ item, index }: { item: typeof optimizeFor[0]; index: number }) {
+function OptimizeCard({ item, index }: { item: { title: string; description: string }; index: number }) {
   const { ref, isVisible } = useRevealOnView<HTMLDivElement>({ threshold: 0.2 });
-
   return (
     <div
       ref={ref}
@@ -626,7 +547,12 @@ function OptimizeCard({ item, index }: { item: typeof optimizeFor[0]; index: num
   );
 }
 
-function TechCard({ group, index }: { group: typeof technologyGroups[0]; index: number }) {
+function TechCard({ group, index, inStack, tools }: {
+  group: (typeof technologyGroups)[0];
+  index: number;
+  inStack: string;
+  tools: string;
+}) {
   const [isHovered, setIsHovered] = useState(false);
   const { ref, isVisible } = useRevealOnView<HTMLDivElement>({ threshold: 0.2 });
 
@@ -642,7 +568,6 @@ function TechCard({ group, index }: { group: typeof technologyGroups[0]; index: 
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Header with activity indicator */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-display">{group.title}</h3>
         <span
@@ -650,11 +575,9 @@ function TechCard({ group, index }: { group: typeof technologyGroups[0]; index: 
           style={{ color: group.tone.accent }}
         >
           <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: group.tone.accent }} />
-          <span className="text-[9px] font-mono">In stack</span>
+          <span className="text-[9px] font-mono">{inStack}</span>
         </span>
       </div>
-      
-      {/* Tech items with stagger animation */}
       <div className="flex flex-wrap gap-1.5">
         {group.items.map((item, i) => (
           <span
@@ -671,20 +594,15 @@ function TechCard({ group, index }: { group: typeof technologyGroups[0]; index: 
           </span>
         ))}
       </div>
-
-      {/* Usage bar */}
       <div className={`mt-4 transition-all duration-500 ${isHovered ? "opacity-100" : "opacity-0"}`}>
         <div className="flex items-center gap-2">
           <div className="flex-1 h-1 bg-secondary rounded-full overflow-hidden">
-            <div 
+            <div
               className="h-full rounded-full transition-all duration-700"
-              style={{
-                width: isHovered ? `${60 + index * 10}%` : "0%",
-                backgroundColor: group.tone.accent,
-              }}
+              style={{ width: isHovered ? `${60 + index * 10}%` : "0%", backgroundColor: group.tone.accent }}
             />
           </div>
-          <span className="text-[9px] text-muted-foreground font-mono">{group.items.length} tools</span>
+          <span className="text-[9px] text-muted-foreground font-mono">{group.items.length} {tools}</span>
         </div>
       </div>
     </div>

@@ -11,7 +11,8 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { SitePageFrame } from "@/app/_components/site/site-page-frame";
 import { ContactIntakeForm } from "@/app/_components/site/contact-intake-form";
 import { useRevealOnView } from "@/hooks/use-reveal-on-view";
@@ -19,49 +20,43 @@ import { contactInbox, normalizeContactInquiry, type ContactInquiryKey } from "@
 import { getContactHref, getStartWithMaxwellHref, siteRoutes } from "@/lib/site-config";
 import { siteChromeDots, siteTones } from "@/lib/site-tones";
 
-const inquiryPaths: ReadonlyArray<{
+const LOCALES = ["en", "es", "fr", "de"];
+
+type InquiryPathMeta = {
   key: ContactInquiryKey;
   matches: readonly ContactInquiryKey[];
-  title: string;
-  description: string;
   icon: LucideIcon;
   tone: typeof siteTones.brand;
-}> = [
+};
+
+const inquiryPathMeta: ReadonlyArray<InquiryPathMeta> = [
   {
     key: "new-project",
     matches: ["new-project", "solutions", "capabilities", "what-we-build", "technology", "templates"],
-    title: "Project request",
-    description: "Scope, propose, or build custom software.",
     icon: MessageSquare,
     tone: siteTones.brand,
   },
   {
     key: "general",
     matches: ["general", "about", "legal"],
-    title: "General question",
-    description: "Company, legal, or broader questions about Noon.",
     icon: Users,
     tone: siteTones.client,
   },
   {
     key: "seller",
     matches: ["seller", "developer"],
-    title: "Partnership or collaboration",
-    description: "Seller, developer, or collaboration inquiries.",
     icon: BriefcaseBusiness,
     tone: siteTones.gateway,
   },
   {
     key: "next-product",
     matches: ["investor", "next-product"],
-    title: "Next product interest",
-    description: "Investor or next product conversations.",
     icon: TrendingUp,
     tone: siteTones.data,
   },
 ] as const;
 
-function ConnectionHubVisual() {
+function ConnectionHubVisual({ routingLabels }: { routingLabels: string[] }) {
   const [activeNode, setActiveNode] = useState(0);
   const { ref: hubRef, isVisible } = useRevealOnView<HTMLDivElement>({ threshold: 0.3 });
 
@@ -78,10 +73,10 @@ function ConnectionHubVisual() {
   }, [isVisible]);
 
   const nodes = [
-    { label: "Project", angle: 0, tone: inquiryPaths[0].tone },
-    { label: "General", angle: 90, tone: inquiryPaths[1].tone },
-    { label: "Partner", angle: 180, tone: inquiryPaths[2].tone },
-    { label: "Next", angle: 270, tone: inquiryPaths[3].tone },
+    { label: "Project", angle: 0, tone: inquiryPathMeta[0].tone },
+    { label: "General", angle: 90, tone: inquiryPathMeta[1].tone },
+    { label: "Partner", angle: 180, tone: inquiryPathMeta[2].tone },
+    { label: "Next", angle: 270, tone: inquiryPathMeta[3].tone },
   ];
   const activeTone = nodes[activeNode].tone;
 
@@ -167,14 +162,7 @@ function ConnectionHubVisual() {
         >
           <span className="h-2 w-2 animate-pulse rounded-full" style={{ backgroundColor: activeTone.accent }} />
           <span className="text-xs" style={{ color: activeTone.accent }}>
-            {
-              [
-                "Routing: Project request",
-                "Routing: General question",
-                "Routing: Partnership route",
-                "Routing: Next product interest",
-              ][activeNode]
-            }
+            {routingLabels[activeNode]}
           </span>
         </div>
       </div>
@@ -207,10 +195,30 @@ function ContactPageSkeleton() {
 }
 
 function ContactPageContent() {
+  const params = useParams();
+  const paramLocale = typeof params?.locale === "string" ? params.locale : null;
+  const locale = (paramLocale && LOCALES.includes(paramLocale) ? paramLocale : "en");
+
   const searchParams = useSearchParams();
   const inquiry = searchParams.get("inquiry") || undefined;
   const draft = searchParams.get("draft") || "";
   const source = searchParams.get("source") || undefined;
+
+  const t = useTranslations("contact");
+
+  const inquiryPathsRaw = t.raw("inquiryPaths") as Array<{ title: string; description: string }>;
+  const inquiryPaths = inquiryPathMeta.map((meta, i) => ({
+    ...meta,
+    title: inquiryPathsRaw[i]?.title ?? "",
+    description: inquiryPathsRaw[i]?.description ?? "",
+  }));
+
+  const routingLabels = [
+    t("routing.project"),
+    t("routing.general"),
+    t("routing.partner"),
+    t("routing.next"),
+  ];
 
   const normalizedInquiry = normalizeContactInquiry(inquiry);
   const trimmedDraft = draft.trim();
@@ -231,7 +239,7 @@ function ContactPageContent() {
                 }`}
               >
                 <span className="h-px w-8" style={{ backgroundColor: siteTones.brand.accent }} />
-                Contact
+                {t("hero.eyebrow")}
               </span>
               <h1
                 className={`mb-6 text-4xl font-display tracking-tight transition-all duration-700 lg:text-5xl ${
@@ -239,7 +247,7 @@ function ContactPageContent() {
                 }`}
                 style={{ transitionDelay: "100ms" }}
               >
-                Contact Noon
+                {t("hero.headline")}
               </h1>
               <p
                 className={`mb-4 text-base leading-relaxed text-muted-foreground transition-all duration-700 lg:text-lg ${
@@ -247,8 +255,7 @@ function ContactPageContent() {
                 }`}
                 style={{ transitionDelay: "200ms" }}
               >
-                Tell us what you need, and we&apos;ll route it correctly. For project requests, we usually review
-                the inquiry first and then continue with the right next step.
+                {t("hero.description")}
               </p>
               <p
                 className={`mb-8 text-sm text-muted-foreground transition-all duration-700 ${
@@ -256,7 +263,7 @@ function ContactPageContent() {
                 }`}
                 style={{ transitionDelay: "260ms" }}
               >
-                We usually respond within 1-2 business days.
+                {t("hero.responseTime")}
               </p>
               <div
                 className={`flex flex-wrap gap-4 transition-all duration-700 ${
@@ -276,7 +283,7 @@ function ContactPageContent() {
                     href={maxwellReturnHref}
                     className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium transition-colors hover:bg-secondary"
                   >
-                    Continue with Maxwell
+                    {t("continueWithMaxwell")}
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 ) : null}
@@ -284,7 +291,7 @@ function ContactPageContent() {
             </div>
 
             <div className="hidden lg:block">
-              <ConnectionHubVisual />
+              <ConnectionHubVisual routingLabels={routingLabels} />
             </div>
           </div>
         </div>
@@ -305,9 +312,9 @@ function ContactPageContent() {
           <div className="mb-10 max-w-3xl">
             <span className="mb-4 inline-flex items-center gap-3 text-sm font-mono text-muted-foreground">
               <span className="h-px w-8" style={{ backgroundColor: siteTones.brand.accent }} />
-              Routes
+              {t("routes.eyebrow")}
             </span>
-            <h2 className="text-2xl font-display tracking-tight lg:text-3xl">Choose the right path</h2>
+            <h2 className="text-2xl font-display tracking-tight lg:text-3xl">{t("routes.headline")}</h2>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -319,6 +326,7 @@ function ContactPageContent() {
                 isSelected={Boolean(normalizedInquiry && path.matches.includes(normalizedInquiry))}
                 draft={trimmedDraft}
                 source={source}
+                openRouteLabel={t("openRoute")}
               />
             ))}
           </div>
@@ -328,16 +336,16 @@ function ContactPageContent() {
       <section className="site-section-lg bg-foreground text-background">
         <div className="site-shell text-center">
           <h2 className="mb-4 text-2xl font-display tracking-tight lg:text-3xl">
-            Need a first direction before you reach out?
+            {t("cta.headline")}
           </h2>
           <p className="mx-auto mb-8 max-w-md text-background/70">
-            Let Maxwell help structure the initial request before Noon reviews it.
+            {t("cta.description")}
           </p>
           <Link
             href={siteRoutes.maxwell}
             className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
           >
-            Start with Maxwell
+            {t("cta.startWithMaxwell")}
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -352,12 +360,14 @@ function InquiryPathCard({
   isSelected,
   draft,
   source,
+  openRouteLabel,
 }: {
-  path: typeof inquiryPaths[number];
+  path: InquiryPathMeta & { title: string; description: string };
   index: number;
   isSelected: boolean;
   draft: string;
   source?: string;
+  openRouteLabel: string;
 }) {
   const { ref: cardRef, isVisible } = useRevealOnView<HTMLAnchorElement>({ threshold: 0.2 });
   const Icon = path.icon;
@@ -393,7 +403,7 @@ function InquiryPathCard({
           className="inline-flex items-center gap-1 text-sm font-medium transition-all group-hover:gap-2"
           style={{ color: isSelected ? tone.accent : undefined }}
         >
-          Open route
+          {openRouteLabel}
           <ArrowRight className="h-4 w-4" />
         </span>
       </div>

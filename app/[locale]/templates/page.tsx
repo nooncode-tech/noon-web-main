@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { SitePageFrame } from "@/app/_components/site/site-page-frame";
 import { useRevealOnView } from "@/hooks/use-reveal-on-view";
 import { templateCategories, templates } from "@/data/templates";
@@ -20,6 +22,8 @@ const templateToneStructural = siteTones.client;
 const templateToneLifted = siteTones.data;
 const templateToneOperational = siteTones.gateway;
 const templateToneCommerce = siteTones.services;
+
+const LOCALES = ["en", "es", "fr", "de"];
 
 const templateCategoryTones: Record<
   TemplateCategory,
@@ -212,6 +216,13 @@ function TemplatePreviewVisual() {
 // ============================================================================
 
 export default function TemplatesPage() {
+  const params = useParams();
+  const paramLocale = typeof params?.locale === "string" ? params.locale : null;
+  const locale = (paramLocale && LOCALES.includes(paramLocale) ? paramLocale : "en");
+  const lp = (href: string) => `/${locale}${href}`;
+
+  const t = useTranslations("templates");
+
   const templatesByCategory = getTemplatesByCategory();
   const categoriesWithTemplates = templateCategories.filter(
     (cat) => templatesByCategory[cat]?.length > 0
@@ -230,20 +241,19 @@ export default function TemplatesPage() {
                 className={`inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-6 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
               >
                 <span className="w-8 h-px" style={{ backgroundColor: templateBrandTone.accent }} />
-                Templates
+                {t("hero.eyebrow")}
               </span>
               <h1
                 className={`text-4xl lg:text-5xl font-display tracking-tight mb-6 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
                 style={{ transitionDelay: "100ms" }}
               >
-                Choose a starting point
+                {t("hero.headline")}
               </h1>
               <p
                 className={`text-base lg:text-lg text-muted-foreground leading-relaxed mb-8 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
                 style={{ transitionDelay: "200ms" }}
               >
-                Structured baselines to accelerate scoping and delivery.
-                Not themes, not boxed products, just credible starting points.
+                {t("hero.description")}
               </p>
               <div
                 className={`flex flex-wrap gap-4 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
@@ -253,14 +263,14 @@ export default function TemplatesPage() {
                   href={siteRoutes.maxwell}
                   className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
                 >
-                  Start with Maxwell
+                  {t("hero.startWithMaxwell")}
                   <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
-                  href={siteRoutes.services}
+                  href={lp(siteRoutes.services)}
                   className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium transition-colors hover:bg-secondary"
                 >
-                  View services
+                  {t("hero.viewAll")}
                 </Link>
               </div>
             </div>
@@ -279,10 +289,10 @@ export default function TemplatesPage() {
           <div className="flex items-center justify-between mb-8">
             <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground">
               <span className="w-8 h-px" style={{ backgroundColor: templateBrandTone.accent }} />
-              Categories
+              {t("categories")}
             </span>
             <span className="text-sm" style={{ color: templateBrandTone.accent }}>
-              {categoriesWithTemplates.length} categories
+              {categoriesWithTemplates.length} {t("categories").toLowerCase()}
             </span>
           </div>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -304,7 +314,7 @@ export default function TemplatesPage() {
           <div className="flex items-center justify-between mb-8">
             <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground">
               <span className="w-8 h-px" style={{ backgroundColor: templateBrandTone.accent }} />
-              All templates
+              {t("allTemplates")}
             </span>
             <span className="text-sm" style={{ color: templateBrandTone.accent }}>
               {templates.length} templates
@@ -322,16 +332,16 @@ export default function TemplatesPage() {
       <section className="site-section-lg bg-foreground text-background">
         <div className="site-shell text-center">
           <h2 className="text-2xl lg:text-3xl font-display tracking-tight mb-4">
-            Not sure which template fits?
+            {t("cta.headline")}
           </h2>
           <p className="text-background/70 mb-8 max-w-md mx-auto">
-            Let Maxwell help you find the right starting point.
+            {t("cta.description")}
           </p>
           <Link
             href={siteRoutes.maxwell}
             className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
           >
-            Start with Maxwell
+            {t("cta.startWithMaxwell")}
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
