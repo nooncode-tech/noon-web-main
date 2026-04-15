@@ -208,16 +208,8 @@ export function HeroSection() {
                     <textarea
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
-                      onFocus={() => {
-                        setIsInputFocused(true);
-                        const meta = document.querySelector("meta[name=viewport]");
-                        if (meta) meta.setAttribute("content", "width=device-width, initial-scale=1, maximum-scale=1");
-                      }}
-                      onBlur={() => {
-                        setIsInputFocused(false);
-                        const meta = document.querySelector("meta[name=viewport]");
-                        if (meta) meta.setAttribute("content", "width=device-width, initial-scale=1");
-                      }}
+                      onFocus={() => setIsInputFocused(true)}
+                      onBlur={() => setIsInputFocused(false)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
                           e.preventDefault();
@@ -226,7 +218,7 @@ export function HeroSection() {
                       }}
                       placeholder={isInputFocused ? t("placeholder") : ""}
                       rows={3}
-                      className="min-h-[48px] lg:min-h-[56px] w-full resize-none bg-transparent px-3 lg:px-4 py-2 text-sm leading-relaxed lg:text-[15px] outline-none placeholder:text-muted-foreground/60 text-left"
+                      className="min-h-[48px] lg:min-h-[56px] w-full resize-none bg-transparent px-3 lg:px-4 py-2 text-[16px] leading-relaxed lg:text-[15px] outline-none placeholder:text-muted-foreground/60 text-left"
                       aria-label={t("placeholder")}
                     />
                     {!inputValue && !isInputFocused && (
