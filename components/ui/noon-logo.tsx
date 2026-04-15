@@ -6,10 +6,7 @@ interface NoonLogoProps {
 
 function LogoIcon({ height, className }: { height: number; className?: string }) {
   return (
-    <picture>
-      <source srcSet="/logo-icon-dark.png" media="(prefers-color-scheme: dark)" />
-      <img src="/logo-icon.png" alt="" height={height} width={height} className={className} />
-    </picture>
+    <img src="/logo-icon.png" alt="" height={height} width={height} className={className} />
   );
 }
 

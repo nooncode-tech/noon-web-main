@@ -191,7 +191,7 @@ export function Navigation() {
       }`}
     >
       <nav
-        className={`mx-auto overflow-hidden transition-all duration-500 ${
+        className={`mx-auto transition-all duration-500 ${
           isScrolled || isMobileMenuOpen
             ? "bg-background/80 backdrop-blur-xl border border-foreground/10 rounded-2xl shadow-lg max-w-[1200px]"
             : "bg-transparent max-w-[1400px]"
@@ -259,7 +259,7 @@ export function Navigation() {
 
         {/* Scroll progress bar */}
         <div
-          className={`relative h-[2px] transition-opacity duration-300 ${
+          className={`relative h-[2px] overflow-hidden rounded-b-2xl transition-opacity duration-300 ${
             scrollProgress > 0 ? "opacity-100" : "opacity-0"
           }`}
         >

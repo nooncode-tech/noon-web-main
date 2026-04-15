@@ -230,6 +230,7 @@ export function HeroSection() {
 
                   <div className="mt-1.5 flex items-center justify-between gap-2 pt-2 px-1">
                     {/* Left: tools */}
+
                     <div className="flex items-center gap-1">
                       <button
                         type="button"
@@ -328,19 +329,17 @@ export function HeroSection() {
                       <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                     </Button>
                   </div>
-                </div>
-              </div>
 
-              {/* How it works CTA */}
-              <div className="-mt-px">
-                <Link
-                  href={`/${locale}${siteRoutes.howItWorksHref}`}
-                  className="flex w-full items-center justify-center gap-1.5 rounded-b-[10px] px-4 py-2 text-[11px] text-white transition-opacity hover:opacity-90"
-                  style={{ backgroundColor: "#120B5A" }}
-                >
-                  <Sparkles className="h-3 w-3 shrink-0" />
-                  {t("howItWorks")}
-                </Link>
+                  {/* How it works CTA — inside card */}
+                  <Link
+                    href={`/${locale}${siteRoutes.howItWorksHref}`}
+                    className="flex w-[calc(100%+1rem)] items-center gap-2 -ml-2 -mb-2 mt-2 px-4 py-2.5 rounded-b-[8px] text-[11px] text-white transition-opacity hover:opacity-90"
+                    style={{ backgroundColor: "#1200C5" }}
+                  >
+                    <Sparkles className="h-3 w-3 shrink-0" />
+                    {t("howItWorks")}
+                  </Link>
+                </div>
               </div>
 
               {/* Prompt Suggestions */}
