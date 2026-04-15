@@ -196,7 +196,6 @@ export function HeroSection() {
                     <Sparkles className="h-3.5 w-3.5 shrink-0" />
                     {t("howItWorks")}
                   </span>
-                  <ArrowRight className="h-3.5 w-3.5 opacity-70" />
                 </Link>
 
                 {/* Dark card — on top, full rounded corners */}
