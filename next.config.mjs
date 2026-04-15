@@ -54,9 +54,20 @@ const nextConfig = {
       },
       {
         source: "/start-with-maxwell",
-        destination: "/maxwell",
+        destination: "/en/maxwell",
         permanent: true,
       },
+      // Legacy non-locale paths → redirect to /en/ version
+      { source: "/maxwell", destination: "/en/maxwell", permanent: false },
+      { source: "/maxwell/:path*", destination: "/en/maxwell/:path*", permanent: false },
+      { source: "/upgrade", destination: "/en/upgrade", permanent: false },
+      { source: "/upgrade/:path*", destination: "/en/upgrade/:path*", permanent: false },
+      { source: "/signin", destination: "/en/signin", permanent: false },
+      { source: "/cookies-policy", destination: "/en/cookies-policy", permanent: false },
+      { source: "/legal", destination: "/en/legal", permanent: false },
+      { source: "/legal-notice", destination: "/en/legal-notice", permanent: false },
+      { source: "/privacy-policy", destination: "/en/privacy-policy", permanent: false },
+      { source: "/terms-and-conditions", destination: "/en/terms-and-conditions", permanent: false },
     ]
   },
 }

@@ -187,16 +187,20 @@ export function HeroSection() {
             <div className="w-full">
               <div className="relative pb-[38px]">
                 {/* Blue badge — behind card, aligned with card width */}
-                <Link
-                  href={`/${locale}${siteRoutes.howItWorksHref}`}
-                  className="absolute inset-x-0 bottom-0 h-[44px] rounded-b-[10px] flex items-end justify-between px-4 pb-2.5 text-xs font-medium text-white hover:opacity-90 transition-opacity"
+                <div
+                  className="absolute inset-x-0 bottom-0 h-[44px] rounded-b-[10px] flex items-end justify-start px-4 pb-2.5 text-xs font-medium text-white"
                   style={{ background: "#1200C5" }}
                 >
-                  <span className="flex items-center gap-2">
-                    <Sparkles className="h-3.5 w-3.5 shrink-0" />
+                  <span className="flex items-center gap-1.5">
                     {t("howItWorks")}
+                    <Link
+                      href={`/${locale}${siteRoutes.howItWorksHref}`}
+                      className="underline underline-offset-2 hover:opacity-80 transition-opacity"
+                    >
+                      {t("howItWorksLink")}
+                    </Link>
                   </span>
-                </Link>
+                </div>
 
                 {/* Dark card — on top, full rounded corners */}
                 <div className="relative z-10 bg-card dark:bg-[#131313] rounded-[10px] p-2 shadow-md transition-shadow duration-300">
@@ -214,7 +218,7 @@ export function HeroSection() {
                       }}
                       placeholder={isInputFocused ? t("placeholder") : ""}
                       rows={3}
-                      className="min-h-[48px] lg:min-h-[56px] w-full resize-none bg-transparent px-3 lg:px-4 py-2 text-sm leading-relaxed lg:text-[15px] outline-none placeholder:text-muted-foreground/60 text-left"
+                      className="min-h-[48px] lg:min-h-[56px] w-full resize-none bg-transparent px-3 lg:px-4 py-2 text-[16px] leading-relaxed lg:text-[15px] outline-none placeholder:text-muted-foreground/60 text-left"
                       aria-label={t("placeholder")}
                     />
                     {!inputValue && !isInputFocused && (

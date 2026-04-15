@@ -6,15 +6,7 @@ const intlMiddleware = createMiddleware(routing);
 
 // Routes that should NOT be locale-prefixed
 const bypassPatterns = [
-  /^\/maxwell(\/.*)?$/,
-  /^\/signin(\/.*)?$/,
-  /^\/upgrade(\/.*)?$/,
   /^\/api(\/.*)?$/,
-  /^\/legal(\/.*)?$/,
-  /^\/legal-notice(\/.*)?$/,
-  /^\/privacy-policy(\/.*)?$/,
-  /^\/terms-and-conditions(\/.*)?$/,
-  /^\/cookies-policy(\/.*)?$/,
   /^\/_next(\/.*)?$/,
   /^\/favicon\.ico$/,
   /^\/logo.*$/,

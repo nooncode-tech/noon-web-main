@@ -24,8 +24,17 @@
       "Bash(node -e ':*)",
       "Bash(npx vitest:*)",
       "Bash(npx next:*)",
-      "Bash(vercel whoami:*)",
-      "Bash(vercel --prod --debug)"
+      "Bash(npm i:*)",
+      "Bash(node -e \"const pkg = require\\('baseline-browser-mapping/package.json'\\); console.log\\(pkg.version\\)\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\('version'\\)\\)\")",
+      "Bash(node -e \"import\\('baseline-browser-mapping'\\).then\\(m => console.log\\(JSON.stringify\\(Object.keys\\(m\\)\\)\\)\\)\")",
+      "Bash(npm show:*)",
+      "Bash(mv \"logo-icon.png.png\" \"logo-icon.png\")",
+      "Bash(mv \"logo-wordmark.png.png\" \"logo-wordmark.png\")",
+      "Bash(dir \"C:\\\\Users\\\\Juan\\\\Documents\\\\Noon\\\\noon-main\\\\middleware.ts\")",
+      "Bash(ls C:/Users/Juan/Documents/Noon/noon-main/*.ts)",
+      "Bash(node -e ' *)",
+      "Bash(where magick *)"
     ]
   }
 }

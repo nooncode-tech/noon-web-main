@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { signOutAction } from "@/app/signin/actions";
+import { signOutAction } from "@/app/[locale]/signin/actions";
 import { getReviewPageAccess } from "./_actions/auth";
 import { ReviewLogin } from "./_components/review-login";
 import { StatusBadge } from "./_components/status-badge";

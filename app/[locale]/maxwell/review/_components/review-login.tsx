@@ -1,4 +1,4 @@
-import { signInWithGoogleAction, signOutAction } from "@/app/signin/actions";
+import { signInWithGoogleAction, signOutAction } from "@/app/[locale]/signin/actions";
 import type { ReviewAccessReason } from "@/lib/auth/review";
 
 type Props = {

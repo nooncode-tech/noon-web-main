@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ProposalDocument } from "@/components/maxwell/proposal-document";
-import { StatusBadge } from "@/app/maxwell/review/_components/status-badge";
+import { StatusBadge } from "@/app/[locale]/maxwell/review/_components/status-badge";
 import {
   getProposalRequestByPublicToken,
   markProposalFirstOpened,
