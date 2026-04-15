@@ -35,7 +35,7 @@ export function PageHero({
     <section className="site-hero-section relative">
       <div className="site-shell">
         <div className="max-w-4xl">
-          <span className="mb-6 inline-flex items-center gap-3 text-sm font-mono text-muted-foreground">
+          <span className="mb-6 inline-flex items-center gap-3 text-xs font-mono text-muted-foreground">
             <span className="h-px w-8 bg-foreground/30" />
             {eyebrow}
           </span>

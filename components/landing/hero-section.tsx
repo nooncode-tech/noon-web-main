@@ -170,8 +170,8 @@ export function HeroSection() {
           <div className="w-full">
             {/* Eyebrow */}
             <div className="mb-4 lg:mb-4 flex justify-center">
-              <span className="inline-flex items-center gap-2 text-[11px] lg:text-[13px] font-mono text-muted-foreground bg-secondary/50 px-3 lg:px-3.5 py-1.5 rounded-full border border-border">
-                <span className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full bg-primary animate-pulse" />
+              <span className="inline-flex items-center gap-1.5 text-[10px] lg:text-[11px] font-mono text-muted-foreground bg-secondary/50 px-2.5 lg:px-3 py-1 rounded-full border border-border">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                 {t("eyebrow")}
               </span>
             </div>
@@ -225,7 +225,7 @@ export function HeroSection() {
                       <div className="absolute left-0 right-0 top-0 px-4 py-3 pointer-events-none overflow-hidden">
                         <span
                           key={currentSuggestion}
-                          className="block w-full truncate whitespace-nowrap text-sm lg:text-[15px] text-muted-foreground/45 animate-fade-in text-left"
+                          className="block w-full truncate whitespace-nowrap text-xs text-muted-foreground/45 animate-fade-in text-left"
                         >
                           {suggestions[currentSuggestion]?.prompt}
                         </span>
