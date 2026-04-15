@@ -185,8 +185,22 @@ export function HeroSection() {
 
             {/* Chat Input */}
             <div className="w-full">
-              <div className="relative">
-                <div className="bg-card dark:bg-[#131313] rounded-[10px] p-2 shadow-sm transition-shadow duration-300">
+              <div className="relative pb-[38px]">
+                {/* Blue badge — behind card, aligned with card width */}
+                <Link
+                  href={`/${locale}${siteRoutes.howItWorksHref}`}
+                  className="absolute inset-x-0 bottom-0 h-[44px] rounded-b-[10px] flex items-end justify-between px-4 pb-2.5 text-xs font-medium text-white hover:opacity-90 transition-opacity"
+                  style={{ background: "#1200C5" }}
+                >
+                  <span className="flex items-center gap-2">
+                    <Sparkles className="h-3.5 w-3.5 shrink-0" />
+                    {t("howItWorks")}
+                  </span>
+                  <ArrowRight className="h-3.5 w-3.5 opacity-70" />
+                </Link>
+
+                {/* Dark card — on top, full rounded corners */}
+                <div className="relative z-10 bg-card dark:bg-[#131313] rounded-[10px] p-2 shadow-md transition-shadow duration-300">
                   <div className="relative min-w-0 overflow-hidden">
                     <textarea
                       value={inputValue}
@@ -329,17 +343,7 @@ export function HeroSection() {
                       <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                     </Button>
                   </div>
-
-                  {/* How it works CTA — inside card */}
-                  <Link
-                    href={`/${locale}${siteRoutes.howItWorksHref}`}
-                    className="flex w-[calc(100%+1rem)] items-center gap-2 -ml-2 -mb-2 mt-2 px-4 py-2.5 rounded-b-[8px] text-[11px] text-white transition-opacity hover:opacity-90"
-                    style={{ backgroundColor: "#1200C5" }}
-                  >
-                    <Sparkles className="h-3 w-3 shrink-0" />
-                    {t("howItWorks")}
-                  </Link>
-                </div>
+                </div>{/* end dark card */}
               </div>
 
               {/* Prompt Suggestions */}
