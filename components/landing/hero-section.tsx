@@ -331,6 +331,18 @@ export function HeroSection() {
                 </div>
               </div>
 
+              {/* How it works CTA */}
+              <div className="flex justify-center -mt-px">
+                <Link
+                  href={`/${locale}${siteRoutes.howItWorksHref}`}
+                  className="inline-flex items-center gap-1.5 rounded-b-[10px] px-4 py-1.5 text-[11px] text-white transition-colors hover:opacity-90 group"
+                  style={{ backgroundColor: "#120B5A" }}
+                >
+                  <Sparkles className="h-3 w-3 shrink-0" />
+                  {t("howItWorks")}
+                </Link>
+              </div>
+
               {/* Prompt Suggestions */}
               <div className="mt-3 lg:mt-4">
                 <p className="mb-3 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground/55 text-center">

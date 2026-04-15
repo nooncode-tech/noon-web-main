@@ -236,8 +236,8 @@
 
   .page-grid-background {
     background-image:
-      linear-gradient(to right, rgb(0 0 0 / 0.035) 1px, transparent 1px),
-      linear-gradient(to bottom, rgb(0 0 0 / 0.035) 1px, transparent 1px);
+      linear-gradient(to right, rgb(0 0 0 / 0.015) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(0 0 0 / 0.015) 1px, transparent 1px);
     background-size: calc(100% / 12) 100%, 100% 13rem;
     background-repeat: repeat;
     background-position: top left;
