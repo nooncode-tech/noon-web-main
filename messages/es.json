@@ -6,7 +6,7 @@
     "startWithMaxwell": "Empezar con Maxwell"
   },
   "hero": {
-    "eyebrow": "La empresa de software code-first",
+    "eyebrow": "Empresa de desarrollo tecnológico",
     "headline": "Cuéntanos qué quieres construir.",
     "placeholder": "Describe lo que quieres construir...",
     "notSure": "¿No sabes por dónde empezar? Prueba uno de estos",
@@ -64,7 +64,7 @@
   "about": {
     "hero": {
       "eyebrow": "Empresa",
-      "headline": "Una empresa code-first",
+      "headline": "Una empresa de desarrollo tecnológico",
       "headlineMuted": "construida en torno a la entrega real.",
       "description": "Noon convierte la demanda de software ambigua en alcance concreto y lo entrega en código. Calidad de ejecución, criterio de producto, apalancamiento con IA.",
       "startWithMaxwell": "Empezar con Maxwell",
@@ -115,7 +115,7 @@
       ]
     },
     "metrics": [
-      { "label": "Entrega code-first", "value": "100%", "description": "Cada proyecto se entrega como código de producción" },
+      { "label": "Entrega tecnológica", "value": "100%", "description": "Cada proyecto se entrega como código de producción" },
       { "label": "Dirección de alcance", "value": "Clara", "description": "La primera dirección se define antes de comenzar el trabajo de construcción" },
       { "label": "Flujos asistidos por IA", "value": "Activos", "description": "Las herramientas aceleran la ejecución sin reemplazar el criterio" }
     ],

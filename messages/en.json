@@ -6,7 +6,7 @@
     "startWithMaxwell": "Start with Maxwell"
   },
   "hero": {
-    "eyebrow": "The code-first software company",
+    "eyebrow": "Technology development company",
     "headline": "Tell us what you want to build.",
     "placeholder": "Describe what you want to build...",
     "notSure": "Not sure where to start? Try one of these",
@@ -64,7 +64,7 @@
   "about": {
     "hero": {
       "eyebrow": "Company",
-      "headline": "A code-first company",
+      "headline": "A technology development company",
       "headlineMuted": "built around real delivery.",
       "description": "Noon turns ambiguous software demand into concrete scope and delivers it in code. Execution quality, product judgment, AI-assisted leverage.",
       "startWithMaxwell": "Start with Maxwell",
@@ -115,7 +115,7 @@
       ]
     },
     "metrics": [
-      { "label": "Code-first delivery", "value": "100%", "description": "Every project ships as production code" },
+      { "label": "Technology delivery", "value": "100%", "description": "Every project ships as production code" },
       { "label": "Scope direction", "value": "Clear", "description": "The first direction is defined before build work starts" },
       { "label": "AI-assisted workflows", "value": "Active", "description": "Tooling accelerates execution without replacing judgment" }
     ],

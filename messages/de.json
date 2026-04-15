@@ -6,7 +6,7 @@
     "startWithMaxwell": "Mit Maxwell starten"
   },
   "hero": {
-    "eyebrow": "Das code-first Softwareunternehmen",
+    "eyebrow": "Technologieentwicklungsunternehmen",
     "headline": "Sagen Sie uns, was Sie bauen möchten.",
     "placeholder": "Beschreiben Sie, was Sie bauen möchten...",
     "notSure": "Unsicher, wo Sie anfangen sollen? Probieren Sie eines davon",
@@ -64,7 +64,7 @@
   "about": {
     "hero": {
       "eyebrow": "Unternehmen",
-      "headline": "Ein code-first Unternehmen",
+      "headline": "Ein Technologieentwicklungsunternehmen",
       "headlineMuted": "aufgebaut auf echter Lieferung.",
       "description": "Noon verwandelt ambiguöse Softwarenachfrage in konkreten Umfang und liefert ihn in Code. Ausführungsqualität, Produkturteil, KI-gestützter Hebel.",
       "startWithMaxwell": "Mit Maxwell starten",
@@ -115,7 +115,7 @@
       ]
     },
     "metrics": [
-      { "label": "Code-first Lieferung", "value": "100%", "description": "Jedes Projekt wird als Produktionscode geliefert" },
+      { "label": "Technologielieferung", "value": "100%", "description": "Jedes Projekt wird als Produktionscode geliefert" },
       { "label": "Umfangsrichtung", "value": "Klar", "description": "Die erste Richtung wird vor dem Beginn der Bauarbeit definiert" },
       { "label": "KI-gestützte Workflows", "value": "Aktiv", "description": "Tooling beschleunigt die Ausführung ohne das Urteil zu ersetzen" }
     ],

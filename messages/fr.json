@@ -6,7 +6,7 @@
     "startWithMaxwell": "Commencer avec Maxwell"
   },
   "hero": {
-    "eyebrow": "L'entreprise logicielle code-first",
+    "eyebrow": "Entreprise de développement technologique",
     "headline": "Dites-nous ce que vous voulez créer.",
     "placeholder": "Décrivez ce que vous voulez créer...",
     "notSure": "Vous ne savez pas par où commencer ? Essayez l'un de ces exemples",
@@ -64,7 +64,7 @@
   "about": {
     "hero": {
       "eyebrow": "Entreprise",
-      "headline": "Une entreprise code-first",
+      "headline": "Une entreprise de développement technologique",
       "headlineMuted": "construite autour d'une livraison réelle.",
       "description": "Noon transforme la demande logicielle ambiguë en périmètre concret et la livre en code. Qualité d'exécution, jugement produit, levier assisté par IA.",
       "startWithMaxwell": "Commencer avec Maxwell",
@@ -115,7 +115,7 @@
       ]
     },
     "metrics": [
-      { "label": "Livraison code-first", "value": "100%", "description": "Chaque projet est livré en code de production" },
+      { "label": "Livraison technologique", "value": "100%", "description": "Chaque projet est livré en code de production" },
       { "label": "Direction du périmètre", "value": "Claire", "description": "La première direction est définie avant le début du travail de construction" },
       { "label": "Flux assistés par IA", "value": "Actifs", "description": "Les outils accélèrent l'exécution sans remplacer le jugement" }
     ],
