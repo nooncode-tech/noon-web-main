@@ -332,10 +332,10 @@ export function HeroSection() {
               </div>
 
               {/* How it works CTA */}
-              <div className="flex justify-center -mt-px">
+              <div className="-mt-px">
                 <Link
                   href={`/${locale}${siteRoutes.howItWorksHref}`}
-                  className="inline-flex items-center gap-1.5 rounded-b-[10px] px-4 py-1.5 text-[11px] text-white transition-colors hover:opacity-90 group"
+                  className="flex w-full items-center justify-center gap-1.5 rounded-b-[10px] px-4 py-2 text-[11px] text-white transition-opacity hover:opacity-90"
                   style={{ backgroundColor: "#120B5A" }}
                 >
                   <Sparkles className="h-3 w-3 shrink-0" />
