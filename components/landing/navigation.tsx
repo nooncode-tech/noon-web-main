@@ -187,7 +187,7 @@ export function Navigation() {
       } ${
         isScrolled
           ? "top-3 left-3 right-3 md:top-5 md:left-5 md:right-5"
-          : "top-1.5 left-1.5 right-1.5 md:-top-4 md:left-3 md:right-3"
+          : "top-0 left-3 right-3 md:top-0 md:left-5 md:right-5"
       }`}
     >
       <nav
@@ -199,11 +199,11 @@ export function Navigation() {
       >
         <div
           className={`flex items-center justify-between transition-all duration-500 px-6 lg:px-8 ${
-            isScrolled ? "h-14" : "h-20"
+            isScrolled ? "h-14" : "h-16"
           }`}
         >
           {/* Logo */}
-          <Link href={localHref(siteRoutes.home)} className="flex items-center group ml-[-72px]">
+          <Link href={localHref(siteRoutes.home)} className="flex items-center group">
             <NoonLogo
               variant="wordmark"
               height={isScrolled ? 18 : 22}
@@ -233,7 +233,7 @@ export function Navigation() {
           </div>
 
           {/* Desktop CTA */}
-          <div className="hidden md:flex items-center gap-3 mr-[-72px]">
+          <div className="hidden md:flex items-center gap-3">
             <Button
               asChild
               variant="ghost"
@@ -247,10 +247,10 @@ export function Navigation() {
             <Button
               asChild
               size="sm"
-              className={`bg-primary hover:bg-primary/90 text-primary-foreground rounded-full transition-all duration-500 ${
+              className={`bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-500 ${
                 isScrolled ? "px-4 h-8 text-xs" : "px-6"
               }`}
-              style={{ boxShadow: `inset 0 0 0 1px ${navigationTone.border}` }}
+              style={{ borderRadius: "10px", boxShadow: `inset 0 0 0 1px ${navigationTone.border}` }}
             >
               <Link href={localHref("/signin")}>Sign up</Link>
             </Button>

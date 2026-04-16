@@ -164,7 +164,7 @@ export function HeroSection() {
       : t("attachMenu.imageLabel");
 
   return (
-    <section id="hero" className="relative h-full flex flex-col justify-center pt-16 lg:pt-20">
+    <section id="hero" className="relative h-full flex flex-col justify-center pt-8 lg:pt-10">
       <div className="relative z-10 w-full max-w-[750px] mx-auto px-5 lg:px-8">
         <div className="flex flex-col items-center text-center">
           <div className="w-full">
@@ -203,7 +203,7 @@ export function HeroSection() {
                 </div>
 
                 {/* Dark card — on top, full rounded corners */}
-                <div className="relative z-10 bg-card dark:bg-[#131313] rounded-[9px] p-1.5 shadow-md transition-shadow duration-300">
+                <div className="relative z-10 bg-card dark:bg-[#131313] rounded-[9px] p-1.5 transition-shadow duration-300">
                   <div className="relative min-w-0 overflow-hidden">
                     <textarea
                       value={inputValue}

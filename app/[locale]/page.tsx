@@ -10,7 +10,7 @@ export default function Home() {
         className="pointer-events-none fixed inset-0 z-[55] hidden md:block"
       >
         <div
-          className="absolute top-[48px] left-3 right-3 bottom-3 rounded-[10px] border border-foreground/10"
+          className="absolute top-[60px] left-3 right-3 bottom-3 rounded-[10px] border border-foreground/10"
           style={{ boxShadow: "0 0 0 9999px var(--background)" }}
         />
       </div>
