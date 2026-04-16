@@ -376,12 +376,21 @@ export function HeroSection() {
                     </button>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center gap-2">
-                    {suggestions.slice(0, 5).map((s, index) => (
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    {suggestions.slice(0, 3).map((s, index) => (
                       <button
                         key={index}
                         onClick={() => handleSuggestionClick(s.prompt)}
                         className="shrink-0 rounded-full border border-border bg-background/80 px-2.5 py-1 text-[11px] text-muted-foreground backdrop-blur-sm transition-all duration-300 hover:border-foreground/20 hover:bg-secondary hover:text-foreground"
+                      >
+                        {s.label}
+                      </button>
+                    ))}
+                    {suggestions.slice(3, 5).map((s, index) => (
+                      <button
+                        key={index + 3}
+                        onClick={() => handleSuggestionClick(s.prompt)}
+                        className="hidden sm:inline-flex shrink-0 rounded-full border border-border bg-background/80 px-2.5 py-1 text-[11px] text-muted-foreground backdrop-blur-sm transition-all duration-300 hover:border-foreground/20 hover:bg-secondary hover:text-foreground"
                       >
                         {s.label}
                       </button>
