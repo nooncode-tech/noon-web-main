@@ -203,7 +203,7 @@ export function Navigation() {
           }`}
         >
           {/* Logo */}
-          <Link href={localHref(siteRoutes.home)} className="flex items-center group">
+          <Link href={localHref(siteRoutes.home)} className="flex items-center group ml-[-72px]">
             <NoonLogo
               variant="wordmark"
               height={isScrolled ? 18 : 22}
@@ -233,7 +233,7 @@ export function Navigation() {
           </div>
 
           {/* Desktop CTA */}
-          <div className="hidden md:flex items-center gap-3 mr-[-68px]">
+          <div className="hidden md:flex items-center gap-3 mr-[-72px]">
             <Button
               asChild
               variant="ghost"
