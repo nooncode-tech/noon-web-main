@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, PanelRight } from "lucide-react";
 import { getStartWithMaxwellHref, siteRoutes } from "@/lib/site-config";
 import { siteTones } from "@/lib/site-tones";
 import { NoonLogo } from "@/components/ui/noon-logo";
@@ -191,13 +191,7 @@ export function Navigation() {
             className="md:hidden flex items-center justify-center w-8 h-8"
             aria-label="Toggle menu"
           >
-            {isMobileMenuOpen ? (
-              <X className="w-5 h-5" />
-            ) : (
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="1" y="1" width="20" height="20" rx="5" stroke="currentColor" strokeWidth="1.5"/>
-              </svg>
-            )}
+            <PanelRight className="w-5 h-5" />
           </button>
         </div>
 
@@ -225,13 +219,13 @@ export function Navigation() {
       onClick={() => setIsMobileMenuOpen(false)}
     />
 
-    {/* Mobile Menu — slide-down panel */}
+    {/* Mobile Menu — right drawer */}
     <div
-      className={`md:hidden fixed left-3 right-3 top-3 z-[999] transition-all duration-500 ${
-        isMobileMenuOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-4 pointer-events-none"
+      className={`md:hidden fixed top-1.5 right-1.5 bottom-1.5 z-[999] w-72 transition-all duration-300 ${
+        isMobileMenuOpen ? "opacity-100 translate-x-0 pointer-events-auto" : "opacity-0 translate-x-full pointer-events-none"
       }`}
     >
-      <div className="rounded-[10px] border border-foreground/10 bg-background/95 backdrop-blur-xl shadow-2xl overflow-hidden">
+      <div className="h-full rounded-[10px] border border-foreground/10 bg-background/95 backdrop-blur-xl shadow-2xl overflow-hidden flex flex-col">
         {/* Panel header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-foreground/8">
           <Link href={localHref(siteRoutes.home)} className="flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
@@ -248,18 +242,15 @@ export function Navigation() {
 
         {/* Nav links */}
         <div className="px-3 py-3">
-          {translatedNav.map((link, i) => (
+          {translatedNav.map((link) => (
             <Link
               key={link.name}
               href={localHref(link.href)}
               onClick={() => setIsMobileMenuOpen(false)}
-              className={`flex items-center justify-between px-4 py-3.5 rounded-[8px] text-base font-medium transition-all duration-300 ${
-                isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
-              } ${isActiveLink(link.match) ? "bg-secondary/60" : "hover:bg-secondary/40 text-foreground/80"}`}
-              style={{
-                transitionDelay: isMobileMenuOpen ? `${80 + i * 50}ms` : "0ms",
-                color: isActiveLink(link.match) ? navigationTone.accent : undefined,
-              }}
+              className={`flex items-center justify-between px-4 py-3.5 rounded-[8px] text-base font-medium transition-colors duration-200 ${
+                isActiveLink(link.match) ? "bg-secondary/60" : "hover:bg-secondary/40 text-foreground/80"
+              }`}
+              style={{ color: isActiveLink(link.match) ? navigationTone.accent : undefined }}
             >
               {link.name}
               {isActiveLink(link.match) && (
@@ -271,10 +262,7 @@ export function Navigation() {
 
         {/* Language switcher + CTA */}
         <div
-          className={`px-4 pb-4 pt-1 space-y-3 transition-all duration-300 ${
-            isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
-          }`}
-          style={{ transitionDelay: isMobileMenuOpen ? "280ms" : "0ms" }}
+          className="px-4 pb-4 pt-1 space-y-3"
         >
           <Button
             asChild
