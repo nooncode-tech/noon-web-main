@@ -4,11 +4,10 @@ import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Globe, ChevronDown } from "lucide-react";
+import { X } from "lucide-react";
 import { getStartWithMaxwellHref, siteRoutes } from "@/lib/site-config";
 import { siteTones } from "@/lib/site-tones";
 import { NoonLogo } from "@/components/ui/noon-logo";
-import { useRouter } from "next/navigation";
 
 // Inline nav label translations (nav is used outside NextIntlClientProvider too)
 const NAV_LABELS: Record<string, { services: string; templates: string; about: string; startWithMaxwell: string }> = {
@@ -21,79 +20,9 @@ const NAV_LABELS: Record<string, { services: string; templates: string; about: s
 const navigationTone = siteTones.brand;
 
 
-const localeNames: Record<string, string> = {
-  en: "English",
-  es: "Español",
-  fr: "Français",
-  de: "Deutsch",
-};
 
 const LOCALES = ["en", "es", "fr", "de"];
 
-function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const params = useParams();
-  const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  // Derive locale from URL params or pathname
-  const paramLocale = typeof params?.locale === "string" ? params.locale : null;
-  const pathLocale = LOCALES.find((l) => pathname.startsWith(`/${l}/`) || pathname === `/${l}`);
-  const locale = (paramLocale && LOCALES.includes(paramLocale) ? paramLocale : pathLocale) ?? "en";
-
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
-
-  function switchLocale(newLocale: string) {
-    const segments = pathname.split("/");
-    const cleanPath = LOCALES.includes(segments[1])
-      ? "/" + segments.slice(2).join("/")
-      : pathname;
-
-    router.push(`/${newLocale}${cleanPath === "/" ? "" : cleanPath}`);
-    setIsOpen(false);
-  }
-
-  return (
-    <div ref={ref} className="relative">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-1.5 rounded-full border border-foreground/10 bg-secondary/50 px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground ${compact ? "h-7" : "h-8"}`}
-      >
-        <Globe className="w-3 h-3" />
-        {locale.toUpperCase()}
-        <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? "rotate-180" : ""}`} />
-      </button>
-
-      {isOpen && (
-        <div className="absolute right-0 top-full mt-2 z-[60] min-w-[130px] rounded-xl border border-foreground/10 bg-background/95 backdrop-blur-xl shadow-xl overflow-hidden">
-          {Object.entries(localeNames).map(([code, name]) => (
-            <button
-              key={code}
-              onClick={() => switchLocale(code)}
-              className={`w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-secondary/60 flex items-center justify-between ${
-                locale === code ? "font-medium text-foreground" : "text-muted-foreground"
-              }`}
-            >
-              {name}
-              {locale === code && (
-                <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-              )}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -259,10 +188,16 @@ export function Navigation() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2"
+            className="md:hidden flex items-center justify-center w-8 h-8"
             aria-label="Toggle menu"
           >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMobileMenuOpen ? (
+              <X className="w-5 h-5" />
+            ) : (
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="1" y="1" width="20" height="20" rx="5" stroke="currentColor" strokeWidth="1.5"/>
+              </svg>
+            )}
           </button>
         </div>
 
@@ -296,18 +231,18 @@ export function Navigation() {
         isMobileMenuOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-4 pointer-events-none"
       }`}
     >
-      <div className="rounded-2xl border border-foreground/10 bg-background/95 backdrop-blur-xl shadow-2xl overflow-hidden">
+      <div className="rounded-[10px] border border-foreground/10 bg-background/95 backdrop-blur-xl shadow-2xl overflow-hidden">
         {/* Panel header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-foreground/8">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-foreground/8">
           <Link href={localHref(siteRoutes.home)} className="flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
-            <NoonLogo variant="wordmark" height={26} />
+            <NoonLogo variant="wordmark" height={24} />
           </Link>
           <button
             onClick={() => setIsMobileMenuOpen(false)}
-            className="flex items-center justify-center w-8 h-8 rounded-full border border-foreground/10 bg-secondary/50 text-muted-foreground"
+            className="flex items-center justify-center w-7 h-7 rounded-[6px] border border-foreground/10 bg-secondary/50 text-muted-foreground"
             aria-label="Close menu"
           >
-            <X className="w-4 h-4" />
+            <X className="w-3.5 h-3.5" />
           </button>
         </div>
 
@@ -318,7 +253,7 @@ export function Navigation() {
               key={link.name}
               href={localHref(link.href)}
               onClick={() => setIsMobileMenuOpen(false)}
-              className={`flex items-center justify-between px-4 py-3.5 rounded-xl text-base font-medium transition-all duration-300 ${
+              className={`flex items-center justify-between px-4 py-3.5 rounded-[8px] text-base font-medium transition-all duration-300 ${
                 isMobileMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
               } ${isActiveLink(link.match) ? "bg-secondary/60" : "hover:bg-secondary/40 text-foreground/80"}`}
               style={{
@@ -341,12 +276,9 @@ export function Navigation() {
           }`}
           style={{ transitionDelay: isMobileMenuOpen ? "280ms" : "0ms" }}
         >
-          <div className="flex justify-center">
-            <LanguageSwitcher />
-          </div>
           <Button
             asChild
-            className="w-full bg-primary text-primary-foreground rounded-xl h-12 text-sm font-medium hover:bg-primary/90"
+            className="w-full bg-primary text-primary-foreground rounded-[8px] h-11 text-sm font-medium hover:bg-primary/90"
           >
             <a href={getStartWithMaxwellHref()} onClick={() => setIsMobileMenuOpen(false)}>
               {navLabels.startWithMaxwell}
