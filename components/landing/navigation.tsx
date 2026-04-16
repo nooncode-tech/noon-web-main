@@ -182,12 +182,12 @@ export function Navigation() {
   return (
     <>
     <header
-      className={`fixed z-50 transition-all duration-500 ${
+      className={`fixed z-[60] transition-all duration-500 ${
         isHidden && !isMobileMenuOpen ? "-translate-y-[140%] opacity-0" : "translate-y-0 opacity-100"
       } ${
         isScrolled
           ? "top-3 left-3 right-3 md:top-5 md:left-5 md:right-5"
-          : "top-1.5 left-1.5 right-1.5 md:top-3 md:left-3 md:right-3"
+          : "top-1.5 left-1.5 right-1.5 md:-top-4 md:left-3 md:right-3"
       }`}
     >
       <nav
@@ -232,9 +232,18 @@ export function Navigation() {
             ))}
           </div>
 
-          {/* Desktop CTA + Language switcher */}
-          <div className="hidden md:flex items-center gap-3">
-            <LanguageSwitcher compact={isScrolled} />
+          {/* Desktop CTA */}
+          <div className="hidden md:flex items-center gap-3 mr-[-68px]">
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className={`rounded-full transition-all duration-500 text-foreground/70 hover:text-foreground ${
+                isScrolled ? "px-4 h-8 text-xs" : "px-5"
+              }`}
+            >
+              <Link href={localHref("/signin")}>Sign in</Link>
+            </Button>
             <Button
               asChild
               size="sm"
@@ -243,7 +252,7 @@ export function Navigation() {
               }`}
               style={{ boxShadow: `inset 0 0 0 1px ${navigationTone.border}` }}
             >
-              <a href={getStartWithMaxwellHref()}>{navLabels.startWithMaxwell}</a>
+              <Link href={localHref("/signin")}>Sign up</Link>
             </Button>
           </div>
 
