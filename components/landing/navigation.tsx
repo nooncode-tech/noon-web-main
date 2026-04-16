@@ -191,7 +191,7 @@ export function Navigation() {
             className="md:hidden flex items-center justify-center w-8 h-8"
             aria-label="Toggle menu"
           >
-            <PanelRight className="w-6 h-6" />
+            <PanelRight className="w-5 h-5" style={{ width: '22px', height: '22px' }} />
           </button>
         </div>
 
