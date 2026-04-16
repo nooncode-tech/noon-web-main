@@ -185,10 +185,10 @@ export function HeroSection() {
 
             {/* Chat Input */}
             <div className="w-full">
-              <div className="relative pb-[38px]">
+              <div className="relative pb-[32px]">
                 {/* Blue badge — behind card, aligned with card width */}
                 <div
-                  className="absolute inset-x-0 bottom-0 h-[44px] rounded-b-[10px] flex items-end justify-start px-4 pb-2.5 text-[15px] font-medium text-white"
+                  className="absolute inset-x-0 bottom-0 h-[38px] rounded-b-[10px] flex items-end justify-start px-4 pb-1.5 text-[14px] font-medium text-white"
                   style={{ background: "#1200C5" }}
                 >
                   <span className="flex items-center gap-1.5">
@@ -225,7 +225,7 @@ export function HeroSection() {
                       <div className="absolute left-0 right-0 top-0 px-4 py-3 pointer-events-none overflow-hidden">
                         <span
                           key={currentSuggestion}
-                          className="block w-full truncate whitespace-nowrap text-[15px] text-muted-foreground/45 animate-fade-in text-left"
+                          className="block w-full truncate whitespace-nowrap text-[14px] text-muted-foreground/45 animate-fade-in text-left"
                         >
                           {suggestions[currentSuggestion]?.prompt}
                         </span>
@@ -245,7 +245,7 @@ export function HeroSection() {
                     </div>
                   )}
 
-                  <div className="mt-1.5 flex items-center justify-between gap-2 pt-2 px-1">
+                  <div className="mt-1.5 flex items-center justify-between gap-2 pt-2 px-1 pb-1">
                     {/* Left: tools */}
 
                     <div className="flex items-center gap-1">
