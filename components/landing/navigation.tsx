@@ -199,7 +199,7 @@ export function Navigation() {
       >
         <div
           className={`flex items-center justify-between transition-all duration-500 ${
-            isScrolled ? "h-14 px-6 lg:px-8" : "h-16 px-0"
+            isScrolled ? "h-14 px-6 lg:px-8" : "h-11 px-0"
           }`}
         >
           {/* Logo */}

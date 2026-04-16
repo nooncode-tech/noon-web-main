@@ -10,9 +10,9 @@ type SitePageFrameProps = {
 export function SitePageFrame({ children }: SitePageFrameProps) {
   return (
     <main className="page-grid-background relative min-h-screen overflow-x-hidden noise-overlay">
-      <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-[55]">
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-[55] hidden md:block">
         <div
-          className="absolute inset-1.5 rounded-[10px] border border-foreground/10 md:inset-3"
+          className="absolute top-[46px] left-3 right-3 bottom-3 rounded-[10px] border border-foreground/10"
           style={{ boxShadow: "0 0 0 9999px var(--background)" }}
         />
       </div>
