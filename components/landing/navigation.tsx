@@ -191,15 +191,15 @@ export function Navigation() {
       }`}
     >
       <nav
-        className={`mx-auto transition-all duration-500 ${
+        className={`transition-all duration-500 ${
           isScrolled || isMobileMenuOpen
-            ? "bg-background/80 backdrop-blur-xl border border-foreground/10 rounded-2xl shadow-lg max-w-[1200px]"
-            : "bg-transparent max-w-[1400px]"
+            ? "mx-auto bg-background/80 backdrop-blur-xl border border-foreground/10 rounded-2xl shadow-lg max-w-[1200px]"
+            : "bg-transparent w-full"
         }`}
       >
         <div
-          className={`flex items-center justify-between transition-all duration-500 px-6 lg:px-8 ${
-            isScrolled ? "h-14" : "h-16"
+          className={`flex items-center justify-between transition-all duration-500 ${
+            isScrolled ? "h-14 px-6 lg:px-8" : "h-16 px-0"
           }`}
         >
           {/* Logo */}
