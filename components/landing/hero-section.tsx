@@ -30,6 +30,7 @@ export function HeroSection() {
   const [currentSuggestion, setCurrentSuggestion] = useState(0);
   const [canScrollPromptsLeft, setCanScrollPromptsLeft] = useState(false);
   const [canScrollPromptsRight, setCanScrollPromptsRight] = useState(false);
+  const [showAllPrompts, setShowAllPrompts] = useState(false);
   const [attachedFile, setAttachedFile] = useState<AttachedFile | null>(null);
   const [attachMenuOpen, setAttachMenuOpen] = useState(false);
   const [urlInputMode, setUrlInputMode] = useState<"github" | "vercel" | "image" | null>(null);
@@ -354,68 +355,77 @@ export function HeroSection() {
                 <p className="mb-2.5 text-[9px] font-mono uppercase tracking-[0.18em] text-muted-foreground/55 text-center">
                   {t("notSure")}
                 </p>
-                <div className="flex items-center gap-2">
-                  {canScrollPromptsLeft && (
+                {showAllPrompts ? (
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {suggestions.map((s, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleSuggestionClick(s.prompt)}
+                        className="shrink-0 rounded-full border border-border bg-background/80 px-2.5 py-1 text-[11px] text-muted-foreground backdrop-blur-sm transition-all duration-300 hover:border-foreground/20 hover:bg-secondary hover:text-foreground"
+                      >
+                        {s.label}
+                      </button>
+                    ))}
                     <button
                       type="button"
-                      onClick={handlePromptCarouselBack}
-                      aria-label="Show previous prompts"
-                      className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-background/95 text-muted-foreground shadow-sm transition-colors hover:text-foreground"
+                      onClick={() => setShowAllPrompts(false)}
+                      aria-label="Collapse prompts"
+                      className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-background/95 text-muted-foreground transition-colors hover:text-foreground text-base leading-none"
                     >
-                      <ArrowRight className="h-3 w-3 rotate-180" />
+                      −
                     </button>
-                  )}
-                  <div className="relative min-w-0 flex-1">
-                    <div
-                      ref={promptScrollerRef}
-                      onScroll={() => {
-                        const node = promptScrollerRef.current;
-                        if (!node) return;
-                        setCanScrollPromptsLeft(node.scrollLeft > 8);
-                        const remainingScroll = node.scrollWidth - node.clientWidth - node.scrollLeft;
-                        setCanScrollPromptsRight(remainingScroll > 8);
-                      }}
-                      className="prompt-scroll flex items-center gap-2 overflow-x-auto whitespace-nowrap"
-                    >
-                      {suggestions.map((s, index) => (
-                        <button
-                          key={index}
-                          onClick={() => handleSuggestionClick(s.prompt)}
-                          className="shrink-0 rounded-full border border-border bg-background/80 px-2.5 py-1 text-[11px] text-muted-foreground shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-foreground/20 hover:bg-secondary hover:text-foreground"
-                        >
-                          {s.label}
-                        </button>
-                      ))}
-                    </div>
-                    {canScrollPromptsLeft && (
-                      <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-background via-background/90 to-transparent" />
-                    )}
-                    {canScrollPromptsRight && (
-                      <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-background via-background/90 to-transparent" />
-                    )}
                   </div>
-                  {canScrollPromptsRight && (
+                ) : (
+                  <div className="flex items-center gap-2">
+                    {canScrollPromptsLeft && (
+                      <button
+                        type="button"
+                        onClick={handlePromptCarouselBack}
+                        aria-label="Show previous prompts"
+                        className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-background/95 text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        <ArrowRight className="h-3 w-3 rotate-180" />
+                      </button>
+                    )}
+                    <div className="relative min-w-0 flex-1">
+                      <div
+                        ref={promptScrollerRef}
+                        onScroll={() => {
+                          const node = promptScrollerRef.current;
+                          if (!node) return;
+                          setCanScrollPromptsLeft(node.scrollLeft > 8);
+                          const remainingScroll = node.scrollWidth - node.clientWidth - node.scrollLeft;
+                          setCanScrollPromptsRight(remainingScroll > 8);
+                        }}
+                        className="prompt-scroll flex items-center gap-2 overflow-x-auto whitespace-nowrap"
+                      >
+                        {suggestions.map((s, index) => (
+                          <button
+                            key={index}
+                            onClick={() => handleSuggestionClick(s.prompt)}
+                            className="shrink-0 rounded-full border border-border bg-background/80 px-2.5 py-1 text-[11px] text-muted-foreground backdrop-blur-sm transition-all duration-300 hover:border-foreground/20 hover:bg-secondary hover:text-foreground"
+                          >
+                            {s.label}
+                          </button>
+                        ))}
+                      </div>
+                      {canScrollPromptsLeft && (
+                        <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-background via-background/90 to-transparent" />
+                      )}
+                      {canScrollPromptsRight && (
+                        <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-background via-background/90 to-transparent" />
+                      )}
+                    </div>
                     <button
                       type="button"
-                      onClick={handlePromptCarouselAdvance}
-                      aria-label="Show more prompts"
-                      className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-background/95 text-muted-foreground shadow-sm transition-colors hover:text-foreground"
+                      onClick={() => setShowAllPrompts(true)}
+                      aria-label="Show all prompts"
+                      className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-background/95 text-muted-foreground transition-colors hover:text-foreground text-base leading-none"
                     >
-                      <ArrowRight className="h-3 w-3" />
+                      +
                     </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Secondary CTA */}
-              <div className="mt-3">
-                <Link
-                  href={`/${locale}${siteRoutes.templates}`}
-                  className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center gap-1.5 group"
-                >
-                  {t("viewTemplates")}
-                  <ArrowRight className="w-2.5 h-2.5 transition-transform group-hover:translate-x-1" />
-                </Link>
+                  </div>
+                )}
               </div>
 
             </div>

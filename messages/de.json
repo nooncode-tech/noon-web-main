@@ -34,7 +34,15 @@
       { "label": "Mobile App", "prompt": "Eine mobile App für mein Unternehmen erstellen — auf iOS und Android verfügbar mit einem sauberen, modernen Design." },
       { "label": "Online-Shop", "prompt": "Ich benötige einen Online-Shop für meine Produkte — mit Katalogverwaltung, Warenkorb, Checkout und Bestellverfolgung." },
       { "label": "Kundenportal", "prompt": "Ein Kundenportal erstellen, in dem sich meine Kunden anmelden, ihre Projekte einsehen, Dokumente hochladen und mit meinem Team kommunizieren können." },
-      { "label": "Internes Tool", "prompt": "Ein internes Tool für mein Team erstellen, um Abläufe zu verwalten — Aufgaben, Genehmigungen und Leistungskennzahlen an einem Ort verfolgen." }
+      { "label": "Internes Tool", "prompt": "Ein internes Tool für mein Team erstellen, um Abläufe zu verwalten — Aufgaben, Genehmigungen und Leistungskennzahlen an einem Ort verfolgen." },
+      { "label": "Landingpage", "prompt": "Eine conversion-starke Landingpage für mein Produkt gestalten — mit Hero-Bereich, Features, Testimonials, Preisen und klarem Call-to-Action." },
+      { "label": "CRM-System", "prompt": "Ein CRM für mein Vertriebsteam erstellen — Leads verwalten, Interaktionen verfolgen, Erinnerungen setzen und die Sales-Pipeline visualisieren." },
+      { "label": "Analyse-Dashboard", "prompt": "Ein Analyse-Dashboard erstellen — Kennzahlen, Verkaufstrends, Nutzeraktivität visualisieren und automatisierte Berichte generieren." },
+      { "label": "Lagerverwaltung", "prompt": "Ein Lagerverwaltungssystem erstellen — Lagerbestände verfolgen, Lieferanten verwalten, Nachbestellungen automatisieren und Einkaufsbestellungen generieren." },
+      { "label": "Abonnement-Abrechnung", "prompt": "Ich benötige ein Abonnement-Abrechnungssystem — wiederkehrende Zahlungen, Plan-Upgrades, Rechnungen und Zahlungsausfälle automatisch verwalten." },
+      { "label": "Mitarbeiter-Onboarding", "prompt": "Eine Onboarding-Plattform für neue Mitarbeiter erstellen — Papierkram automatisieren, Aufgabenlisten, Schulungsmodule und Erstwochen-Pläne verwalten." },
+      { "label": "Eventmanagement", "prompt": "Ein Eventmanagement-Tool erstellen — Anmeldungen, Ticketing, Teilnehmerkommunikation und Check-in am Veranstaltungstag verwalten." },
+      { "label": "Dokumentenverwaltung", "prompt": "Ein Dokumentenverwaltungssystem erstellen — Dateien nach Projekt organisieren, Zugriffsrechte steuern, Versionen verfolgen und Teamzusammenarbeit ermöglichen." }
     ]
   },
   "footer": {

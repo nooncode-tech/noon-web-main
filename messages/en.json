@@ -34,7 +34,15 @@
       { "label": "Mobile app", "prompt": "Create a mobile app for my business — available on iOS and Android with a clean, modern design." },
       { "label": "E-commerce store", "prompt": "I need an e-commerce store for my products — with catalog management, cart, checkout, and order tracking." },
       { "label": "Client portal", "prompt": "Build a client portal where my customers can log in, view their projects, upload documents, and communicate with my team." },
-      { "label": "Internal tool", "prompt": "Create an internal tool for my team to manage operations — track tasks, approvals, and performance metrics in one place." }
+      { "label": "Internal tool", "prompt": "Create an internal tool for my team to manage operations — track tasks, approvals, and performance metrics in one place." },
+      { "label": "Landing page", "prompt": "Design and build a high-converting landing page for my product — with hero section, features, testimonials, pricing, and a clear call to action." },
+      { "label": "CRM system", "prompt": "Build a CRM for my sales team — manage leads, track interactions, set follow-up reminders, and visualize the sales pipeline." },
+      { "label": "Analytics dashboard", "prompt": "Create an analytics dashboard for my business — visualize key metrics, sales trends, user activity, and generate automated reports." },
+      { "label": "Inventory management", "prompt": "Build an inventory management system — track stock levels, manage suppliers, set reorder alerts, and generate purchase orders automatically." },
+      { "label": "Subscription billing", "prompt": "I need a subscription billing system — handle recurring payments, plan upgrades, invoices, and payment failure recovery." },
+      { "label": "Employee onboarding", "prompt": "Create an employee onboarding platform — automate paperwork, task checklists, training modules, and first-week schedules for new hires." },
+      { "label": "Event management", "prompt": "Build an event management tool — handle registrations, ticketing, attendee communication, and check-in on the day of the event." },
+      { "label": "Document management", "prompt": "Create a document management system — organize files by project, control access permissions, track versions, and enable team collaboration." }
     ]
   },
   "footer": {

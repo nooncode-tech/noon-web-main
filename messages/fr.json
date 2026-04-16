@@ -34,7 +34,15 @@
       { "label": "Application mobile", "prompt": "Créer une application mobile pour mon entreprise — disponible sur iOS et Android avec un design épuré et moderne." },
       { "label": "Boutique en ligne", "prompt": "J'ai besoin d'une boutique en ligne pour mes produits — avec gestion du catalogue, panier, paiement et suivi des commandes." },
       { "label": "Portail client", "prompt": "Créer un portail client où mes clients peuvent se connecter, voir leurs projets, télécharger des documents et communiquer avec mon équipe." },
-      { "label": "Outil interne", "prompt": "Créer un outil interne pour mon équipe afin de gérer les opérations — suivre les tâches, approbations et métriques de performance en un seul endroit." }
+      { "label": "Outil interne", "prompt": "Créer un outil interne pour mon équipe afin de gérer les opérations — suivre les tâches, approbations et métriques de performance en un seul endroit." },
+      { "label": "Page d'atterrissage", "prompt": "Concevoir et créer une landing page à fort taux de conversion — avec section hero, fonctionnalités, témoignages, tarifs et appel à l'action clair." },
+      { "label": "Système CRM", "prompt": "Créer un CRM pour mon équipe commerciale — gérer les prospects, suivre les interactions, définir des rappels et visualiser le pipeline de ventes." },
+      { "label": "Tableau de bord analytique", "prompt": "Créer un tableau de bord analytique — visualiser les métriques clés, tendances des ventes, activité des utilisateurs et générer des rapports automatisés." },
+      { "label": "Gestion des stocks", "prompt": "Créer un système de gestion des stocks — suivre les niveaux de stock, gérer les fournisseurs, configurer des alertes de réapprovisionnement et générer des bons de commande." },
+      { "label": "Facturation par abonnement", "prompt": "J'ai besoin d'un système de facturation récurrente — gérer les paiements périodiques, upgrades de plan, factures et récupération des paiements échoués." },
+      { "label": "Onboarding des employés", "prompt": "Créer une plateforme d'onboarding — automatiser la paperasse, les listes de tâches, les modules de formation et les plannings de la première semaine." },
+      { "label": "Gestion d'événements", "prompt": "Créer un outil de gestion d'événements — gérer les inscriptions, la billetterie, la communication avec les participants et le check-in le jour J." },
+      { "label": "Gestion documentaire", "prompt": "Créer un système de gestion documentaire — organiser les fichiers par projet, contrôler les permissions, suivre les versions et faciliter la collaboration." }
     ]
   },
   "footer": {

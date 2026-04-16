@@ -34,7 +34,15 @@
       { "label": "App móvil", "prompt": "Crear una app móvil para mi negocio — disponible en iOS y Android con un diseño limpio y moderno." },
       { "label": "Tienda online", "prompt": "Necesito una tienda online para mis productos — con gestión de catálogo, carrito, checkout y seguimiento de pedidos." },
       { "label": "Portal de clientes", "prompt": "Construir un portal donde mis clientes puedan iniciar sesión, ver sus proyectos, subir documentos y comunicarse con mi equipo." },
-      { "label": "Herramienta interna", "prompt": "Crear una herramienta interna para que mi equipo gestione operaciones — rastrear tareas, aprobaciones y métricas de rendimiento en un solo lugar." }
+      { "label": "Herramienta interna", "prompt": "Crear una herramienta interna para que mi equipo gestione operaciones — rastrear tareas, aprobaciones y métricas de rendimiento en un solo lugar." },
+      { "label": "Landing page", "prompt": "Diseñar y construir una landing page de alta conversión para mi producto — con sección hero, características, testimonios, precios y llamada a la acción clara." },
+      { "label": "Sistema CRM", "prompt": "Construir un CRM para mi equipo de ventas — gestionar leads, rastrear interacciones, programar recordatorios y visualizar el pipeline de ventas." },
+      { "label": "Panel de analíticas", "prompt": "Crear un panel de analíticas para mi negocio — visualizar métricas clave, tendencias de ventas, actividad de usuarios y generar reportes automáticos." },
+      { "label": "Gestión de inventario", "prompt": "Construir un sistema de gestión de inventario — controlar stock, gestionar proveedores, configurar alertas de reabastecimiento y generar órdenes de compra automáticamente." },
+      { "label": "Facturación por suscripción", "prompt": "Necesito un sistema de facturación recurrente — gestionar pagos periódicos, upgrades de plan, facturas y recuperación de pagos fallidos." },
+      { "label": "Onboarding de empleados", "prompt": "Crear una plataforma de onboarding para nuevos empleados — automatizar papeleo, listas de tareas, módulos de formación y agenda de la primera semana." },
+      { "label": "Gestión de eventos", "prompt": "Construir una herramienta de gestión de eventos — manejar registros, venta de entradas, comunicación con asistentes y check-in el día del evento." },
+      { "label": "Gestión documental", "prompt": "Crear un sistema de gestión de documentos — organizar archivos por proyecto, controlar permisos de acceso, rastrear versiones y habilitar colaboración en equipo." }
     ]
   },
   "footer": {
