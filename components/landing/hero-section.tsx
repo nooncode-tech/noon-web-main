@@ -170,7 +170,7 @@ export function HeroSection() {
           <div className="w-full">
             {/* Eyebrow */}
             <div className="mb-4 lg:mb-4 flex justify-center">
-              <span className="inline-flex items-center gap-1.5 text-[10px] lg:text-[11px] font-mono text-muted-foreground bg-secondary/50 px-2.5 lg:px-3 py-1 rounded-full border border-border">
+              <span className="inline-flex items-center gap-1.5 text-[9px] lg:text-[10px] font-mono text-muted-foreground bg-secondary/50 px-2 lg:px-2.5 py-0.5 rounded-full border border-border">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                 {t("eyebrow")}
               </span>
@@ -178,17 +178,17 @@ export function HeroSection() {
 
             {/* Main headline */}
             <div className="mb-4 lg:mb-5">
-              <h1 className="text-[1.5rem] sm:text-[1.8rem] lg:text-[clamp(1.8rem,2.8vw,2.4rem)] font-display leading-[1.1] tracking-tight text-center">
+              <h1 className="text-[1.35rem] sm:text-[1.6rem] lg:text-[clamp(1.6rem,2.5vw,2.15rem)] font-display leading-[1.1] tracking-tight text-center">
                 {t("headline")}
               </h1>
             </div>
 
             {/* Chat Input */}
             <div className="w-full">
-              <div className="relative pb-[32px]">
+              <div className="relative pb-[28px]">
                 {/* Blue badge — behind card, aligned with card width */}
                 <div
-                  className="absolute inset-x-0 bottom-0 h-[38px] rounded-b-[10px] flex items-end justify-start px-4 pb-1.5 text-[14px] font-medium text-white"
+                  className="absolute inset-x-0 bottom-0 h-[34px] rounded-b-[9px] flex items-end justify-start px-3.5 pb-1 text-[13px] font-medium text-white"
                   style={{ background: "#1200C5" }}
                 >
                   <span className="flex items-center gap-1.5">
@@ -203,7 +203,7 @@ export function HeroSection() {
                 </div>
 
                 {/* Dark card — on top, full rounded corners */}
-                <div className="relative z-10 bg-card dark:bg-[#131313] rounded-[10px] p-2 shadow-md transition-shadow duration-300">
+                <div className="relative z-10 bg-card dark:bg-[#131313] rounded-[9px] p-1.5 shadow-md transition-shadow duration-300">
                   <div className="relative min-w-0 overflow-hidden">
                     <textarea
                       value={inputValue}
@@ -218,14 +218,14 @@ export function HeroSection() {
                       }}
                       placeholder={isInputFocused ? t("placeholder") : ""}
                       rows={3}
-                      className="min-h-[48px] lg:min-h-[56px] w-full resize-none bg-transparent px-3 lg:px-4 py-2 text-[16px] leading-relaxed lg:text-[15px] outline-none placeholder:text-muted-foreground/60 text-left"
+                      className="min-h-[44px] lg:min-h-[50px] w-full resize-none bg-transparent px-3 lg:px-3.5 py-1.5 text-[16px] leading-relaxed lg:text-[14px] outline-none placeholder:text-muted-foreground/60 text-left"
                       aria-label={t("placeholder")}
                     />
                     {!inputValue && !isInputFocused && (
                       <div className="absolute left-0 right-0 top-0 px-4 py-3 pointer-events-none overflow-hidden">
                         <span
                           key={currentSuggestion}
-                          className="block w-full truncate whitespace-nowrap text-[14px] text-muted-foreground/45 animate-fade-in text-left"
+                          className="block w-full truncate whitespace-nowrap text-[13px] text-muted-foreground/45 animate-fade-in text-left"
                         >
                           {suggestions[currentSuggestion]?.prompt}
                         </span>
@@ -254,9 +254,9 @@ export function HeroSection() {
                         aria-label="Voice input"
                         title="Voice input is not available yet."
                         disabled
-                        className="flex h-8 w-8 cursor-not-allowed items-center justify-center rounded-full bg-secondary/45 text-muted-foreground/60"
+                        className="flex h-7 w-7 cursor-not-allowed items-center justify-center rounded-full bg-secondary/45 text-muted-foreground/60"
                       >
-                        <Mic className="h-3.5 w-3.5" />
+                        <Mic className="h-3 w-3" />
                       </button>
 
                       <input ref={fileInputRef} type="file" accept="image/*,.txt,.md,.csv,.json,.doc,.docx" className="hidden" onChange={handleFileChange} />
@@ -268,9 +268,9 @@ export function HeroSection() {
                           type="button"
                           aria-label="Attach"
                           onClick={() => { setAttachMenuOpen((v) => !v); setUrlInputMode(null); setUrlInputValue(""); }}
-                          className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${attachMenuOpen ? "bg-secondary text-foreground" : "bg-secondary/45 text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                          className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors ${attachMenuOpen ? "bg-secondary text-foreground" : "bg-secondary/45 text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
                         >
-                          <Paperclip className="h-3.5 w-3.5" />
+                          <Paperclip className="h-3 w-3" />
                         </button>
 
                         {attachMenuOpen && (
@@ -327,9 +327,9 @@ export function HeroSection() {
 
                       <Link
                         href={`/${locale}${siteRoutes.maxwell}`}
-                        className="inline-flex items-center gap-1.5 rounded-full bg-secondary/45 px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                        className="inline-flex items-center gap-1 rounded-full bg-secondary/45 px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                       >
-                        <Sparkles className="h-3 w-3" />
+                        <Sparkles className="h-2.5 w-2.5" />
                         <span className="hidden sm:inline">Maxwell</span>
                       </Link>
                     </div>
@@ -341,9 +341,9 @@ export function HeroSection() {
                       aria-label="Start with Maxwell"
                       onClick={startWithMaxwell}
                       disabled={!inputValue.trim() && !attachedFile}
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground h-8 w-8 self-center p-0 rounded-[10px] group shrink-0 disabled:opacity-40"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground h-7 w-7 self-center p-0 rounded-[9px] group shrink-0 disabled:opacity-40"
                     >
-                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                      <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
                     </Button>
                   </div>
                 </div>{/* end dark card */}
@@ -351,7 +351,7 @@ export function HeroSection() {
 
               {/* Prompt Suggestions */}
               <div className="mt-3 lg:mt-4">
-                <p className="mb-3 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground/55 text-center">
+                <p className="mb-2.5 text-[9px] font-mono uppercase tracking-[0.18em] text-muted-foreground/55 text-center">
                   {t("notSure")}
                 </p>
                 <div className="flex items-center gap-2">
@@ -360,9 +360,9 @@ export function HeroSection() {
                       type="button"
                       onClick={handlePromptCarouselBack}
                       aria-label="Show previous prompts"
-                      className="shrink-0 flex h-7 w-7 items-center justify-center rounded-full border border-border bg-background/95 text-muted-foreground shadow-sm transition-colors hover:text-foreground"
+                      className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-background/95 text-muted-foreground shadow-sm transition-colors hover:text-foreground"
                     >
-                      <ArrowRight className="h-3.5 w-3.5 rotate-180" />
+                      <ArrowRight className="h-3 w-3 rotate-180" />
                     </button>
                   )}
                   <div className="relative min-w-0 flex-1">
@@ -381,7 +381,7 @@ export function HeroSection() {
                         <button
                           key={index}
                           onClick={() => handleSuggestionClick(s.prompt)}
-                          className="shrink-0 rounded-full border border-border bg-background/80 px-3 py-1.5 text-xs text-muted-foreground shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-foreground/20 hover:bg-secondary hover:text-foreground"
+                          className="shrink-0 rounded-full border border-border bg-background/80 px-2.5 py-1 text-[11px] text-muted-foreground shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-foreground/20 hover:bg-secondary hover:text-foreground"
                         >
                           {s.label}
                         </button>
@@ -399,9 +399,9 @@ export function HeroSection() {
                       type="button"
                       onClick={handlePromptCarouselAdvance}
                       aria-label="Show more prompts"
-                      className="shrink-0 flex h-7 w-7 items-center justify-center rounded-full border border-border bg-background/95 text-muted-foreground shadow-sm transition-colors hover:text-foreground"
+                      className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-background/95 text-muted-foreground shadow-sm transition-colors hover:text-foreground"
                     >
-                      <ArrowRight className="h-3.5 w-3.5" />
+                      <ArrowRight className="h-3 w-3" />
                     </button>
                   )}
                 </div>
@@ -411,10 +411,10 @@ export function HeroSection() {
               <div className="mt-3">
                 <Link
                   href={`/${locale}${siteRoutes.templates}`}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center gap-2 group"
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center gap-1.5 group"
                 >
                   {t("viewTemplates")}
-                  <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="w-2.5 h-2.5 transition-transform group-hover:translate-x-1" />
                 </Link>
               </div>
 
