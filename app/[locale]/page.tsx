@@ -7,10 +7,10 @@ export default function Home() {
     <main className="page-grid-background relative h-dvh overflow-hidden noise-overlay">
       <div
         aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-[55] hidden md:block"
+        className="pointer-events-none fixed inset-0 z-[55]"
       >
         <div
-          className="absolute top-[46px] left-3 right-3 bottom-3 rounded-[10px] border border-foreground/10"
+          className="absolute top-[46px] left-1.5 right-1.5 bottom-1.5 rounded-[10px] border border-foreground/10 md:left-3 md:right-3 md:bottom-3"
           style={{ boxShadow: "0 0 0 9999px var(--background)" }}
         />
       </div>
