@@ -254,9 +254,9 @@ export function HeroSection() {
                         aria-label="Voice input"
                         title="Voice input is not available yet."
                         disabled
-                        className="flex h-7 w-7 cursor-not-allowed items-center justify-center rounded-full bg-secondary/45 text-muted-foreground/60"
+                        className="flex h-8 w-8 cursor-not-allowed items-center justify-center rounded-full bg-secondary/45 text-muted-foreground/60"
                       >
-                        <Mic className="h-3 w-3" />
+                        <Mic className="h-3.5 w-3.5" />
                       </button>
 
                       <input ref={fileInputRef} type="file" accept="image/*,.txt,.md,.csv,.json,.doc,.docx" className="hidden" onChange={handleFileChange} />
@@ -268,9 +268,9 @@ export function HeroSection() {
                           type="button"
                           aria-label="Attach"
                           onClick={() => { setAttachMenuOpen((v) => !v); setUrlInputMode(null); setUrlInputValue(""); }}
-                          className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors ${attachMenuOpen ? "bg-secondary text-foreground" : "bg-secondary/45 text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
+                          className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${attachMenuOpen ? "bg-secondary text-foreground" : "bg-secondary/45 text-muted-foreground hover:bg-secondary hover:text-foreground"}`}
                         >
-                          <Paperclip className="h-3 w-3" />
+                          <Paperclip className="h-3.5 w-3.5" />
                         </button>
 
                         {attachMenuOpen && (
@@ -327,9 +327,9 @@ export function HeroSection() {
 
                       <Link
                         href={`/${locale}${siteRoutes.maxwell}`}
-                        className="inline-flex items-center gap-1 rounded-full bg-secondary/45 px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                        className="inline-flex items-center gap-1.5 rounded-full bg-secondary/45 px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                       >
-                        <Sparkles className="h-2.5 w-2.5" />
+                        <Sparkles className="h-3 w-3" />
                         <span className="hidden sm:inline">Maxwell</span>
                       </Link>
                     </div>
@@ -341,9 +341,9 @@ export function HeroSection() {
                       aria-label="Start with Maxwell"
                       onClick={startWithMaxwell}
                       disabled={!inputValue.trim() && !attachedFile}
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground h-7 w-7 self-center p-0 rounded-[9px] group shrink-0 disabled:opacity-40"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground h-8 w-8 self-center p-0 rounded-[10px] group shrink-0 disabled:opacity-40"
                     >
-                      <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                     </Button>
                   </div>
                 </div>{/* end dark card */}
