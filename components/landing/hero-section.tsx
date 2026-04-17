@@ -204,7 +204,7 @@ export function HeroSection() {
                 </div>
 
                 {/* Dark card — on top, full rounded corners */}
-                <div className="relative z-10 bg-card dark:bg-[#131313] rounded-[9px] p-1.5 transition-shadow duration-300">
+                <div className="relative z-10 bg-[#f5f5f5] dark:bg-[#131313] rounded-[9px] p-1.5 transition-shadow duration-300">
                   <div className="relative min-w-0 overflow-hidden">
                     <textarea
                       value={inputValue}
