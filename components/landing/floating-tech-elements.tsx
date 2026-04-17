@@ -190,7 +190,7 @@ export function FloatingTechElements() {
   ];
 
   return (
-    <div className="hidden lg:block fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div className="hero-floating-tech hidden lg:block fixed inset-0 overflow-hidden pointer-events-none z-0">
       {/* Code snippets */}
       {codeSnippets.map((snippet, i) => (
         <FloatingCodeSnippet
