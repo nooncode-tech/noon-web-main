@@ -441,8 +441,8 @@ export function ExploreBuildsSection() {
       <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
         <div className="mb-12 lg:mb-16 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
           <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-6">
-              <span className="w-8 h-px bg-foreground/30" />
+            <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: siteTones.brand.accent }} />
               Templates
             </span>
             <h2

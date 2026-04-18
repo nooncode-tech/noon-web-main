@@ -171,12 +171,12 @@ export function ContactIntakeForm({
     <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
       <form
         onSubmit={handleSubmit}
-        className="min-w-0 rounded-[10px] border border-border bg-card p-6 lg:p-8"
+        className="min-w-0 rounded-[10px] border border-foreground/8 bg-card/80 p-6 lg:p-8"
       >
-        <div className="mb-6 flex items-center gap-2 text-sm font-mono text-muted-foreground">
-          <Sparkles className="h-4 w-4" style={{ color: siteTones.brand.accent }} />
+        <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+          <Sparkles className="h-3 w-3" style={{ color: siteTones.brand.accent }} />
           Structured inquiry
-        </div>
+        </span>
 
         {submissionState === "success" && statusMessage ? (
           <div

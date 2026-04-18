@@ -84,7 +84,7 @@ function ConnectionHubVisual({ routingLabels }: { routingLabels: string[] }) {
   return (
     <div
       ref={hubRef}
-      className={`overflow-hidden rounded-2xl border border-border bg-card transition-all duration-700 ${
+      className={`overflow-hidden rounded-2xl border border-foreground/8 bg-card/80 transition-all duration-700 ${
         isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
       }`}
     >
@@ -302,8 +302,8 @@ function ContactPageContent() {
       <section className="site-section bg-secondary/30">
         <div className="site-shell">
           <div className="mb-10 max-w-3xl">
-            <span className="mb-4 inline-flex items-center gap-3 text-sm font-mono text-muted-foreground">
-              <span className="h-px w-8" style={{ backgroundColor: siteTones.brand.accent }} />
+            <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: siteTones.brand.accent }} />
               {t("routes.eyebrow")}
             </span>
             <h2 className="text-2xl font-display tracking-tight lg:text-3xl">{t("routes.headline")}</h2>
@@ -364,7 +364,7 @@ function InquiryPathCard({
     <Link
       ref={cardRef}
       href={getContactHref({ inquiry: path.key, draft, source })}
-      className={`group flex flex-col rounded-xl border bg-card p-6 transition-all duration-700 hover:border-foreground/20 ${
+      className={`group flex flex-col rounded-xl border bg-card/80 p-6 transition-all duration-700 hover:border-foreground/16 hover:shadow-sm ${
         isSelected ? "border-foreground/20 bg-card/95" : "border-border"
       } ${isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
       style={{

@@ -49,7 +49,7 @@ function SpotlightCard({
   return (
     <div
       ref={cardRef}
-      className={`relative rounded-xl border border-border bg-card overflow-hidden group cursor-default transition-all duration-700 hover:border-foreground/20 ${className} ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"}`}
+      className={`relative rounded-xl border border-foreground/8 bg-card/80 overflow-hidden group cursor-default transition-all duration-700 hover:border-foreground/16 hover:shadow-sm ${className} ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"}`}
       style={{ transitionDelay: `${delay}ms` }}
       onMouseMove={handleMouseMove}
       onMouseLeave={() => setIsHovered(false)}
@@ -144,8 +144,8 @@ export default function AboutPage() {
       <section className="site-section-lg">
         <div className="site-shell">
           <div className="max-w-3xl mb-12">
-            <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
-              <span className="w-8 h-px" style={{ backgroundColor: siteTones.brand.accent }} />
+            <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: siteTones.brand.accent }} />
               {t("thesis.eyebrow")}
             </span>
             <h2 className="text-2xl lg:text-3xl font-display tracking-tight">
@@ -244,8 +244,8 @@ export default function AboutPage() {
       <section className="site-section-lg bg-secondary/30">
         <div className="site-shell">
           <div className="max-w-2xl mb-10">
-            <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
-              <span className="w-8 h-px" style={{ backgroundColor: siteTones.brand.accent }} />
+            <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: siteTones.brand.accent }} />
               {t("criteria.eyebrow")}
             </span>
             <h2 className="text-2xl lg:text-3xl font-display tracking-tight">
@@ -265,8 +265,8 @@ export default function AboutPage() {
         <div className="site-shell">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
             <div>
-              <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
-                <span className="w-8 h-px" style={{ backgroundColor: siteTones.brand.accent }} />
+              <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+                <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: siteTones.brand.accent }} />
                 {t("operatingModel.eyebrow")}
               </span>
               <h2 className="text-2xl lg:text-3xl font-display tracking-tight mb-8">
@@ -280,8 +280,8 @@ export default function AboutPage() {
             </div>
 
             <div>
-              <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
-                <span className="w-8 h-px" style={{ backgroundColor: siteTones.brand.accent }} />
+              <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+                <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: siteTones.brand.accent }} />
                 {t("operatingModel.boundariesEyebrow")}
               </span>
               <h2 className="text-2xl lg:text-3xl font-display tracking-tight mb-8">
@@ -301,8 +301,8 @@ export default function AboutPage() {
       <section id="technology" className="site-section-lg bg-secondary/30">
         <div className="site-shell">
           <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
-              <span className="w-8 h-px" style={{ backgroundColor: siteTones.brand.accent }} />
+            <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: siteTones.brand.accent }} />
               {t("stack.eyebrow")}
             </span>
             <h2 className="text-2xl lg:text-3xl font-display tracking-tight mb-4">
@@ -322,8 +322,9 @@ export default function AboutPage() {
       <FaqSection />
 
       {/* CTA */}
-      <section className="site-section-lg bg-foreground text-background">
-        <div className="site-shell text-center">
+      <section className="site-section-lg bg-foreground text-background relative overflow-hidden">
+        <div aria-hidden="true" className="pointer-events-none absolute right-0 top-0 h-[400px] w-[400px] translate-x-1/3 -translate-y-1/3 rounded-full opacity-[0.12] blur-[80px]" style={{ background: "radial-gradient(circle, #6a63f2 0%, transparent 70%)" }} />
+        <div className="site-shell text-center relative z-10">
           <h2 className="text-2xl lg:text-3xl font-display tracking-tight mb-4">
             {t("cta.headline")}
           </h2>
@@ -379,7 +380,7 @@ function NotNoonItem({ text, index }: { text: string; index: number }) {
   return (
     <div
       ref={ref}
-      className={`flex items-start gap-3 p-4 rounded-xl border border-border bg-card transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+      className={`flex items-start gap-3 p-4 rounded-xl border border-foreground/8 bg-card/80 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
       style={{ transitionDelay: `${index * 100}ms` }}
     >
       <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center shrink-0">
@@ -395,7 +396,7 @@ function OptimizeCard({ item, index }: { item: { title: string; description: str
   return (
     <div
       ref={ref}
-      className={`rounded-xl border border-border bg-card p-6 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+      className={`rounded-xl border border-foreground/8 bg-card/80 p-6 transition-all duration-700 hover:border-foreground/14 hover:shadow-sm ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
       style={{ transitionDelay: `${index * 100}ms` }}
     >
       <span className="text-xs font-mono text-muted-foreground mb-3 block">
@@ -419,7 +420,7 @@ function TechCard({ group, index, inStack, tools }: {
   return (
     <div
       ref={ref}
-      className={`group relative rounded-xl border border-border bg-card p-5 transition-all duration-700 hover:border-foreground/20 overflow-hidden ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+      className={`group relative rounded-xl border border-foreground/8 bg-card/80 p-5 transition-all duration-700 overflow-hidden ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
       style={{
         transitionDelay: `${index * 80}ms`,
         borderColor: isHovered ? group.tone.border : undefined,

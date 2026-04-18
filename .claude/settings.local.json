@@ -34,7 +34,8 @@
       "Bash(dir \"C:\\\\Users\\\\Juan\\\\Documents\\\\Noon\\\\noon-main\\\\middleware.ts\")",
       "Bash(ls C:/Users/Juan/Documents/Noon/noon-main/*.ts)",
       "Bash(node -e ' *)",
-      "Bash(where magick *)"
+      "Bash(where magick *)",
+      "Bash(git pull *)"
     ]
   }
 }

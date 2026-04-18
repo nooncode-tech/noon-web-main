@@ -94,7 +94,9 @@ export function FooterSection() {
 
   return (
     <footer className="relative border-t border-foreground/10">
-<div className="site-shell relative z-10">
+      {/* Gradient accent line at top */}
+      <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(to right, transparent 0%, rgba(18,0,197,0.35) 40%, rgba(106,99,242,0.25) 60%, transparent 100%)" }} />
+      <div className="site-shell relative z-10">
         <div className="py-14 lg:py-20">
           <div className="grid grid-cols-2 gap-12 md:grid-cols-6 lg:gap-8">
             <div className="col-span-2">

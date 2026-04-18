@@ -123,10 +123,14 @@ export function Navigation() {
       <nav
         className={`transition-all duration-500 ${
           isScrolled || isMobileMenuOpen
-            ? "mx-auto bg-background/80 backdrop-blur-xl border border-foreground/10 rounded-2xl shadow-lg max-w-[1200px] overflow-hidden"
+            ? "liquid-glass-nav mx-auto rounded-2xl max-w-[1200px] overflow-hidden"
             : "bg-transparent w-full"
         }`}
       >
+        {/* Specular highlight — top edge of glass */}
+        {(isScrolled || isMobileMenuOpen) && (
+          <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-px rounded-t-2xl" style={{ background: "linear-gradient(to right, transparent 5%, rgba(255,255,255,0.75) 35%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.75) 65%, transparent 95%)" }} />
+        )}
         <div
           className={`flex items-center justify-between transition-all duration-500 ${
             isScrolled ? "h-14 px-6 lg:px-8" : "h-11 px-0"

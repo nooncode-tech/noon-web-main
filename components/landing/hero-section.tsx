@@ -171,7 +171,7 @@ export function HeroSection() {
           <div className="w-full">
             {/* Eyebrow */}
             <div className="mb-4 lg:mb-4 flex justify-center">
-              <span className="inline-flex items-center gap-1.5 text-[9px] lg:text-[10px] font-mono text-muted-foreground bg-secondary/50 px-2 lg:px-2.5 py-0.5 rounded-full border border-border">
+              <span className="liquid-glass-pill inline-flex items-center gap-1.5 text-[9px] lg:text-[10px] font-mono text-muted-foreground px-2 lg:px-2.5 py-0.5 rounded-full">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                 {t("eyebrow")}
               </span>
@@ -204,7 +204,7 @@ export function HeroSection() {
                 </div>
 
                 {/* Dark card — on top, full rounded corners */}
-                <div className="relative z-10 bg-[#f9f9f9] dark:bg-[#131313] rounded-[9px] p-1.5 transition-shadow duration-300">
+                <div className="relative z-10 bg-[#f9f9f9] dark:bg-[#131313] rounded-[9px] p-1.5 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_4px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_4px_20px_rgba(0,0,0,0.4)] transition-shadow duration-300">
                   <div className="relative min-w-0 overflow-hidden">
                     <textarea
                       value={inputValue}
@@ -275,7 +275,7 @@ export function HeroSection() {
                         </button>
 
                         {attachMenuOpen && (
-                          <div className="absolute bottom-10 left-0 z-50 w-52 rounded-[10px] border border-border bg-card shadow-xl overflow-hidden">
+                          <div className="liquid-glass-card absolute bottom-10 left-0 z-50 w-52 rounded-[10px] overflow-hidden">
                             {!urlInputMode ? (
                               <div className="py-1">
                                 <button type="button" onClick={() => { fileInputRef.current?.click(); setAttachMenuOpen(false); }} className="flex w-full items-center gap-3 px-4 py-2.5 text-sm hover:bg-secondary transition-colors">
@@ -361,7 +361,7 @@ export function HeroSection() {
                       <button
                         key={index}
                         onClick={() => handleSuggestionClick(s.prompt)}
-                        className="shrink-0 rounded-full border border-border bg-background/80 px-2.5 py-1 text-[11px] text-muted-foreground backdrop-blur-sm transition-all duration-300 hover:border-foreground/20 hover:bg-secondary hover:text-foreground"
+                        className="liquid-glass-pill shrink-0 rounded-full px-2.5 py-1 text-[11px] text-muted-foreground transition-all duration-300 hover:text-foreground"
                       >
                         {s.label}
                       </button>
@@ -370,7 +370,7 @@ export function HeroSection() {
                       type="button"
                       onClick={() => setShowAllPrompts(false)}
                       aria-label="Collapse prompts"
-                      className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-background/95 text-muted-foreground transition-colors hover:text-foreground text-base leading-none"
+                      className="liquid-glass-pill shrink-0 flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground text-base leading-none"
                     >
                       −
                     </button>
@@ -381,7 +381,7 @@ export function HeroSection() {
                       <button
                         key={index}
                         onClick={() => handleSuggestionClick(s.prompt)}
-                        className="shrink-0 rounded-full border border-border bg-background/80 px-2.5 py-1 text-[11px] text-muted-foreground backdrop-blur-sm transition-all duration-300 hover:border-foreground/20 hover:bg-secondary hover:text-foreground"
+                        className="liquid-glass-pill shrink-0 rounded-full px-2.5 py-1 text-[11px] text-muted-foreground transition-all duration-300 hover:text-foreground"
                       >
                         {s.label}
                       </button>
@@ -399,7 +399,7 @@ export function HeroSection() {
                       type="button"
                       onClick={() => setShowAllPrompts(true)}
                       aria-label="Show all prompts"
-                      className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-background/95 text-muted-foreground transition-colors hover:text-foreground text-base leading-none"
+                      className="liquid-glass-pill shrink-0 flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground text-base leading-none"
                     >
                       +
                     </button>

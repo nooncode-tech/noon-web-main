@@ -649,13 +649,16 @@ export function HowItWorksSection() {
       className="relative z-[2] py-20 lg:py-24 text-background overflow-hidden"
       style={{ backgroundColor: howItWorksTheme.base, color: howItWorksTheme.textPrimary }}
     >
+      {/* Gradient bloom inside dark section */}
+      <div aria-hidden="true" className="pointer-events-none absolute right-0 top-0 h-[600px] w-[600px] translate-x-1/2 -translate-y-1/4 rounded-full opacity-[0.09] blur-[120px]" style={{ background: "radial-gradient(circle, #6a63f2 0%, transparent 70%)" }} />
+      <div aria-hidden="true" className="pointer-events-none absolute bottom-0 left-0 h-[400px] w-[400px] -translate-x-1/3 translate-y-1/4 rounded-full opacity-[0.06] blur-[100px]" style={{ background: "radial-gradient(circle, #1200c5 0%, transparent 70%)" }} />
+
       <div className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-12">
         {/* Header */}
         <div className="mb-12 lg:mb-16 text-center">
-          <span className="mb-6 inline-flex items-center gap-3 text-sm font-mono" style={{ color: howItWorksTheme.textMuted }}>
-            <span className="w-8 h-px" style={{ backgroundColor: howItWorksTheme.borderStrong }} />
+          <span className="mb-6 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-mono" style={{ borderColor: howItWorksTheme.border, backgroundColor: howItWorksTheme.panel, color: howItWorksTheme.textMuted }}>
+            <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: howItWorksTheme.lineStrong }} />
             How it works
-            <span className="w-8 h-px" style={{ backgroundColor: howItWorksTheme.borderStrong }} />
           </span>
           <h2
             className={`text-3xl lg:text-4xl font-display tracking-tight transition-all duration-700 ${

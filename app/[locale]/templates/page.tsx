@@ -250,11 +250,11 @@ export default function TemplatesPage() {
       <section className="site-section bg-secondary/30">
         <div className="site-shell">
           <div className="flex items-center justify-between mb-10">
-            <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground">
-              <span className="w-8 h-px" style={{ backgroundColor: templateBrandTone.accent }} />
+            <span className="inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: templateBrandTone.accent }} />
               {t("allTemplates")}
             </span>
-            <span className="text-sm" style={{ color: templateBrandTone.accent }}>
+            <span className="text-xs font-mono" style={{ color: templateBrandTone.accent }}>
               {templates.length} templates
             </span>
           </div>
