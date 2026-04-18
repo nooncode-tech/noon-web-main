@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ArrowRight, Code2, Route, Zap, Terminal, Shield, X } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -8,7 +8,7 @@ import { useTranslations } from "next-intl";
 import { SitePageFrame } from "@/app/_components/site/site-page-frame";
 import { useRevealOnView } from "@/hooks/use-reveal-on-view";
 import { siteRoutes } from "@/lib/site-config";
-import { siteChromeDots, siteTones } from "@/lib/site-tones";
+import { siteTones } from "@/lib/site-tones";
 import { FaqSection } from "@/components/landing/faq-section";
 
 const LOCALES = ["en", "es", "fr", "de"];
@@ -22,136 +22,6 @@ const technologyGroups = [
   { title: "Mobile", items: ["Flutter", "Native integrations"], tone: siteTones.client },
 ];
 
-// ============================================================================
-// OPERATING METRICS
-// ============================================================================
-
-type Metric = { label: string; value: string; description: string };
-
-function OperatingMetrics({ metrics }: { metrics: Metric[] }) {
-  const { ref: metricsRef, isVisible } = useRevealOnView<HTMLDivElement>({ threshold: 0.3 });
-
-  return (
-    <div
-      ref={metricsRef}
-      className={`grid gap-4 md:grid-cols-3 transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-    >
-      {metrics.map((metric, index) => (
-        <div
-          key={metric.label}
-          className={`relative rounded-2xl border border-border bg-card p-6 overflow-hidden transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-          style={{ transitionDelay: `${index * 150}ms` }}
-        >
-          <div
-            className="absolute bottom-0 left-0 h-1 transition-all duration-1000"
-            style={{
-              width: isVisible ? "100%" : "0%",
-              transitionDelay: `${index * 200 + 500}ms`,
-              backgroundColor: "#1200c5",
-            }}
-          />
-          <div className="relative z-10">
-            <div className="flex items-baseline gap-1 mb-2">
-              <span
-                className={`text-4xl font-display transition-all duration-700 ${isVisible ? "opacity-100" : "opacity-0"}`}
-                style={{ transitionDelay: `${index * 150 + 200}ms` }}
-              >
-                {metric.value}
-              </span>
-            </div>
-            <h3 className="text-sm font-medium mb-1">{metric.label}</h3>
-            <p className="text-xs text-muted-foreground">{metric.description}</p>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ============================================================================
-// ARCHITECTURE DIAGRAM
-// ============================================================================
-
-function ArchitectureDiagram() {
-  const [activeLayer, setActiveLayer] = useState(0);
-  const { ref: diagramRef, isVisible } = useRevealOnView<HTMLDivElement>({ threshold: 0.3 });
-
-  useEffect(() => {
-    if (!isVisible) return;
-    const interval = setInterval(() => {
-      setActiveLayer((prev) => (prev + 1) % 4);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [isVisible]);
-
-  const layers = [
-    { name: "Client", items: ["Web", "Mobile", "API"], tone: siteTones.client },
-    { name: "Gateway", items: ["Auth", "Rate Limit", "Cache"], tone: siteTones.gateway },
-    { name: "Services", items: ["Core", "AI", "Events"], tone: siteTones.services },
-    { name: "Data", items: ["DB", "Storage", "Search"], tone: siteTones.data },
-  ];
-
-  return (
-    <div
-      ref={diagramRef}
-      className={`rounded-2xl border border-border bg-card overflow-hidden transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
-    >
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-secondary/30">
-        <div className="flex gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: siteChromeDots.red }} />
-          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: siteChromeDots.amber }} />
-          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: siteChromeDots.green }} />
-        </div>
-        <span className="text-xs font-mono text-muted-foreground">architecture.sys</span>
-      </div>
-
-      <div className="p-5 space-y-2">
-        {layers.map((layer, index) => (
-          <div
-            key={layer.name}
-            className={`rounded-xl border p-3 transition-all duration-500 ${index === activeLayer ? "scale-[1.02]" : "scale-100"} ${index <= activeLayer || isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"}`}
-            style={{
-              transitionDelay: `${index * 100}ms`,
-              borderColor: layer.tone.border,
-              backgroundColor: layer.tone.surface,
-              boxShadow: index === activeLayer ? `0 20px 36px -28px ${layer.tone.shadow}` : "none",
-            }}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-mono text-muted-foreground">{layer.name}</span>
-              {index === activeLayer && (
-                <span className="flex items-center gap-1.5" style={{ color: layer.tone.accent }}>
-                  <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: layer.tone.accent }} />
-                  <span className="text-[10px]">Active</span>
-                </span>
-              )}
-            </div>
-            <div className="flex gap-2">
-              {layer.items.map((item, i) => (
-                <div
-                  key={item}
-                  className={`flex-1 rounded-lg px-2 py-1.5 text-center text-[10px] font-mono transition-all duration-300 ${index === activeLayer ? "text-foreground" : "text-muted-foreground"}`}
-                  style={{
-                    transitionDelay: `${i * 50}ms`,
-                    backgroundColor: index === activeLayer ? layer.tone.mutedSurface : "rgba(255, 255, 255, 0.6)",
-                    border: `1px solid ${index === activeLayer ? layer.tone.border : "rgba(24, 21, 18, 0.06)"}`,
-                  }}
-                >
-                  {item}
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-        <div className="flex items-center justify-center gap-2 pt-2">
-          <div className="flex-1 h-px bg-foreground/15" />
-          <span className="text-[10px] text-muted-foreground font-mono">Data Flow</span>
-          <div className="flex-1 h-px bg-foreground/15" />
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // ============================================================================
 // SPOTLIGHT CARD
@@ -216,12 +86,9 @@ export default function AboutPage() {
 
   type PrincipleItem = { number: string; title: string; description: string };
   type OptimizeItem = { title: string; description: string };
-  type MetricItem = { label: string; value: string; description: string };
-
   const principles = t.raw("operatingModel.principles") as PrincipleItem[];
   const notNoon = t.raw("operatingModel.notNoon") as string[];
   const optimizeFor = t.raw("criteria.items") as OptimizeItem[];
-  const metrics = t.raw("metrics") as MetricItem[];
 
   const { ref: headerRef, isVisible: headerVisible } = useRevealOnView<HTMLDivElement>({ threshold: 0.1 });
 
@@ -269,26 +136,6 @@ export default function AboutPage() {
                 {t("cta.viewServices")}
               </Link>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Criteria — what we focus on, most concrete section, shown early */}
-      <section className="site-section-lg bg-secondary/30">
-        <div className="site-shell">
-          <div className="max-w-2xl mb-10">
-            <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
-              <span className="w-8 h-px" style={{ backgroundColor: siteTones.brand.accent }} />
-              {t("criteria.eyebrow")}
-            </span>
-            <h2 className="text-2xl lg:text-3xl font-display tracking-tight">
-              {t("criteria.headline")}
-            </h2>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {optimizeFor.map((item, index) => (
-              <OptimizeCard key={index} item={item} index={index} />
-            ))}
           </div>
         </div>
       </section>
@@ -393,8 +240,28 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Operating Model */}
+      {/* Criteria */}
       <section className="site-section-lg bg-secondary/30">
+        <div className="site-shell">
+          <div className="max-w-2xl mb-10">
+            <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
+              <span className="w-8 h-px" style={{ backgroundColor: siteTones.brand.accent }} />
+              {t("criteria.eyebrow")}
+            </span>
+            <h2 className="text-2xl lg:text-3xl font-display tracking-tight">
+              {t("criteria.headline")}
+            </h2>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {optimizeFor.map((item, index) => (
+              <OptimizeCard key={index} item={item} index={index} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Operating Model */}
+      <section className="site-section-lg">
         <div className="site-shell">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
             <div>
@@ -431,7 +298,7 @@ export default function AboutPage() {
       </section>
 
       {/* Technology Stack */}
-      <section id="technology" className="site-section-lg">
+      <section id="technology" className="site-section-lg bg-secondary/30">
         <div className="site-shell">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">

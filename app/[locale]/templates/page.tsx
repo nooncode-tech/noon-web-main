@@ -283,7 +283,7 @@ export default function TemplatesPage() {
       </section>
 
       {/* Templates by category */}
-      <section className="site-section">
+      <section className="site-section bg-secondary/30">
         <div className="site-shell">
           <div className="flex items-center justify-between mb-10">
             <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground">

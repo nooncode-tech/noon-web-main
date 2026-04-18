@@ -762,7 +762,7 @@ export default function ServicesPage() {
       </section>
 
       {/* Process */}
-      <section id="process" className="site-section-lg">
+      <section id="process" className="site-section-lg bg-secondary/30">
         <div className="site-shell">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
@@ -789,28 +789,6 @@ export default function ServicesPage() {
                 />
               ))}
 
-              <div className="rounded-2xl border border-border bg-secondary/30 p-6" style={{ borderColor: processSteps[1]?.tone.border }}>
-                <span
-                  className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.18em]"
-                  style={{ color: processSteps[1]?.tone.accent }}
-                >
-                  <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: processSteps[1]?.tone.accent }} />
-                  Best entry point
-                </span>
-                <h3 className="mt-3 text-xl font-display tracking-tight">
-                  Start with Maxwell when the problem is real but the software shape is still unclear.
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  Maxwell helps turn ambiguity into direction before proposal, scope, and delivery planning.
-                </p>
-                <Link
-                  href={siteRoutes.maxwell}
-                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
-                >
-                  {t("hero.startWithMaxwell")}
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
             </div>
           </div>
         </div>
