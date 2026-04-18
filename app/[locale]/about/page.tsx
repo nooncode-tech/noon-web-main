@@ -144,7 +144,7 @@ export default function AboutPage() {
       <section className="site-section-lg">
         <div className="site-shell">
           <div className="max-w-3xl mb-12">
-            <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+            <span className="mb-6 liquid-glass-pill inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: siteTones.brand.accent }} />
               {t("thesis.eyebrow")}
             </span>
@@ -244,7 +244,7 @@ export default function AboutPage() {
       <section className="site-section-lg bg-secondary/30">
         <div className="site-shell">
           <div className="max-w-2xl mb-10">
-            <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+            <span className="mb-6 liquid-glass-pill inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: siteTones.brand.accent }} />
               {t("criteria.eyebrow")}
             </span>
@@ -265,7 +265,7 @@ export default function AboutPage() {
         <div className="site-shell">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
             <div>
-              <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+              <span className="mb-6 liquid-glass-pill inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">
                 <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: siteTones.brand.accent }} />
                 {t("operatingModel.eyebrow")}
               </span>
@@ -280,7 +280,7 @@ export default function AboutPage() {
             </div>
 
             <div>
-              <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+              <span className="mb-6 liquid-glass-pill inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">
                 <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: siteTones.brand.accent }} />
                 {t("operatingModel.boundariesEyebrow")}
               </span>
@@ -301,7 +301,7 @@ export default function AboutPage() {
       <section id="technology" className="site-section-lg bg-secondary/30">
         <div className="site-shell">
           <div className="max-w-2xl">
-            <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+            <span className="mb-6 liquid-glass-pill inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: siteTones.brand.accent }} />
               {t("stack.eyebrow")}
             </span>

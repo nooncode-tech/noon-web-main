@@ -88,7 +88,7 @@ export function FaqSection() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
           {/* Left */}
           <div>
-            <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+            <span className="mb-6 liquid-glass-pill inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: siteTones.brand.accent }} />
               FAQ
             </span>

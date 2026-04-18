@@ -250,7 +250,7 @@ export default function TemplatesPage() {
       <section className="site-section bg-secondary/30">
         <div className="site-shell">
           <div className="flex items-center justify-between mb-10">
-            <span className="inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+            <span className="liquid-glass-pill inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: templateBrandTone.accent }} />
               {t("allTemplates")}
             </span>

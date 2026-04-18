@@ -31,7 +31,7 @@ export function PageCard({
 
   return (
     <div
-      className={cn("rounded-[10px] border border-border bg-card p-6 lg:p-8", className)}
+      className={cn("rounded-[10px] liquid-glass-card p-6 lg:p-8", className)}
       style={tone ? { borderColor: tone.border, boxShadow: `0 20px 40px -36px ${tone.shadow}` } : undefined}
     >
       {icon && <div className="mb-5">{icon}</div>}

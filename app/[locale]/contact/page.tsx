@@ -302,7 +302,7 @@ function ContactPageContent() {
       <section className="site-section bg-secondary/30">
         <div className="site-shell">
           <div className="mb-10 max-w-3xl">
-            <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+            <span className="mb-6 liquid-glass-pill inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: siteTones.brand.accent }} />
               {t("routes.eyebrow")}
             </span>

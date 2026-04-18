@@ -719,7 +719,7 @@ export default function ServicesPage() {
       <section id="solution-paths" className="site-section-lg bg-secondary/30">
         <div className="site-shell">
           <div className="max-w-3xl mb-12">
-            <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+            <span className="mb-6 liquid-glass-pill inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: servicesEyebrowTone.accent }} />
               {t("problemAreas.eyebrow")}
             </span>
@@ -745,7 +745,7 @@ export default function ServicesPage() {
       <section id="what-we-build" className="site-section-lg">
         <div className="site-shell">
           <div className="max-w-3xl mb-12">
-            <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+            <span className="mb-6 liquid-glass-pill inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: servicesEyebrowTone.accent }} />
               {t("whatWeBuildEyebrow")}
             </span>
@@ -766,7 +766,7 @@ export default function ServicesPage() {
       <section id="process" className="site-section-lg bg-secondary/30">
         <div className="site-shell">
           <div className="max-w-2xl">
-            <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+            <span className="mb-6 liquid-glass-pill inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: servicesEyebrowTone.accent }} />
               {t("process.eyebrow")}
             </span>
