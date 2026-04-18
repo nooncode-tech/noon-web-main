@@ -123,7 +123,7 @@ export function Navigation() {
       <nav
         className={`transition-all duration-500 ${
           isScrolled || isMobileMenuOpen
-            ? "mx-auto bg-background/80 backdrop-blur-xl border border-foreground/10 rounded-2xl shadow-lg max-w-[1200px]"
+            ? "mx-auto bg-background/80 backdrop-blur-xl border border-foreground/10 rounded-2xl shadow-lg max-w-[1200px] overflow-hidden"
             : "bg-transparent w-full"
         }`}
       >
