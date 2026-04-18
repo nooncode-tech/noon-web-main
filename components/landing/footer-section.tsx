@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
 import { footerSocialLinks, siteRoutes } from "@/lib/site-config";
-import { AnimatedWave } from "./animated-wave";
 import { NoonLogo } from "@/components/ui/noon-logo";
 
 const LOCALES = ["en", "es", "fr", "de"];
@@ -95,11 +94,7 @@ export function FooterSection() {
 
   return (
     <footer className="relative border-t border-foreground/10">
-      <div className="absolute inset-0 h-64 overflow-hidden opacity-20 pointer-events-none">
-        <AnimatedWave />
-      </div>
-
-      <div className="site-shell relative z-10">
+<div className="site-shell relative z-10">
         <div className="py-14 lg:py-20">
           <div className="grid grid-cols-2 gap-12 md:grid-cols-6 lg:gap-8">
             <div className="col-span-2">
