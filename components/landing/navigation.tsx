@@ -10,11 +10,11 @@ import { siteTones } from "@/lib/site-tones";
 import { NoonLogo } from "@/components/ui/noon-logo";
 
 // Inline nav label translations (nav is used outside NextIntlClientProvider too)
-const NAV_LABELS: Record<string, { services: string; templates: string; about: string; startWithMaxwell: string }> = {
-  en: { services: "Services", templates: "Templates", about: "About", startWithMaxwell: "Start with Maxwell" },
-  es: { services: "Servicios", templates: "Plantillas", about: "Nosotros", startWithMaxwell: "Empezar con Maxwell" },
-  fr: { services: "Services", templates: "Modèles", about: "À propos", startWithMaxwell: "Commencer avec Maxwell" },
-  de: { services: "Dienste", templates: "Vorlagen", about: "Über uns", startWithMaxwell: "Mit Maxwell starten" },
+const NAV_LABELS: Record<string, { services: string; templates: string; about: string; contact: string; startWithMaxwell: string }> = {
+  en: { services: "Services", templates: "Templates", about: "About", contact: "Contact", startWithMaxwell: "Start with Maxwell" },
+  es: { services: "Servicios", templates: "Plantillas", about: "Nosotros", contact: "Contacto", startWithMaxwell: "Empezar con Maxwell" },
+  fr: { services: "Services", templates: "Modèles", about: "À propos", contact: "Contact", startWithMaxwell: "Commencer avec Maxwell" },
+  de: { services: "Dienste", templates: "Vorlagen", about: "Über uns", contact: "Kontakt", startWithMaxwell: "Mit Maxwell starten" },
 };
 
 const navigationTone = siteTones.brand;
@@ -47,6 +47,7 @@ export function Navigation() {
     { name: navLabels.services, href: siteRoutes.services, match: [siteRoutes.services] },
     { name: navLabels.templates, href: siteRoutes.templates, match: [siteRoutes.templates] },
     { name: navLabels.about, href: siteRoutes.about, match: [siteRoutes.about] },
+    { name: navLabels.contact, href: siteRoutes.contact, match: [siteRoutes.contact] },
   ];
 
   // Prepend locale to internal links so navigation preserves the current locale

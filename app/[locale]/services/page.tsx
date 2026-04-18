@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { SitePageFrame } from "@/app/_components/site/site-page-frame";
 import { useRevealOnView } from "@/hooks/use-reveal-on-view";
+import { FaqSection } from "@/components/landing/faq-section";
 import { siteRoutes } from "@/lib/site-config";
 import { siteChromeDots, siteTones } from "@/lib/site-tones";
 
@@ -793,6 +794,8 @@ export default function ServicesPage() {
           </div>
         </div>
       </section>
+
+      <FaqSection />
 
       {/* CTA */}
       <section className="site-section-lg bg-foreground text-background">

@@ -15,6 +15,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { SitePageFrame } from "@/app/_components/site/site-page-frame";
 import { ContactIntakeForm } from "@/app/_components/site/contact-intake-form";
+import { FaqSection } from "@/components/landing/faq-section";
 import { useRevealOnView } from "@/hooks/use-reveal-on-view";
 import { contactInbox, normalizeContactInquiry, type ContactInquiryKey } from "@/lib/contact";
 import { getContactHref, getStartWithMaxwellHref } from "@/lib/site-config";
@@ -323,6 +324,8 @@ function ContactPageContent() {
           </div>
         </div>
       </section>
+
+      <FaqSection />
 
       {/* Form after routes */}
       <section id="contact-intake" className="site-section">
