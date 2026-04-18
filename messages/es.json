@@ -74,7 +74,7 @@
       "eyebrow": "Empresa",
       "headline": "Una empresa de desarrollo tecnológico",
       "headlineMuted": "construida en torno a la entrega real.",
-      "description": "Noon convierte la demanda de software ambigua en alcance concreto y lo entrega en código. Calidad de ejecución, criterio de producto, apalancamiento con IA.",
+      "description": "Tienes un problema de negocio que necesita software. Definimos exactamente qué construir, lo construimos y lo entregamos en código que tú posees.",
       "startWithMaxwell": "Empezar con Maxwell",
       "contactNoon": "Contactar Noon"
     },
@@ -82,7 +82,7 @@
       "eyebrow": "Tesis",
       "headline": "Por qué existe el modelo",
       "mainTitle": "Convertir la ambigüedad en entrega real.",
-      "mainDescription": "Noon está pensado para situaciones donde la necesidad es real pero la forma del software aún no está clara. El trabajo es convertir esa ambigüedad en ejecución con alcance definido.",
+      "mainDescription": "Noon es para empresas que saben que necesitan software pero no saben por dónde empezar. Convertimos ese punto de partida en un alcance claro y lo entregamos.",
       "productionGrade": "Nivel producción",
       "clearProcess": "Proceso claro",
       "clearProcessDescription": "Desde la conversación inicial hasta el despliegue, cada paso es transparente.",
@@ -167,7 +167,7 @@
     "hero": {
       "eyebrow": "Servicios",
       "headline": "Lo que construimos",
-      "description": "Noon entrega software de nivel producción en una amplia gama de tipos de producto. La elección correcta depende del problema, no de la categoría.",
+      "description": "Desde herramientas de IA hasta plataformas completas — construimos el software que tu negocio realmente necesita, entregado en código real.",
       "startWithMaxwell": "Empezar con Maxwell",
       "viewTemplates": "Ver plantillas"
     },

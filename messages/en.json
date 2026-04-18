@@ -74,7 +74,7 @@
       "eyebrow": "Company",
       "headline": "A technology development company",
       "headlineMuted": "built around real delivery.",
-      "description": "Noon turns ambiguous software demand into concrete scope and delivers it in code. Execution quality, product judgment, AI-assisted leverage.",
+      "description": "You have a business problem that needs software. We define exactly what to build, build it, and deliver it in code you own.",
       "startWithMaxwell": "Start with Maxwell",
       "contactNoon": "Contact Noon",
       "viewServices": "View services"
@@ -83,7 +83,7 @@
       "eyebrow": "Thesis",
       "headline": "Why the model exists",
       "mainTitle": "Turn ambiguity into real delivery.",
-      "mainDescription": "Noon is built for situations where the need is real but the software shape is still unclear. The job is to turn that ambiguity into scoped, production-minded execution.",
+      "mainDescription": "Noon is for businesses that know they need software but aren't sure what to build first. We turn that starting point into a clear scope, then deliver it.",
       "productionGrade": "Production-grade",
       "clearProcess": "Clear process",
       "clearProcessDescription": "From initial conversation to deployment, every step is transparent.",
@@ -153,7 +153,7 @@
     "stack": {
       "eyebrow": "Stack",
       "headline": "Technology we use",
-      "description": "We use proven, maintainable tools that scale with the product — not trendy choices that create technical debt. Every project ships with code you own and can hand off.",
+      "description": "Technology choices follow the product, not the other way around. Every project is delivered in code you own and can hand off to any developer.",
       "inStack": "In stack",
       "tools": "tools"
     },
@@ -168,7 +168,7 @@
     "hero": {
       "eyebrow": "Services",
       "headline": "What we build",
-      "description": "Noon delivers production-grade software across a wide range of product types. The right choice depends on the problem, not the category.",
+      "description": "From AI tools to full platforms — we build the software your business actually needs, delivered in real code.",
       "startWithMaxwell": "Start with Maxwell",
       "viewTemplates": "View templates"
     },

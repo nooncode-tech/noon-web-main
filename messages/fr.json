@@ -74,7 +74,7 @@
       "eyebrow": "Entreprise",
       "headline": "Une entreprise de développement technologique",
       "headlineMuted": "construite autour d'une livraison réelle.",
-      "description": "Noon transforme la demande logicielle ambiguë en périmètre concret et la livre en code. Qualité d'exécution, jugement produit, levier assisté par IA.",
+      "description": "Vous avez un problème métier qui nécessite du logiciel. Nous définissons exactement quoi construire, le construisons et le livrons en code que vous possédez.",
       "startWithMaxwell": "Commencer avec Maxwell",
       "contactNoon": "Contacter Noon"
     },
@@ -82,7 +82,7 @@
       "eyebrow": "Thèse",
       "headline": "Pourquoi le modèle existe",
       "mainTitle": "Transformer l'ambiguïté en livraison réelle.",
-      "mainDescription": "Noon est conçu pour les situations où le besoin est réel mais la forme du logiciel n'est pas encore claire. Le travail consiste à transformer cette ambiguïté en exécution délimitée.",
+      "mainDescription": "Noon s'adresse aux entreprises qui savent qu'elles ont besoin de logiciels mais ne savent pas par où commencer. Nous transformons ce point de départ en un périmètre clair, puis le livrons.",
       "productionGrade": "Niveau production",
       "clearProcess": "Processus clair",
       "clearProcessDescription": "De la conversation initiale au déploiement, chaque étape est transparente.",
@@ -167,7 +167,7 @@
     "hero": {
       "eyebrow": "Services",
       "headline": "Ce que nous construisons",
-      "description": "Noon livre des logiciels de niveau production sur une large gamme de types de produits. Le bon choix dépend du problème, pas de la catégorie.",
+      "description": "Des outils IA aux plateformes complètes — nous construisons le logiciel dont votre entreprise a réellement besoin, livré en code réel.",
       "startWithMaxwell": "Commencer avec Maxwell",
       "viewTemplates": "Voir les modèles"
     },

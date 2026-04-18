@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRevealOnView } from "@/hooks/use-reveal-on-view";
 import { ArrowRight } from "lucide-react";
-import { getTemplateHref, siteRoutes } from "@/lib/site-config";
+import { getTemplateHref, getStartWithMaxwellHref, siteRoutes } from "@/lib/site-config";
 import { siteTones } from "@/lib/site-tones";
 import { templates } from "@/data/templates";
 
@@ -405,13 +405,21 @@ export function TemplateCard({ template, index }: { template: typeof templates[n
           ))}
         </div>
 
-        <Link
-          href={getTemplateHref(template.slug)}
-          className="mt-auto inline-flex items-center gap-2 text-sm font-medium text-foreground group-hover:gap-3 transition-all duration-300"
-        >
-          Use this template
-          <ArrowRight className="w-4 h-4" />
-        </Link>
+        <div className="mt-auto flex flex-col gap-2">
+          <a
+            href={getStartWithMaxwellHref(template.prompt)}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
+          >
+            Start with Maxwell
+            <ArrowRight className="w-3.5 h-3.5" />
+          </a>
+          <Link
+            href={getTemplateHref(template.slug)}
+            className="inline-flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            View details
+          </Link>
+        </div>
       </div>
     </div>
   );
