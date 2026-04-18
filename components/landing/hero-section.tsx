@@ -204,7 +204,7 @@ export function HeroSection() {
                 </div>
 
                 {/* Dark card — on top, full rounded corners */}
-                <div className="relative z-10 bg-[#f9f9f9] dark:bg-[#131313] rounded-[9px] p-1.5 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_4px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_4px_20px_rgba(0,0,0,0.4)] transition-shadow duration-300">
+                <div className="relative z-10 bg-[#f9f9f9] dark:bg-[#131313] rounded-[9px] p-1.5 shadow-[0_0_0_1px_rgba(0,0,0,0.06)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.06)]">
                   <div className="relative min-w-0 overflow-hidden">
                     <textarea
                       value={inputValue}
@@ -390,7 +390,7 @@ export function HeroSection() {
                       <button
                         key={index + 3}
                         onClick={() => handleSuggestionClick(s.prompt)}
-                        className="hidden sm:inline-flex shrink-0 rounded-full border border-border bg-background/80 px-2.5 py-1 text-[11px] text-muted-foreground backdrop-blur-sm transition-all duration-300 hover:border-foreground/20 hover:bg-secondary hover:text-foreground"
+                        className="liquid-glass-pill hidden sm:inline-flex shrink-0 rounded-full px-2.5 py-1 text-[11px] text-muted-foreground transition-all duration-300 hover:text-foreground"
                       >
                         {s.label}
                       </button>
