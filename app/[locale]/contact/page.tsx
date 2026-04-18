@@ -17,7 +17,7 @@ import { SitePageFrame } from "@/app/_components/site/site-page-frame";
 import { ContactIntakeForm } from "@/app/_components/site/contact-intake-form";
 import { useRevealOnView } from "@/hooks/use-reveal-on-view";
 import { contactInbox, normalizeContactInquiry, type ContactInquiryKey } from "@/lib/contact";
-import { getContactHref, getStartWithMaxwellHref, siteRoutes } from "@/lib/site-config";
+import { getContactHref, getStartWithMaxwellHref } from "@/lib/site-config";
 import { siteChromeDots, siteTones } from "@/lib/site-tones";
 
 const LOCALES = ["en", "es", "fr", "de"];
@@ -290,23 +290,14 @@ function ContactPageContent() {
               </div>
             </div>
 
-            <div className="hidden lg:block">
+            <div>
               <ConnectionHubVisual routingLabels={routingLabels} />
             </div>
           </div>
         </div>
       </section>
 
-      <section id="contact-intake" className="site-section">
-        <div className="site-shell">
-          <ContactIntakeForm
-            initialInquiry={normalizedInquiry}
-            initialDraft={trimmedDraft}
-            initialSource={source}
-          />
-        </div>
-      </section>
-
+      {/* Routes first — user chooses path, form pre-fills */}
       <section className="site-section bg-secondary/30">
         <div className="site-shell">
           <div className="mb-10 max-w-3xl">
@@ -333,21 +324,14 @@ function ContactPageContent() {
         </div>
       </section>
 
-      <section className="site-section-lg bg-foreground text-background">
-        <div className="site-shell text-center">
-          <h2 className="mb-4 text-2xl font-display tracking-tight lg:text-3xl">
-            {t("cta.headline")}
-          </h2>
-          <p className="mx-auto mb-8 max-w-md text-background/70">
-            {t("cta.description")}
-          </p>
-          <Link
-            href={siteRoutes.maxwell}
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
-          >
-            {t("cta.startWithMaxwell")}
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+      {/* Form after routes */}
+      <section id="contact-intake" className="site-section">
+        <div className="site-shell">
+          <ContactIntakeForm
+            initialInquiry={normalizedInquiry}
+            initialDraft={trimmedDraft}
+            initialSource={source}
+          />
         </div>
       </section>
     </SitePageFrame>

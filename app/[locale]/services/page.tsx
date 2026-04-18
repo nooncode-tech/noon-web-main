@@ -9,7 +9,6 @@ import { SitePageFrame } from "@/app/_components/site/site-page-frame";
 import { useRevealOnView } from "@/hooks/use-reveal-on-view";
 import { siteRoutes } from "@/lib/site-config";
 import { siteChromeDots, siteTones } from "@/lib/site-tones";
-import { HowItWorksSection } from "@/components/landing/how-it-works-section";
 
 const servicesEyebrowTone = siteTones.brand;
 const LOCALES = ["en", "es", "fr", "de"];
@@ -715,28 +714,7 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Build Categories */}
-      <section id="what-we-build" className="site-section-lg">
-        <div className="site-shell">
-          <div className="max-w-3xl mb-12">
-            <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
-              <span className="w-8 h-px" style={{ backgroundColor: servicesEyebrowTone.accent }} />
-              {t("whatWeBuildEyebrow")}
-            </span>
-            <h2 className="text-2xl lg:text-3xl font-display tracking-tight mb-4">
-              {t("whatWeBuildHeadline")}
-            </h2>
-          </div>
-
-          <div>
-            {buildCategories.map((category, index) => (
-              <CategoryCard key={category.slug} category={category} index={index} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Solution Paths */}
+      {/* Solution Paths — first so users self-identify */}
       <section id="solution-paths" className="site-section-lg bg-secondary/30">
         <div className="site-shell">
           <div className="max-w-3xl mb-12">
@@ -757,6 +735,27 @@ export default function ServicesPage() {
                 index={index}
                 fitLabel={fitLabels[Math.min(index, fitLabels.length - 1)] ?? ""}
               />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Build Categories */}
+      <section id="what-we-build" className="site-section-lg">
+        <div className="site-shell">
+          <div className="max-w-3xl mb-12">
+            <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
+              <span className="w-8 h-px" style={{ backgroundColor: servicesEyebrowTone.accent }} />
+              {t("whatWeBuildEyebrow")}
+            </span>
+            <h2 className="text-2xl lg:text-3xl font-display tracking-tight mb-4">
+              {t("whatWeBuildHeadline")}
+            </h2>
+          </div>
+
+          <div>
+            {buildCategories.map((category, index) => (
+              <CategoryCard key={category.slug} category={category} index={index} />
             ))}
           </div>
         </div>
@@ -817,8 +816,6 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      <HowItWorksSection />
-
       {/* CTA */}
       <section className="site-section-lg bg-foreground text-background">
         <div className="site-shell text-center">
@@ -828,21 +825,13 @@ export default function ServicesPage() {
           <p className="text-background/70 mb-8 max-w-md mx-auto">
             {t("cta.description")}
           </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link
-              href={siteRoutes.maxwell}
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
-            >
-              {t("cta.startWithMaxwell")}
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href={lp(siteRoutes.templates)}
-              className="inline-flex items-center gap-2 rounded-full border border-background/20 px-6 py-3 text-sm font-medium transition-colors hover:bg-background/10"
-            >
-              {t("cta.viewTemplates")}
-            </Link>
-          </div>
+          <Link
+            href={siteRoutes.maxwell}
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
+          >
+            {t("cta.startWithMaxwell")}
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </section>
     </SitePageFrame>

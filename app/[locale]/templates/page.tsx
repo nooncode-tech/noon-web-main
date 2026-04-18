@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -66,7 +65,7 @@ function TemplatePreviewVisual() {
     if (!isVisible) return;
     const interval = setInterval(() => {
       setActiveTemplate((prev) => (prev + 1) % templatePreviews.length);
-    }, 2500);
+    }, 4000);
     return () => clearInterval(interval);
   }, [isVisible, templatePreviews.length]);
 
@@ -270,7 +269,7 @@ export default function TemplatesPage() {
                   href={lp(siteRoutes.services)}
                   className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium transition-colors hover:bg-secondary"
                 >
-                  {t("hero.viewAll")}
+                  {t("hero.viewServices")}
                 </Link>
               </div>
             </div>
@@ -283,35 +282,10 @@ export default function TemplatesPage() {
         </div>
       </section>
 
-      {/* Categories */}
-      <section className="site-section bg-secondary/30">
-        <div className="site-shell">
-          <div className="flex items-center justify-between mb-8">
-            <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground">
-              <span className="w-8 h-px" style={{ backgroundColor: templateBrandTone.accent }} />
-              {t("categories")}
-            </span>
-            <span className="text-sm" style={{ color: templateBrandTone.accent }}>
-              {categoriesWithTemplates.length} {t("categories").toLowerCase()}
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {categoriesWithTemplates.map((category, index) => (
-              <CategoryCard
-                key={category}
-                category={category}
-                templates={templatesByCategory[category]}
-                index={index}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* All Templates — animated mockup cards */}
+      {/* Templates by category */}
       <section className="site-section">
         <div className="site-shell">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-10">
             <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground">
               <span className="w-8 h-px" style={{ backgroundColor: templateBrandTone.accent }} />
               {t("allTemplates")}
@@ -320,10 +294,33 @@ export default function TemplatesPage() {
               {templates.length} templates
             </span>
           </div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {templates.map((template, index) => (
-              <AnimatedTemplateCard key={template.slug} template={template} index={index} />
-            ))}
+
+          <div className="space-y-16">
+            {categoriesWithTemplates.map((category) => {
+              const tone = templateCategoryTones[category];
+              const categoryTemplates = templatesByCategory[category];
+              return (
+                <div key={category} id={category.toLowerCase().replace(/\s+/g, "-")}>
+                  <div className="flex items-center gap-3 mb-6">
+                    <span
+                      className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.18em]"
+                      style={{ color: tone.accent }}
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: tone.accent }} />
+                      {category}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {categoryTemplates.length} template{categoryTemplates.length !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+                  <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {categoryTemplates.map((template, index) => (
+                      <AnimatedTemplateCard key={template.slug} template={template} index={index} />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -350,87 +347,3 @@ export default function TemplatesPage() {
   );
 }
 
-// ============================================================================
-// SUB-COMPONENTS
-// ============================================================================
-
-function CategoryCard({
-  category,
-  templates: categoryTemplates,
-  index,
-}: {
-  category: TemplateCategory;
-  templates: TemplateItem[];
-  index: number;
-}) {
-  const [isHovered, setIsHovered] = useState(false);
-  const { ref: cardRef, isVisible } = useRevealOnView<HTMLAnchorElement>({ threshold: 0.15 });
-  const firstTemplate = categoryTemplates[0];
-  const tone = templateCategoryTones[category];
-
-  return (
-    <Link
-      ref={cardRef}
-      href={`#${category.toLowerCase().replace(/\s+/g, "-")}`}
-      className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-card transition-all duration-500 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
-      style={{
-        transitionDelay: `${index * 55}ms`,
-        borderColor: isHovered ? tone.border : "var(--border)",
-        boxShadow: isHovered ? `0 24px 48px -28px ${tone.border}` : "none",
-      }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Image area */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-secondary/40">
-        {firstTemplate?.image && (
-          <Image
-            src={firstTemplate.image}
-            alt={category}
-            fill
-            className="object-cover transition-transform duration-700 group-hover:scale-[1.07]"
-          />
-        )}
-        {/* Gradient overlay — stronger on hover */}
-        <div
-          className="absolute inset-0 transition-opacity duration-500"
-          style={{
-            background: `linear-gradient(to top, ${tone.accent}cc 0%, transparent 60%)`,
-            opacity: isHovered ? 0.7 : 0.35,
-          }}
-        />
-        {/* Top badge */}
-        <div className="absolute left-3 top-3">
-          <span
-            className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-mono backdrop-blur-sm transition-all duration-300"
-            style={{
-              borderColor: tone.border,
-              backgroundColor: isHovered ? tone.surface : "rgba(255,255,255,0.85)",
-              color: tone.accent,
-            }}
-          >
-            <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ backgroundColor: tone.accent }} />
-            {categoryTemplates.length} template{categoryTemplates.length !== 1 ? "s" : ""}
-          </span>
-        </div>
-      </div>
-
-      {/* Bottom content */}
-      <div className="flex items-center justify-between px-4 py-3.5">
-        <h3 className="text-sm font-medium">{category}</h3>
-        <span
-          className="text-[10px] font-mono transition-colors duration-300"
-          style={{ color: isHovered ? tone.accent : "var(--muted-foreground)" }}
-        >
-          →
-        </span>
-      </div>
-
-      {/* Accent bar bottom */}
-      <div
-        className="absolute bottom-0 left-0 h-[2px] transition-all duration-500"
-        style={{ backgroundColor: tone.accent, width: isHovered ? "100%" : "0%" }}
-      />
-    </Link>
-  );
-}

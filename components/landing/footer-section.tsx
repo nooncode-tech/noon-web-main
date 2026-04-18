@@ -12,16 +12,14 @@ const LOCALES = ["en", "es", "fr", "de"];
 type FooterT = {
   tagline: string;
   rights: string;
-  builtWith: string;
   groups: { Company: string; Solutions: string; Legal: string };
   links: Record<string, string>;
 };
 
 const FOOTER_T: Record<string, FooterT> = {
   en: {
-    tagline: "Custom software built in real code. From idea to production-ready applications, powered by AI.",
+    tagline: "From idea to production. Every project ships as real, working software you own.",
     rights: "© 2026 Noon. All rights reserved.",
-    builtWith: "Built with",
     groups: { Company: "Company", Solutions: "Solutions", Legal: "Legal" },
     links: {
       aboutNoon: "About Noon", nextProduct: "Next product", workWithNoon: "Work with Noon", contact: "Contact",
@@ -30,9 +28,8 @@ const FOOTER_T: Record<string, FooterT> = {
     },
   },
   es: {
-    tagline: "Software personalizado construido en código real. De la idea a aplicaciones listas para producción, potenciadas por IA.",
+    tagline: "De la idea a producción. Cada proyecto se entrega como software real y funcional que tú posees.",
     rights: "© 2026 Noon. Todos los derechos reservados.",
-    builtWith: "Construido con",
     groups: { Company: "Empresa", Solutions: "Soluciones", Legal: "Legal" },
     links: {
       aboutNoon: "Acerca de Noon", nextProduct: "Próximo producto", workWithNoon: "Trabaja con Noon", contact: "Contacto",
@@ -41,9 +38,8 @@ const FOOTER_T: Record<string, FooterT> = {
     },
   },
   fr: {
-    tagline: "Logiciel personnalisé construit en vrai code. De l'idée aux applications prêtes pour la production, propulsées par l'IA.",
+    tagline: "De l'idée à la production. Chaque projet est livré en logiciel réel et fonctionnel que vous possédez.",
     rights: "© 2026 Noon. Tous droits réservés.",
-    builtWith: "Construit avec",
     groups: { Company: "Entreprise", Solutions: "Solutions", Legal: "Légal" },
     links: {
       aboutNoon: "À propos de Noon", nextProduct: "Prochain produit", workWithNoon: "Travailler avec Noon", contact: "Contact",
@@ -52,9 +48,8 @@ const FOOTER_T: Record<string, FooterT> = {
     },
   },
   de: {
-    tagline: "Individuelle Software in echtem Code. Von der Idee bis zur produktionsfertigen Anwendung, unterstützt durch KI.",
+    tagline: "Von der Idee zur Produktion. Jedes Projekt wird als echte, funktionierende Software geliefert, die Ihnen gehört.",
     rights: "© 2026 Noon. Alle Rechte vorbehalten.",
-    builtWith: "Erstellt mit",
     groups: { Company: "Unternehmen", Solutions: "Lösungen", Legal: "Rechtliches" },
     links: {
       aboutNoon: "Über Noon", nextProduct: "Nächstes Produkt", workWithNoon: "Mit Noon arbeiten", contact: "Kontakt",
@@ -162,34 +157,7 @@ export function FooterSection() {
           </div>
         </div>
 
-        {/* Powered by bar */}
-        <div className="border-t border-foreground/10 py-6">
-          <div className="flex flex-col items-center gap-4 lg:flex-row lg:justify-between">
-            <span className="text-xs text-muted-foreground/60 font-mono uppercase tracking-wider">{t.builtWith}</span>
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              {[
-                { name: "Next.js", abbr: "NX" },
-                { name: "TypeScript", abbr: "TS" },
-                { name: "Vercel", abbr: "VL" },
-                { name: "OpenAI", abbr: "AI" },
-                { name: "Supabase", abbr: "SB" },
-              ].map((tech) => (
-                <span
-                  key={tech.name}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-secondary/50 px-2 py-1 text-[10px] font-mono text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                  title={tech.name}
-                >
-                  <span className="w-4 h-4 rounded bg-foreground/10 flex items-center justify-center text-[8px] font-bold">
-                    {tech.abbr}
-                  </span>
-                  {tech.name}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col items-center justify-between gap-4 border-t border-foreground/10 py-6 md:flex-row">
+<div className="flex flex-col items-center justify-between gap-4 border-t border-foreground/10 py-6 md:flex-row">
           <p className="text-sm text-muted-foreground">{t.rights}</p>
         </div>
       </div>

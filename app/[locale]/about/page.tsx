@@ -263,12 +263,32 @@ export default function AboutPage() {
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                href={lp(siteRoutes.contact)}
+                href={lp(siteRoutes.services)}
                 className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium transition-colors hover:bg-secondary"
               >
-                {t("hero.contactNoon")}
+                {t("cta.viewServices")}
               </Link>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Criteria — what we focus on, most concrete section, shown early */}
+      <section className="site-section-lg bg-secondary/30">
+        <div className="site-shell">
+          <div className="max-w-2xl mb-10">
+            <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
+              <span className="w-8 h-px" style={{ backgroundColor: siteTones.brand.accent }} />
+              {t("criteria.eyebrow")}
+            </span>
+            <h2 className="text-2xl lg:text-3xl font-display tracking-tight">
+              {t("criteria.headline")}
+            </h2>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {optimizeFor.map((item, index) => (
+              <OptimizeCard key={index} item={item} index={index} />
+            ))}
           </div>
         </div>
       </section>
@@ -376,9 +396,7 @@ export default function AboutPage() {
       {/* Operating Model */}
       <section className="site-section-lg bg-secondary/30">
         <div className="site-shell">
-          <OperatingMetrics metrics={metrics} />
-
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 mt-16">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
             <div>
               <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
                 <span className="w-8 h-px" style={{ backgroundColor: siteTones.brand.accent }} />
@@ -412,26 +430,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* What we optimize for */}
-      <section className="site-section-lg">
-        <div className="site-shell">
-          <div className="max-w-2xl mb-10">
-            <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-4">
-              <span className="w-8 h-px" style={{ backgroundColor: siteTones.brand.accent }} />
-              {t("criteria.eyebrow")}
-            </span>
-            <h2 className="text-2xl lg:text-3xl font-display tracking-tight">
-              {t("criteria.headline")}
-            </h2>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {optimizeFor.map((item, index) => (
-              <OptimizeCard key={index} item={item} index={index} />
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Technology Stack */}
       <section id="technology" className="site-section-lg">
         <div className="site-shell">
@@ -446,15 +444,10 @@ export default function AboutPage() {
             <p className="text-muted-foreground">{t("stack.description")}</p>
           </div>
 
-          <div className="mt-10 grid items-start gap-8 lg:mt-12 lg:grid-cols-[minmax(0,1fr)_minmax(500px,0.95fr)] lg:gap-12 xl:gap-16">
-            <div className="grid gap-4 sm:grid-cols-2">
-              {technologyGroups.map((group, index) => (
-                <TechCard key={group.title} group={group} index={index} inStack={t("stack.inStack")} tools={t("stack.tools")} />
-              ))}
-            </div>
-            <div className="hidden lg:block lg:sticky lg:top-8">
-              <ArchitectureDiagram />
-            </div>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {technologyGroups.map((group, index) => (
+              <TechCard key={group.title} group={group} index={index} inStack={t("stack.inStack")} tools={t("stack.tools")} />
+            ))}
           </div>
         </div>
       </section>

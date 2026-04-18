@@ -76,7 +76,8 @@
       "headlineMuted": "built around real delivery.",
       "description": "Noon turns ambiguous software demand into concrete scope and delivers it in code. Execution quality, product judgment, AI-assisted leverage.",
       "startWithMaxwell": "Start with Maxwell",
-      "contactNoon": "Contact Noon"
+      "contactNoon": "Contact Noon",
+      "viewServices": "View services"
     },
     "thesis": {
       "eyebrow": "Thesis",
@@ -152,7 +153,7 @@
     "stack": {
       "eyebrow": "Stack",
       "headline": "Technology we use",
-      "description": "Technology choices follow the product, not the other way around.",
+      "description": "We use proven, maintainable tools that scale with the product — not trendy choices that create technical debt. Every project ships with code you own and can hand off.",
       "inStack": "In stack",
       "tools": "tools"
     },
@@ -193,11 +194,11 @@
         "examples": ["Internal tools", "Custom integrations", "Business systems"]
       }
     ],
-    "whatWeBuildEyebrow": "What we build",
-    "whatWeBuildHeadline": "Four delivery areas",
+    "whatWeBuildEyebrow": "Delivery areas",
+    "whatWeBuildHeadline": "Four types of software we deliver",
     "problemAreas": {
-      "eyebrow": "Problem areas",
-      "headline": "When software becomes the answer",
+      "eyebrow": "Does this sound familiar?",
+      "headline": "Common problems we solve",
       "items": [
         {
           "problem": "Manual work that should be automated",
@@ -259,10 +260,11 @@
   "templates": {
     "hero": {
       "eyebrow": "Templates",
-      "headline": "Pre-scoped builds",
-      "description": "A starting point for common software types. Each template maps to a clear delivery scope.",
+      "headline": "Starting points for real software",
+      "description": "Each template is a pre-defined scope for a common software type — ready to adapt to your business and delivered as production code.",
       "startWithMaxwell": "Start with Maxwell",
-      "viewAll": "View all templates"
+      "viewAll": "View all templates",
+      "viewServices": "View services"
     },
     "categories": "Categories",
     "allTemplates": "All Templates",
