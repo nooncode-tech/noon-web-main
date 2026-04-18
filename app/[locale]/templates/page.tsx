@@ -7,45 +7,14 @@ import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { SitePageFrame } from "@/app/_components/site/site-page-frame";
 import { useRevealOnView } from "@/hooks/use-reveal-on-view";
-import { templateCategories, templates } from "@/data/templates";
+import { templates } from "@/data/templates";
 import { siteRoutes } from "@/lib/site-config";
 import { siteChromeDots, siteTones } from "@/lib/site-tones";
 import { TemplateCard as AnimatedTemplateCard } from "@/components/landing/explore-builds-section";
 
-type TemplateItem = (typeof templates)[number];
-type TemplateCategory = (typeof templateCategories)[number];
-
 const templateBrandTone = siteTones.brand;
-const templateTonePrimary = siteTones.brand;
-const templateToneStructural = siteTones.client;
-const templateToneLifted = siteTones.data;
-const templateToneOperational = siteTones.gateway;
-const templateToneCommerce = siteTones.services;
 
 const LOCALES = ["en", "es", "fr", "de"];
-
-const templateCategoryTones: Record<
-  TemplateCategory,
-  { accent: string; border: string; surface: string }
-> = {
-  SaaS: templateTonePrimary,
-  Dashboards: templateToneStructural,
-  "Internal tools": templateToneOperational,
-  "AI assistants": templateToneLifted,
-  Marketplaces: templateToneCommerce,
-  "Booking platforms": templateToneCommerce,
-  "E-commerce": templateToneCommerce,
-  "Mobile apps": templateToneLifted,
-};
-
-// Group templates by category
-function getTemplatesByCategory() {
-  const grouped: Record<TemplateCategory, TemplateItem[]> = {} as Record<TemplateCategory, TemplateItem[]>;
-  for (const category of templateCategories) {
-    grouped[category] = templates.filter((t) => t.category === category);
-  }
-  return grouped;
-}
 
 // ============================================================================
 // TEMPLATE PREVIEW VISUAL
@@ -222,11 +191,6 @@ export default function TemplatesPage() {
 
   const t = useTranslations("templates");
 
-  const templatesByCategory = getTemplatesByCategory();
-  const categoriesWithTemplates = templateCategories.filter(
-    (cat) => templatesByCategory[cat]?.length > 0
-  );
-
   const { ref: headerRef, isVisible: headerVisible } = useRevealOnView<HTMLDivElement>({ threshold: 0.1 });
 
   return (
@@ -295,32 +259,10 @@ export default function TemplatesPage() {
             </span>
           </div>
 
-          <div className="space-y-16">
-            {categoriesWithTemplates.map((category) => {
-              const tone = templateCategoryTones[category];
-              const categoryTemplates = templatesByCategory[category];
-              return (
-                <div key={category} id={category.toLowerCase().replace(/\s+/g, "-")}>
-                  <div className="flex items-center gap-3 mb-6">
-                    <span
-                      className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.18em]"
-                      style={{ color: tone.accent }}
-                    >
-                      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: tone.accent }} />
-                      {category}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {categoryTemplates.length} template{categoryTemplates.length !== 1 ? "s" : ""}
-                    </span>
-                  </div>
-                  <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {categoryTemplates.map((template, index) => (
-                      <AnimatedTemplateCard key={template.slug} template={template} index={index} />
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {templates.map((template, index) => (
+              <AnimatedTemplateCard key={template.slug} template={template} index={index} />
+            ))}
           </div>
         </div>
       </section>
