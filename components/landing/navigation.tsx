@@ -166,16 +166,6 @@ export function Navigation() {
           <div className="hidden md:flex items-center gap-3">
             <Button
               asChild
-              variant="ghost"
-              size="sm"
-              className={`rounded-full transition-all duration-500 text-foreground/70 hover:text-foreground ${
-                isScrolled ? "px-4 h-8 text-xs" : "px-5"
-              }`}
-            >
-              <Link href={localHref("/signin")}>Sign in</Link>
-            </Button>
-            <Button
-              asChild
               size="sm"
               className={`bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-500 ${
                 isScrolled ? "px-4 h-8 text-xs" : "px-6"
