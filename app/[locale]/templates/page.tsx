@@ -25,9 +25,9 @@ function TemplatePreviewVisual() {
   const { ref: previewRef, isVisible } = useRevealOnView<HTMLDivElement>({ threshold: 0.3 });
 
   const templatePreviews = [
-    { name: "Dashboard", tone: templateToneStructural },
-    { name: "Portal",    tone: templateTonePrimary },
-    { name: "Platform",  tone: templateToneLifted },
+    { name: "Dashboard", tone: siteTones.client },
+    { name: "Portal",    tone: siteTones.brand },
+    { name: "Platform",  tone: siteTones.data },
   ] as const;
 
   useEffect(() => {
