@@ -16,6 +16,14 @@ export function AnimatedWave() {
     const chars = "·∘○◯◌●◉";
     let time = 0;
 
+    const getFgRgb = () => {
+      const hex = getComputedStyle(document.documentElement).getPropertyValue("--foreground").trim();
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return isNaN(r) ? [0, 0, 0] : [r, g, b];
+    };
+
     const resize = () => {
       const dpr = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
@@ -54,7 +62,8 @@ export function AnimatedWave() {
           const charIndex = Math.floor(normalized * (chars.length - 1));
           const alpha = 0.15 + normalized * 0.5;
 
-          ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
+          const [r, g, b] = getFgRgb();
+          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
           ctx.fillText(chars[charIndex], px, py);
         }
       }

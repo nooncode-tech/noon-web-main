@@ -113,7 +113,7 @@ function ConnectionHubVisual({ routingLabels }: { routingLabels: string[] }) {
                   x2={x2}
                   y2={y2}
                   className="transition-all duration-500"
-                  stroke={index === activeNode ? node.tone.accent : "rgba(24, 21, 18, 0.12)"}
+                  stroke={index === activeNode ? node.tone.accent : "color-mix(in srgb, var(--foreground) 12%, transparent)"}
                   strokeWidth={index === activeNode ? "1.5" : "1"}
                   strokeDasharray={index === activeNode ? "0" : "3 2"}
                 />

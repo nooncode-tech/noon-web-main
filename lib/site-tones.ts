@@ -58,12 +58,13 @@ export const siteTones = {
     strongSurfaceAlpha: 0.2,
     shadowAlpha: 0.26,
   }),
-  brandDeep: createTone("#000000", [0, 0, 0], {
+  brandDeep: createTone("var(--foreground)", [128, 128, 128], {
     borderAlpha: 0.22,
     surfaceAlpha: 0.1,
     mutedSurfaceAlpha: 0.06,
     strongSurfaceAlpha: 0.16,
     shadowAlpha: 0.2,
+    contrast: "var(--background)",
   }),
   client: createTone("#6b8cff", [107, 140, 255], {
     borderAlpha: 0.32,

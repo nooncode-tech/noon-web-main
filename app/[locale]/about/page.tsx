@@ -445,9 +445,9 @@ function TechCard({ group, index, inStack, tools }: {
             className="rounded-md border px-2.5 py-1 text-[11px] font-medium transition-all duration-300"
             style={{
               transitionDelay: `${i * 50}ms`,
-              borderColor: isHovered ? group.tone.border : "rgba(24, 21, 18, 0.08)",
-              backgroundColor: isHovered ? group.tone.strongSurface : "rgba(24, 21, 18, 0.04)",
-              color: isHovered ? group.tone.accent : "rgba(24, 21, 18, 0.62)",
+              borderColor: isHovered ? group.tone.border : "color-mix(in srgb, var(--foreground) 8%, transparent)",
+              backgroundColor: isHovered ? group.tone.strongSurface : "color-mix(in srgb, var(--foreground) 4%, transparent)",
+              color: isHovered ? group.tone.accent : "color-mix(in srgb, var(--foreground) 62%, transparent)",
             }}
           >
             {item}

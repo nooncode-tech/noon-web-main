@@ -313,7 +313,7 @@ function ProcessFlowDiagram({ processSteps }: { processSteps: ProcessStep[] }) {
                   <div
                     className="h-full w-full transition-all duration-500"
                     style={{
-                      backgroundColor: activeStep > index ? processSteps[index + 1].tone.accent : "rgba(24, 21, 18, 0.12)",
+                      backgroundColor: activeStep > index ? processSteps[index + 1].tone.accent : "color-mix(in srgb, var(--foreground) 12%, transparent)",
                     }}
                   />
                 </div>
@@ -512,8 +512,8 @@ const CategoryCard = memo(function CategoryCard({
                   className="text-xs px-3 py-1.5 rounded-full border transition-colors duration-300"
                   style={{
                     borderColor: tone.border,
-                    backgroundColor: isHovered ? tone.surface : "rgba(24, 21, 18, 0.04)",
-                    color: isHovered ? tone.accent : "rgba(24, 21, 18, 0.62)",
+                    backgroundColor: isHovered ? tone.surface : "color-mix(in srgb, var(--foreground) 4%, transparent)",
+                    color: isHovered ? tone.accent : "color-mix(in srgb, var(--foreground) 62%, transparent)",
                   }}
                 >
                   {example}
@@ -582,7 +582,7 @@ function SolutionCard({
             <span
               className="absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-card transition-all duration-300"
               style={{
-                backgroundColor: isHovered ? tone.accent : "rgba(24, 21, 18, 0.18)",
+                backgroundColor: isHovered ? tone.accent : "color-mix(in srgb, var(--foreground) 18%, transparent)",
                 transform: isHovered ? "scale(1)" : "scale(0.75)",
               }}
             />
@@ -606,7 +606,7 @@ function SolutionCard({
             >
               <span
                 className="h-1.5 w-1.5 shrink-0 rounded-full transition-colors duration-300"
-                style={{ backgroundColor: isHovered ? tone.accent : "rgba(24, 21, 18, 0.24)" }}
+                style={{ backgroundColor: isHovered ? tone.accent : "color-mix(in srgb, var(--foreground) 24%, transparent)" }}
               />
               {signal}
             </div>
