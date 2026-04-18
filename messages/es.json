@@ -262,7 +262,8 @@
       "headline": "Construcciones pre-definidas",
       "description": "Un punto de partida para tipos de software comunes. Cada plantilla mapea a un alcance de entrega claro.",
       "startWithMaxwell": "Empezar con Maxwell",
-      "viewAll": "Ver todas las plantillas"
+      "viewAll": "Ver todas las plantillas",
+      "viewServices": "Ver servicios"
     },
     "categories": "Categorías",
     "allTemplates": "Todas las plantillas",

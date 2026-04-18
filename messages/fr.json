@@ -262,7 +262,8 @@
       "headline": "Constructions pré-définies",
       "description": "Un point de départ pour les types de logiciels courants. Chaque modèle correspond à un périmètre de livraison clair.",
       "startWithMaxwell": "Commencer avec Maxwell",
-      "viewAll": "Voir tous les modèles"
+      "viewAll": "Voir tous les modèles",
+      "viewServices": "Voir les services"
     },
     "categories": "Catégories",
     "allTemplates": "Tous les modèles",

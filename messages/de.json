@@ -262,7 +262,8 @@
       "headline": "Vordefinierte Builds",
       "description": "Ein Ausgangspunkt für gängige Softwaretypen. Jede Vorlage entspricht einem klaren Lieferumfang.",
       "startWithMaxwell": "Mit Maxwell starten",
-      "viewAll": "Alle Vorlagen ansehen"
+      "viewAll": "Alle Vorlagen ansehen",
+      "viewServices": "Dienste ansehen"
     },
     "categories": "Kategorien",
     "allTemplates": "Alle Vorlagen",
