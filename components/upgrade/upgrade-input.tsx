@@ -185,7 +185,7 @@ export function UpgradeInput({
               />
               <span className="space-y-0.5">
                 <span className="block text-sm font-medium text-foreground">{m.label}</span>
-                <span className="block text-xs text-muted-foreground">{m.description}</span>
+                <span className="block text-xs text-foreground/70">{m.description}</span>
               </span>
             </label>
           ))}
