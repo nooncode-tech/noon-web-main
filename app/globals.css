@@ -614,5 +614,89 @@
       opacity: 0.6;
     }
   }
+
+  /* ── Upgrade hero narrative (10s loop, choreographed) ─────────────────── */
+
+  /* URL text reveals via clip-path between 20% (2s) and 35% (3.5s) */
+  @keyframes upgrade-type-reveal {
+    0%, 20% {
+      clip-path: inset(0 100% 0 0);
+    }
+    35%, 95% {
+      clip-path: inset(0 0% 0 0);
+    }
+    100% {
+      clip-path: inset(0 100% 0 0);
+    }
+  }
+
+  /* Caret blinks before reveal completes, then hides */
+  @keyframes upgrade-caret-blink {
+    0%, 18% { opacity: 0; }
+    20%, 24%, 28%, 32% { opacity: 1; }
+    22%, 26%, 30%, 36%, 100% { opacity: 0; }
+  }
+
+  /* Generate button pulses 35-50% (3.5s-5s) */
+  @keyframes upgrade-cta-pulse {
+    0%, 35%, 50%, 100% {
+      transform: scale(1);
+      box-shadow: 0 4px 14px rgba(51, 71, 239, 0.35);
+    }
+    42% {
+      transform: scale(1.06);
+      box-shadow: 0 6px 24px rgba(51, 71, 239, 0.6), 0 0 0 6px rgba(106, 99, 242, 0.18);
+    }
+  }
+
+  /* Scan line sweeps top→bottom 50-78% (5s-7.8s) */
+  @keyframes upgrade-scan-sweep {
+    0%, 50% {
+      transform: translateY(0%);
+      opacity: 0;
+    }
+    52% {
+      opacity: 1;
+    }
+    76% {
+      opacity: 1;
+    }
+    78%, 100% {
+      transform: translateY(2400%);
+      opacity: 0;
+    }
+  }
+
+  /* Site mockup colors fade in 65%-90% (6.5s-9s), hold, then reset */
+  @keyframes upgrade-brighten {
+    0%, 65% {
+      opacity: 0;
+    }
+    85%, 95% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  /* Greyscale veil fades OUT during brighten (inverse of upgrade-brighten) */
+  @keyframes upgrade-fade-old {
+    0%, 65% {
+      opacity: 1;
+    }
+    85%, 95% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .upgrade-anim {
+      animation: none !important;
+    }
+  }
 }
 
