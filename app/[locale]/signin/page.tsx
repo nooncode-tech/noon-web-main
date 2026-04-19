@@ -26,7 +26,7 @@ export default async function SignInPage({ searchParams }: Props) {
     <SitePageFrame>
       <section className="min-h-[calc(100vh-4rem)] px-6 py-16 lg:py-24">
         <div className="mx-auto max-w-xl">
-          <div className="rounded-[28px] border border-border bg-card/95 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.08)] backdrop-blur">
+          <div className="rounded-[10px] border border-border bg-card/95 p-8 shadow-[0_24px_80px_rgba(0,0,0,0.08)] backdrop-blur">
             <p className="text-xs font-mono uppercase tracking-[0.28em] text-muted-foreground">
               Maxwell access
             </p>

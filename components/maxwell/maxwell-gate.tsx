@@ -180,7 +180,7 @@ export function MaxwellGate({
       </section>
 
       <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
-        <DialogContent className="max-w-md rounded-[28px] border-border bg-card p-8">
+        <DialogContent className="max-w-md rounded-[10px] border-border bg-card p-8">
           <DialogHeader>
             <DialogTitle className="text-2xl font-display tracking-tight">
               Sign in before starting Maxwell
