@@ -271,6 +271,14 @@
       "headline": "Vous ne trouvez pas ce dont vous avez besoin ?",
       "description": "Commencez avec Maxwell et décrivez ce que vous voulez construire.",
       "startWithMaxwell": "Commencer avec Maxwell"
+    },
+    "detail": {
+      "cta": {
+        "headline": "Prêt à démarrer ?",
+        "description": "Apportez ce modèle dans une conversation avec Maxwell et laissez Noon confirmer s'il correspond à votre projet.",
+        "startWithMaxwell": "Commencer avec Maxwell",
+        "browseAll": "Voir tous les modèles"
+      }
     }
   },
   "contact": {

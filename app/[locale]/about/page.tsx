@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { SitePageFrame } from "@/app/_components/site/site-page-frame";
+import { SiteCtaBlock } from "@/app/_components/site/site-cta-block";
 import { useRevealOnView } from "@/hooks/use-reveal-on-view";
 import { siteRoutes } from "@/lib/site-config";
 import { siteTones } from "@/lib/site-tones";
@@ -321,33 +322,12 @@ export default function AboutPage() {
 
       <FaqSection />
 
-      {/* CTA */}
-      <section className="site-section-lg bg-foreground text-background relative overflow-hidden">
-        <div aria-hidden="true" className="pointer-events-none absolute right-0 top-0 h-[400px] w-[400px] translate-x-1/3 -translate-y-1/3 rounded-full opacity-[0.12] blur-[80px]" style={{ background: "radial-gradient(circle, #6a63f2 0%, transparent 70%)" }} />
-        <div className="site-shell text-center relative z-10">
-          <h2 className="text-2xl lg:text-3xl font-display tracking-tight mb-4">
-            {t("cta.headline")}
-          </h2>
-          <p className="text-background/70 mb-8 max-w-md mx-auto">
-            {t("cta.description")}
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link
-              href={siteRoutes.maxwell}
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
-            >
-              {t("cta.startWithMaxwell")}
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href={lp(siteRoutes.services)}
-              className="inline-flex items-center gap-2 rounded-full border border-background/20 px-6 py-3 text-sm font-medium transition-colors hover:bg-background/10"
-            >
-              {t("cta.viewServices")}
-            </Link>
-          </div>
-        </div>
-      </section>
+      <SiteCtaBlock
+        title={t("cta.headline")}
+        description={t("cta.description")}
+        primaryAction={{ label: t("cta.startWithMaxwell"), href: siteRoutes.maxwell }}
+        secondaryAction={{ label: t("cta.viewServices"), href: lp(siteRoutes.services) }}
+      />
     </SitePageFrame>
   );
 }

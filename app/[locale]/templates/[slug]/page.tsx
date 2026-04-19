@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, Check, X } from "lucide-react";
+import { getTranslations } from "next-intl/server";
+import { ArrowLeft, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SitePageFrame } from "@/app/_components/site/site-page-frame";
+import { SiteCtaBlock } from "@/app/_components/site/site-cta-block";
 import { templates } from "@/data/templates";
 import { getContactHref, getStartWithMaxwellHref, siteRoutes } from "@/lib/site-config";
 
@@ -37,12 +39,14 @@ export async function generateMetadata({ params }: TemplateDetailPageProps): Pro
 }
 
 export default async function TemplateDetailPage({ params }: TemplateDetailPageProps) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const template = templates.find((item) => item.slug === slug);
 
   if (!template) {
     notFound();
   }
+
+  const t = await getTranslations({ locale, namespace: "templates.detail.cta" });
 
   return (
     <SitePageFrame>
@@ -175,27 +179,20 @@ export default async function TemplateDetailPage({ params }: TemplateDetailPageP
           </p>
         </div>
 
-        {/* Bottom CTA */}
-        <div className="flex flex-col items-center text-center">
-          <p className="text-sm text-muted-foreground mb-6 max-w-lg">
-            Ready to start? Bring this template into a conversation with Maxwell and let Noon confirm whether it fits your project.
-          </p>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="lg" className="h-11 rounded-full px-6 text-sm">
-              <Link href={getStartWithMaxwellHref(template.prompt)}>
-                Start with Maxwell
-              </Link>
-            </Button>
-            <Link
-              href={siteRoutes.templates}
-              className="inline-flex items-center justify-center gap-2 text-sm font-medium text-foreground transition-all duration-300 hover:gap-3 h-11"
-            >
-              Browse all templates
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
       </div>
+
+      <SiteCtaBlock
+        title={t("headline")}
+        description={t("description")}
+        primaryAction={{
+          label: t("startWithMaxwell"),
+          href: getStartWithMaxwellHref(template.prompt),
+        }}
+        secondaryAction={{
+          label: t("browseAll"),
+          href: siteRoutes.templates,
+        }}
+      />
     </SitePageFrame>
   );
 }

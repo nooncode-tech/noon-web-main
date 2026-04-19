@@ -271,6 +271,14 @@
       "headline": "¿No encuentras lo que necesitas?",
       "description": "Empieza con Maxwell y describe lo que quieres construir.",
       "startWithMaxwell": "Empezar con Maxwell"
+    },
+    "detail": {
+      "cta": {
+        "headline": "¿Listo para empezar?",
+        "description": "Lleva esta plantilla a una conversación con Maxwell y deja que Noon confirme si encaja con tu proyecto.",
+        "startWithMaxwell": "Empezar con Maxwell",
+        "browseAll": "Ver todas las plantillas"
+      }
     }
   },
   "contact": {

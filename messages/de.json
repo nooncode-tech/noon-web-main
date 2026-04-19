@@ -271,6 +271,14 @@
       "headline": "Finden Sie nicht, was Sie brauchen?",
       "description": "Starten Sie mit Maxwell und beschreiben Sie, was Sie bauen möchten.",
       "startWithMaxwell": "Mit Maxwell starten"
+    },
+    "detail": {
+      "cta": {
+        "headline": "Bereit zu starten?",
+        "description": "Bringen Sie diese Vorlage in ein Gespräch mit Maxwell und lassen Sie Noon bestätigen, ob sie zu Ihrem Projekt passt.",
+        "startWithMaxwell": "Mit Maxwell starten",
+        "browseAll": "Alle Vorlagen ansehen"
+      }
     }
   },
   "contact": {

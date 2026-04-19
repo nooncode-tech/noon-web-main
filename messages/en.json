@@ -272,6 +272,14 @@
       "headline": "Don't see what you need?",
       "description": "Start with Maxwell and describe what you want to build.",
       "startWithMaxwell": "Start with Maxwell"
+    },
+    "detail": {
+      "cta": {
+        "headline": "Ready to start?",
+        "description": "Bring this template into a conversation with Maxwell and let Noon confirm whether it fits your project.",
+        "startWithMaxwell": "Start with Maxwell",
+        "browseAll": "Browse all templates"
+      }
     }
   },
   "contact": {

@@ -6,6 +6,7 @@ import { ArrowRight } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { SitePageFrame } from "@/app/_components/site/site-page-frame";
+import { SiteCtaBlock } from "@/app/_components/site/site-cta-block";
 import { useRevealOnView } from "@/hooks/use-reveal-on-view";
 import { templates } from "@/data/templates";
 import { siteRoutes } from "@/lib/site-config";
@@ -267,24 +268,11 @@ export default function TemplatesPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="site-section-lg bg-foreground text-background">
-        <div className="site-shell text-center">
-          <h2 className="text-2xl lg:text-3xl font-display tracking-tight mb-4">
-            {t("cta.headline")}
-          </h2>
-          <p className="text-background/70 mb-8 max-w-md mx-auto">
-            {t("cta.description")}
-          </p>
-          <Link
-            href={siteRoutes.maxwell}
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
-          >
-            {t("cta.startWithMaxwell")}
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-      </section>
+      <SiteCtaBlock
+        title={t("cta.headline")}
+        description={t("cta.description")}
+        primaryAction={{ label: t("cta.startWithMaxwell"), href: siteRoutes.maxwell }}
+      />
     </SitePageFrame>
   );
 }
