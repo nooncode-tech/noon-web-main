@@ -139,7 +139,7 @@ export async function createV0Prototype(params: V0CreateParams): Promise<V0Resul
   const result = await v0.chats.create({
     system: systemPrompt ?? DEFAULT_V0_SYSTEM,
     message: prompt,
-    responseMode: "sync",
+    responseMode: "async",
     modelConfiguration: {
       imageGenerations: false,
       thinking: false,
@@ -165,11 +165,36 @@ export async function updateV0Prototype(params: V0SendMessageParams): Promise<V0
   const reply = await v0.chats.sendMessage({
     chatId,
     message: prompt,
-    responseMode: "sync",
+    responseMode: "async",
   } as Parameters<typeof v0.chats.sendMessage>[0]) as { latestVersion?: { demoUrl?: string } };
 
   return {
     chatId,
     demoUrl: reply.latestVersion?.demoUrl ?? "",
+  };
+}
+
+// ---------------------------------------------------------------------------
+// V0 – Obtener estado de generación
+// ---------------------------------------------------------------------------
+
+export type V0StatusResult = {
+  status: "pending" | "completed" | "failed";
+  demoUrl?: string;
+};
+
+/**
+ * Consulta el estado actual de un chat/prototipo en V0
+ */
+export async function getV0PrototypeStatus(chatId: string): Promise<V0StatusResult> {
+  const result = await v0.chats.getById(chatId) as { latestVersion?: { status: "pending" | "completed" | "failed"; demoUrl?: string } };
+  
+  if (!result.latestVersion) {
+    return { status: "pending" };
+  }
+
+  return {
+    status: result.latestVersion.status,
+    demoUrl: result.latestVersion.demoUrl,
   };
 }

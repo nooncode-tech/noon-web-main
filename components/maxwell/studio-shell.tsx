@@ -314,7 +314,16 @@ export function StudioShell({
         version_number?: number;
         corrections_used?: number;
         message?: string;
+        pending?: boolean;
+        session_id?: string;
+        action?: string;
       };
+
+      if (data.pending && data.chatId && data.session_id) {
+        // Start polling
+        pollV0Status(data.chatId, data.session_id, data.action ?? "create");
+        return;
+      }
 
       if (data.chatId && data.demoUrl) {
         const newVersion: PrototypeVersion = {
@@ -359,6 +368,96 @@ export function StudioShell({
     }
   }
 
+  function handlePollSuccess(data: any, action: string) {
+    if (action === "create") {
+      const newVersion: PrototypeVersion = {
+        chatId: data.chatId,
+        demoUrl: data.demoUrl,
+        versionNumber: data.version_number ?? 1,
+      };
+      setPrototypeVersions((prev) => [...prev, newVersion]);
+      if (data.corrections_used !== undefined) setCorrectionsUsed(data.corrections_used);
+      setPhase("prototype_ready");
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "Here's Version 1 based on everything we've covered. Take a look — you can request up to 2 adjustments before moving to the proposal.",
+        },
+      ]);
+    } else {
+      if (currentVersion) {
+        const updatedVersion: PrototypeVersion = {
+          chatId: data.chatId || currentVersion.chatId,
+          demoUrl: data.demoUrl,
+          versionNumber: data.version_number ?? currentVersion.versionNumber + 1,
+        };
+        setPrototypeVersions((prev) => [...prev, updatedVersion]);
+      }
+
+      if (data.corrections_used !== undefined) {
+         setCorrectionsUsed(data.corrections_used);
+      }
+      setPhase("prototype_ready");
+
+      const remaining = MAX_CORRECTIONS - (data.corrections_used ?? correctionsUsed + 1);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            remaining > 0
+              ? `Here's the updated version (Version ${data.version_number ?? (currentVersion?.versionNumber ?? 0) + 1}). You have ${remaining} adjustment${remaining === 1 ? "" : "s"} remaining.`
+              : "Here's the final adjusted version. Adjustments are complete — approve to move forward or request the formal proposal.",
+        },
+      ]);
+    }
+  }
+
+  function handlePollError() {
+    setPhase("clarifying");
+    setPrototypeFailed(true);
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        content:
+          "I wasn't able to generate the preview right now — it may be a temporary issue. You can try again or continue chatting to refine the idea.",
+      },
+    ]);
+  }
+
+  async function pollV0Status(chatId: string, pollSessionId: string, action: string, prompt?: string) {
+    try {
+      const params = new URLSearchParams({
+         chatId,
+         session_id: pollSessionId,
+         action,
+      });
+      if (prompt) {
+         params.set("prompt", prompt);
+      }
+      const res = await fetch(`/api/maxwell/prototype/poll?${params.toString()}`);
+      if (!res.ok) {
+         return handlePollError();
+      }
+      const data = await res.json();
+
+      if (data.status === "pending") {
+         setTimeout(() => pollV0Status(chatId, pollSessionId, action, prompt), 5000);
+      } else if (data.status === "completed") {
+         handlePollSuccess(data, action);
+      } else {
+         // failed or error
+         handlePollError();
+      }
+    } catch {
+       handlePollError();
+    }
+  }
+
+
   // ── Corrections ────────────────────────────────────────────────────────────
 
   async function handleRequestCorrection(correctionPrompt: string) {
@@ -389,6 +488,9 @@ export function StudioShell({
         corrections_used?: number;
         code?: string;
         message?: string;
+        pending?: boolean;
+        session_id?: string;
+        action?: string;
       };
 
       // Hard guard hit on server
@@ -398,6 +500,11 @@ export function StudioShell({
           ...prev,
           { role: "assistant", content: data.message ?? "No more adjustments available." },
         ]);
+        return;
+      }
+
+      if (data.pending && data.chatId && data.session_id) {
+        pollV0Status(data.chatId, data.session_id, data.action ?? "update", correctionPrompt);
         return;
       }
 

@@ -77,30 +77,17 @@ export async function POST(request: Request) {
         );
       }
 
-      const version = await createStudioVersion({
-        studioSessionId: session.id,
-        previewUrl: result.demoUrl,
-        v0ChatId: result.chatId,
-        source: "initial",
-      });
+      // We omit creating the StudioVersion here because the prototype is not ready.
+      // The poll endpoint will create it when it's complete.
 
-      await appendStudioMessage({
-        studioSessionId: session.id,
-        role: "assistant",
-        content: `Prototype Version ${version.versionNumber} generated.`,
-        messageType: "prototype_announcement",
-      });
-
-      await updateStudioSessionStatus(session.id, "prototype_ready");
+      // No esperamos a generar el mensaje ni la inserción si es asíncrono
+      // La API responderá de inmediato con el chatId en pending=true
 
       return NextResponse.json({
+        pending: true,
         chatId: result.chatId,
-        demoUrl: result.demoUrl,
         session_id: session.id,
-        session_status: "prototype_ready",
-        version_number: version.versionNumber,
-        corrections_used: session.correctionsUsed,
-        max_corrections: session.maxCorrections,
+        action: "create",
       });
     }
 
@@ -131,32 +118,15 @@ export async function POST(request: Request) {
     }
 
     const updatedSession = await incrementCorrectionsUsed(session.id);
-    const version = await createStudioVersion({
-      studioSessionId: session.id,
-      previewUrl: result.demoUrl,
-      v0ChatId: result.chatId,
-      changeSummary: payload.prompt,
-      source: "correction",
-    });
-
-    await appendStudioMessage({
-      studioSessionId: session.id,
-      role: "user",
-      content: payload.prompt,
-      messageType: "correction_request",
-    });
-
-    await updateStudioSessionStatus(session.id, "revision_applied");
-    await updateStudioSessionStatus(session.id, "prototype_ready");
+    // Nota: Como la llamada ahora es asíncrona, no guardaremos la versión aún.
+    // Retornamos de inmediato a pending=true para que el cliente comience a hacer polling.
 
     return NextResponse.json({
+      pending: true,
       chatId: result.chatId,
-      demoUrl: result.demoUrl,
       session_id: session.id,
-      session_status: "prototype_ready",
-      version_number: version.versionNumber,
-      corrections_used: updatedSession.correctionsUsed,
-      max_corrections: updatedSession.maxCorrections,
+      prompt: payload.prompt,
+      action: "update",
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
