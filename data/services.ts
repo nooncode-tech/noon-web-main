@@ -203,15 +203,21 @@ export const processSteps = [
 // Next Steps
 export const servicesNextSteps = [
   {
-    title: "Browse starting points",
-    description: "Review templates and structured starting points for common software categories.",
-    href: siteRoutes.templates,
-    linkLabel: "View templates",
+    title: "Review the service structure",
+    description: "Compare Custom Development, Upgrade, Engineering Support, and Audit before choosing a path.",
+    href: siteRoutes.services,
+    linkLabel: "View services",
+  },
+  {
+    title: "Upgrade an existing website",
+    description: "Use the Upgrade path when something live needs a clearer, stronger version.",
+    href: siteRoutes.upgrade,
+    linkLabel: "Open Upgrade",
   },
   {
     title: "Start a conversation",
     description: "Use Maxwell to describe your project and get an initial scope assessment.",
-    href: siteRoutes.maxwell,
+    href: siteRoutes.maxwellStudio,
     linkLabel: "Open Maxwell",
   },
   {

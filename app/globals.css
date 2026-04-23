@@ -154,6 +154,72 @@
     @apply py-16 lg:py-20;
   }
 
+  .site-hero-title {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    line-height: 1.1;
+    letter-spacing: 0;
+  }
+
+  .site-hero-copy {
+    font-size: 0.8125rem;
+    line-height: 1.7;
+  }
+
+  .site-section-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    line-height: 1.18;
+    letter-spacing: 0;
+  }
+
+  .site-section-copy {
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+
+  .site-card-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    line-height: 1.25;
+    letter-spacing: 0;
+  }
+
+  .site-card-copy {
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+
+  .site-meta-label {
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  @media (min-width: 640px) {
+    .site-hero-title {
+      font-size: 1.6rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .site-hero-title {
+      font-size: clamp(1.6rem, 2.5vw, 2.15rem);
+    }
+
+    .site-hero-copy {
+      font-size: 0.875rem;
+    }
+
+    .site-section-title {
+      font-size: 1.5rem;
+    }
+
+    .site-card-title {
+      font-size: 1.125rem;
+    }
+  }
+
   .font-display {
     font-family: var(--font-display);
   }
@@ -699,4 +765,3 @@
     }
   }
 }
-

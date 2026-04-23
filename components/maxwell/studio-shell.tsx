@@ -78,7 +78,6 @@ export function StudioShell({
 
   // Derived
   const currentVersion = prototypeVersions[prototypeVersions.length - 1] ?? null;
-  const selectedVersion = prototypeVersions[selectedVersionIndex] ?? currentVersion;
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const hasStartedRef = useRef(false);
@@ -111,12 +110,13 @@ export function StudioShell({
       return;
     }
 
-    // Fresh session path: start conversation with prompt
+    // Fresh empty Studio path: wait for the first message directly in Studio.
     if (!initialPrompt.trim()) {
-      router.replace(siteRoutes.maxwell);
+      hasStartedRef.current = true;
       return;
     }
 
+    // Fresh session path: start conversation with prompt
     hasStartedRef.current = true;
     setMessages([{ role: "user", content: initialPrompt }]);
     setPhase("clarifying");
@@ -140,7 +140,7 @@ export function StudioShell({
     try {
       const res = await fetch(`/api/maxwell/studio/session?session_id=${id}`);
       if (!res.ok) {
-        router.replace(siteRoutes.maxwell);
+        router.replace(siteRoutes.maxwellStudio);
         return;
       }
 
@@ -168,7 +168,7 @@ export function StudioShell({
         setActiveView("preview");
       }
     } catch {
-      router.replace(siteRoutes.maxwell);
+      router.replace(siteRoutes.maxwellStudio);
     } finally {
       setIsRehydrating(false);
     }
@@ -267,7 +267,7 @@ export function StudioShell({
     if (!msg || isThinking) return;
     setInput("");
     setMessages((prev) => [...prev, { role: "user", content: msg }]);
-    void sendToMaxwell(msg);
+    void sendToMaxwell(msg, !sessionId && messages.length === 0);
   }
 
   // ── Prototype ────────────────────────────────────────────────────────────────

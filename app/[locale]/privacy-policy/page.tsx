@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   description: privacyPolicyDocument.summary,
 };
 
-export default function PrivacyPolicyPage() {
-  return <LegalDocumentPage document={privacyPolicyDocument} />;
+type PrivacyPolicyPageProps = {
+  params: Promise<{ locale: string }>;
+};
+
+export default async function PrivacyPolicyPage({ params }: PrivacyPolicyPageProps) {
+  const { locale } = await params;
+
+  return <LegalDocumentPage document={privacyPolicyDocument} locale={locale} />;
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { FileText, Shield, Cookie, Scale } from "lucide-react";
 import { SitePageFrame } from "@/app/_components/site/site-page-frame";
+import { siteRoutes } from "@/lib/site-config";
 
 export const metadata: Metadata = {
   title: "Legal | Noon",
@@ -39,19 +40,26 @@ const legalDocs = [
   },
 ];
 
-export default function LegalPage() {
+type LegalPageProps = {
+  params: Promise<{ locale: string }>;
+};
+
+export default async function LegalPage({ params }: LegalPageProps) {
+  const { locale } = await params;
+  const lp = (href: string) => `/${locale}${href}`;
+
   return (
     <SitePageFrame>
-      <div className="mx-auto max-w-4xl px-6 py-24">
+      <div className="site-shell py-12 lg:py-16">
         {/* Header */}
-        <div className="mb-16 text-center">
-          <p className="mb-4 text-sm font-medium uppercase tracking-wider text-muted-foreground">
+        <div className="mx-auto mb-10 max-w-3xl text-center lg:mb-12">
+          <p className="site-meta-label mb-4 font-mono text-muted-foreground">
             Legal
           </p>
-          <h1 className="mb-4 text-4xl font-medium tracking-tight md:text-5xl">
+          <h1 className="site-hero-title mb-4">
             Legal Documents
           </h1>
-          <p className="mx-auto max-w-lg text-lg text-muted-foreground">
+          <p className="site-hero-copy mx-auto max-w-lg text-muted-foreground">
             Policies and terms that govern our services
           </p>
         </div>
@@ -63,15 +71,15 @@ export default function LegalPage() {
             return (
               <Link
                 key={doc.slug}
-                href={`/${doc.slug}`}
+                href={lp(`/${doc.slug}`)}
                 className="group flex gap-4 rounded-xl border border-border bg-card p-6 transition-all hover:border-foreground/20 hover:shadow-lg"
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-secondary">
                   <Icon className="h-6 w-6 text-foreground" />
                 </div>
                 <div className="min-w-0">
-                  <h2 className="mb-1 font-medium group-hover:underline">{doc.title}</h2>
-                  <p className="mb-2 text-sm text-muted-foreground">{doc.description}</p>
+                  <h2 className="site-card-title mb-1 group-hover:underline">{doc.title}</h2>
+                  <p className="site-card-copy mb-2 text-muted-foreground">{doc.description}</p>
                   <p className="text-xs text-muted-foreground/70">Updated {doc.updated}</p>
                 </div>
               </Link>
@@ -81,8 +89,8 @@ export default function LegalPage() {
 
         {/* Contact */}
         <div className="mt-16 rounded-xl border border-border bg-card p-8 text-center">
-          <h2 className="mb-2 text-lg font-medium">Questions?</h2>
-          <p className="mb-4 text-muted-foreground">
+          <h2 className="site-card-title mb-2">Questions?</h2>
+          <p className="site-card-copy mb-4 text-muted-foreground">
             Contact us at{" "}
             <a
               href="mailto:noon.message@gmail.com"
@@ -91,9 +99,15 @@ export default function LegalPage() {
               noon.message@gmail.com
             </a>
           </p>
-          <p className="text-sm text-muted-foreground">
+          <p className="site-card-copy text-muted-foreground">
             Wilmington, Delaware, United States
           </p>
+          <Link
+            href={lp(siteRoutes.contact)}
+            className="mt-5 inline-flex h-11 items-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            Contact Noon
+          </Link>
         </div>
       </div>
     </SitePageFrame>

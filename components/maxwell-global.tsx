@@ -10,11 +10,11 @@ export function MaxwellGlobal() {
   const pathname = usePathname();
 
   // Suppress on Maxwell pages — the user is already in the Maxwell flow.
-  if (pathname.startsWith("/maxwell")) return null;
+  if (pathname.includes("/maxwell")) return null;
 
   return (
     <Link
-      href={siteRoutes.maxwell}
+      href={siteRoutes.maxwellStudio}
       aria-label="Start with Maxwell"
       className="fixed bottom-6 right-6 z-[99] flex items-center gap-2.5 rounded-full border border-border pl-4 pr-5 py-3 shadow-xl transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"
       style={{

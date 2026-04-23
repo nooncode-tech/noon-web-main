@@ -24,6 +24,11 @@ export type LegalDocument = {
   sections: LegalDocumentSection[];
 };
 
+type LegalDocumentPageProps = {
+  document: LegalDocument;
+  locale?: string;
+};
+
 function toSectionId(title: string) {
   return title
     .toLowerCase()
@@ -31,7 +36,9 @@ function toSectionId(title: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-export function LegalDocumentPage({ document }: { document: LegalDocument }) {
+export function LegalDocumentPage({ document, locale = "en" }: LegalDocumentPageProps) {
+  const lp = (href: string) => (href.startsWith("/") ? `/${locale}${href}` : href);
+
   return (
     <SitePageFrame>
       <PageHero
@@ -43,12 +50,12 @@ export function LegalDocumentPage({ document }: { document: LegalDocument }) {
             <span className="block">{document.summary}</span>
           </span>
         }
-        primaryAction={{ label: "Contact Noon", href: getContactHref("legal") }}
+        primaryAction={{ label: "Contact Noon", href: lp(getContactHref("legal")) }}
       />
 
       <PageSection className="pt-0">
         <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
-          <aside className="space-y-4 lg:sticky lg:top-32 lg:self-start">
+          <div className="space-y-4 lg:sticky lg:top-32 lg:self-start">
             <div className="rounded-[10px] border border-border bg-card p-6">
               <h2 className="mb-4 text-sm font-mono uppercase tracking-[0.16em] text-muted-foreground">
                 Document details
@@ -92,7 +99,7 @@ export function LegalDocumentPage({ document }: { document: LegalDocument }) {
                 </ul>
               </nav>
             </div>
-          </aside>
+          </div>
 
           <article className="rounded-[10px] border border-border bg-card p-6 lg:p-8">
             {document.overview?.length ? (
@@ -102,7 +109,7 @@ export function LegalDocumentPage({ document }: { document: LegalDocument }) {
                 </h2>
                 <div className="space-y-4">
                   {document.overview.map((paragraph) => (
-                    <p key={paragraph} className="text-sm leading-relaxed text-muted-foreground lg:text-base">
+                    <p key={paragraph} className="site-section-copy text-muted-foreground">
                       {paragraph}
                     </p>
                   ))}
@@ -113,18 +120,18 @@ export function LegalDocumentPage({ document }: { document: LegalDocument }) {
             <div className="space-y-10">
               {document.sections.map((section) => (
                 <section id={toSectionId(section.title)} key={section.title} className="scroll-mt-32">
-                  <h2 className="mb-4 text-xl font-display tracking-tight lg:text-2xl">{section.title}</h2>
+                  <h2 className="site-section-title mb-4">{section.title}</h2>
                   {section.paragraphs?.length ? (
                     <div className="space-y-4">
                       {section.paragraphs.map((paragraph) => (
-                        <p key={paragraph} className="text-sm leading-relaxed text-muted-foreground lg:text-base">
+                        <p key={paragraph} className="site-section-copy text-muted-foreground">
                           {paragraph}
                         </p>
                       ))}
                     </div>
                   ) : null}
                   {section.bullets?.length ? (
-                    <ul className="mt-4 space-y-3 pl-5 text-sm leading-relaxed text-muted-foreground lg:text-base">
+                    <ul className="site-section-copy mt-4 space-y-3 pl-5 text-muted-foreground">
                       {section.bullets.map((bullet) => (
                         <li key={bullet} className="list-disc">
                           {bullet}

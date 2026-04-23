@@ -194,7 +194,7 @@ export function StudioChatPane({
                   onSend();
                 }
               }}
-              placeholder="Reply to Maxwell..."
+              placeholder={messages.length === 0 ? "Describe what you want to build..." : "Reply to Maxwell..."}
               rows={1}
               className="flex-1 resize-none bg-transparent text-sm leading-relaxed outline-none placeholder:text-muted-foreground/50 max-h-32"
             />

@@ -11,49 +11,88 @@ const LOCALES = ["en", "es", "fr", "de"];
 type FooterT = {
   tagline: string;
   rights: string;
-  groups: { Company: string; Solutions: string; Legal: string };
-  links: Record<string, string>;
+  groups: { site: string; legal: string };
+  links: {
+    services: string;
+    upgrade: string;
+    templates: string;
+    opportunities: string;
+    about: string;
+    contact: string;
+    privacyPolicy: string;
+    termsAndConditions: string;
+    cookiesPolicy: string;
+    legalNotice: string;
+  };
 };
 
 const FOOTER_T: Record<string, FooterT> = {
   en: {
     tagline: "From idea to production. Every project ships as real, working software you own.",
-    rights: "© 2026 Noon. All rights reserved.",
-    groups: { Company: "Company", Solutions: "Solutions", Legal: "Legal" },
+    rights: "2026 Noon. All rights reserved.",
+    groups: { site: "Site", legal: "Legal" },
     links: {
-      aboutNoon: "About Noon", nextProduct: "Next product", workWithNoon: "Work with Noon", contact: "Contact",
-      whatWeBuild: "What we build", howItWorks: "How it works", technologyWeUse: "Technology we use", templates: "Templates",
-      privacyPolicy: "Privacy Policy", termsAndConditions: "Terms and Conditions", cookiesPolicy: "Cookies Policy", legalNotice: "Legal Notice",
+      services: "Services",
+      upgrade: "Upgrade",
+      templates: "Templates",
+      opportunities: "Opportunities",
+      about: "About",
+      contact: "Contact",
+      privacyPolicy: "Privacy Policy",
+      termsAndConditions: "Terms and Conditions",
+      cookiesPolicy: "Cookies Policy",
+      legalNotice: "Legal Notice",
     },
   },
   es: {
-    tagline: "De la idea a producción. Cada proyecto se entrega como software real y funcional que tú posees.",
-    rights: "© 2026 Noon. Todos los derechos reservados.",
-    groups: { Company: "Empresa", Solutions: "Soluciones", Legal: "Legal" },
+    tagline: "De la idea a produccion. Cada proyecto se entrega como software real y funcional que tu posees.",
+    rights: "2026 Noon. Todos los derechos reservados.",
+    groups: { site: "Sitio", legal: "Legal" },
     links: {
-      aboutNoon: "Acerca de Noon", nextProduct: "Próximo producto", workWithNoon: "Trabaja con Noon", contact: "Contacto",
-      whatWeBuild: "Lo que construimos", howItWorks: "Cómo funciona", technologyWeUse: "Tecnología que usamos", templates: "Plantillas",
-      privacyPolicy: "Política de privacidad", termsAndConditions: "Términos y condiciones", cookiesPolicy: "Política de cookies", legalNotice: "Aviso legal",
+      services: "Servicios",
+      upgrade: "Upgrade",
+      templates: "Plantillas",
+      opportunities: "Oportunidades",
+      about: "Nosotros",
+      contact: "Contacto",
+      privacyPolicy: "Politica de privacidad",
+      termsAndConditions: "Terminos y condiciones",
+      cookiesPolicy: "Politica de cookies",
+      legalNotice: "Aviso legal",
     },
   },
   fr: {
-    tagline: "De l'idée à la production. Chaque projet est livré en logiciel réel et fonctionnel que vous possédez.",
-    rights: "© 2026 Noon. Tous droits réservés.",
-    groups: { Company: "Entreprise", Solutions: "Solutions", Legal: "Légal" },
+    tagline: "De l'idee a la production. Chaque projet est livre en logiciel reel et fonctionnel que vous possedez.",
+    rights: "2026 Noon. Tous droits reserves.",
+    groups: { site: "Site", legal: "Legal" },
     links: {
-      aboutNoon: "À propos de Noon", nextProduct: "Prochain produit", workWithNoon: "Travailler avec Noon", contact: "Contact",
-      whatWeBuild: "Ce que nous construisons", howItWorks: "Comment ça fonctionne", technologyWeUse: "Technologies utilisées", templates: "Modèles",
-      privacyPolicy: "Politique de confidentialité", termsAndConditions: "Conditions générales", cookiesPolicy: "Politique de cookies", legalNotice: "Mentions légales",
+      services: "Services",
+      upgrade: "Upgrade",
+      templates: "Modeles",
+      opportunities: "Opportunites",
+      about: "A propos",
+      contact: "Contact",
+      privacyPolicy: "Politique de confidentialite",
+      termsAndConditions: "Conditions generales",
+      cookiesPolicy: "Politique de cookies",
+      legalNotice: "Mentions legales",
     },
   },
   de: {
-    tagline: "Von der Idee zur Produktion. Jedes Projekt wird als echte, funktionierende Software geliefert, die Ihnen gehört.",
-    rights: "© 2026 Noon. Alle Rechte vorbehalten.",
-    groups: { Company: "Unternehmen", Solutions: "Lösungen", Legal: "Rechtliches" },
+    tagline: "Von der Idee zur Produktion. Jedes Projekt wird als echte, funktionierende Software geliefert, die Ihnen gehort.",
+    rights: "2026 Noon. Alle Rechte vorbehalten.",
+    groups: { site: "Site", legal: "Rechtliches" },
     links: {
-      aboutNoon: "Über Noon", nextProduct: "Nächstes Produkt", workWithNoon: "Mit Noon arbeiten", contact: "Kontakt",
-      whatWeBuild: "Was wir bauen", howItWorks: "Wie es funktioniert", technologyWeUse: "Verwendete Technologien", templates: "Vorlagen",
-      privacyPolicy: "Datenschutzrichtlinie", termsAndConditions: "Allgemeine Geschäftsbedingungen", cookiesPolicy: "Cookie-Richtlinie", legalNotice: "Impressum",
+      services: "Dienste",
+      upgrade: "Upgrade",
+      templates: "Vorlagen",
+      opportunities: "Opportunities",
+      about: "Uber uns",
+      contact: "Kontakt",
+      privacyPolicy: "Datenschutzrichtlinie",
+      termsAndConditions: "Allgemeine Geschaeftsbedingungen",
+      cookiesPolicy: "Cookie-Richtlinie",
+      legalNotice: "Impressum",
     },
   },
 };
@@ -62,7 +101,7 @@ export function FooterSection() {
   const params = useParams();
   const pathname = usePathname();
   const paramLocale = typeof params?.locale === "string" ? params.locale : null;
-  const pathLocale = LOCALES.find((l) => pathname.startsWith(`/${l}/`) || pathname === `/${l}`);
+  const pathLocale = LOCALES.find((locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`);
   const locale = (paramLocale && LOCALES.includes(paramLocale) ? paramLocale : pathLocale) ?? "en";
   const t = FOOTER_T[locale] ?? FOOTER_T.en;
 
@@ -72,43 +111,42 @@ export function FooterSection() {
   };
 
   const footerLinkGroups = {
-    [t.groups.Company]: [
-      { name: t.links.aboutNoon, href: lp(siteRoutes.about) },
-      { name: t.links.nextProduct, href: lp("/contact?inquiry=next-product") },
-      { name: t.links.workWithNoon, href: lp("/contact?inquiry=seller") },
+    [t.groups.site]: [
+      { name: t.links.services, href: lp(siteRoutes.services) },
+      { name: t.links.upgrade, href: lp(siteRoutes.upgrade) },
+      { name: t.links.templates, href: lp(siteRoutes.templates) },
+      { name: t.links.opportunities, href: lp(siteRoutes.opportunities) },
+      { name: t.links.about, href: lp(siteRoutes.about) },
       { name: t.links.contact, href: lp(siteRoutes.contact) },
     ],
-    [t.groups.Solutions]: [
-      { name: t.links.whatWeBuild, href: lp(siteRoutes.servicesWhatWeBuild) },
-      { name: t.links.howItWorks, href: lp(siteRoutes.howItWorksHref) },
-      { name: t.links.technologyWeUse, href: lp(siteRoutes.aboutTechnologySection) },
-      { name: t.links.templates, href: lp(siteRoutes.templates) },
-    ],
-    [t.groups.Legal]: [
-      { name: t.links.privacyPolicy, href: siteRoutes.privacyPolicy },
-      { name: t.links.termsAndConditions, href: siteRoutes.termsAndConditions },
-      { name: t.links.cookiesPolicy, href: siteRoutes.cookiesPolicy },
-      { name: t.links.legalNotice, href: siteRoutes.legalNotice },
+    [t.groups.legal]: [
+      { name: t.links.privacyPolicy, href: lp(siteRoutes.privacyPolicy) },
+      { name: t.links.termsAndConditions, href: lp(siteRoutes.termsAndConditions) },
+      { name: t.links.cookiesPolicy, href: lp(siteRoutes.cookiesPolicy) },
+      { name: t.links.legalNotice, href: lp(siteRoutes.legalNotice) },
     ],
   };
 
   return (
-    <footer className="relative border-t border-foreground/10">
-      {/* Gradient accent line at top */}
-      <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(to right, transparent 0%, rgba(18,0,197,0.35) 40%, rgba(106,99,242,0.25) 60%, transparent 100%)" }} />
+    <footer className="relative z-10 isolate overflow-hidden border-t border-foreground/10 bg-background">
+      <div
+        className="absolute top-0 left-0 right-0 h-px"
+        style={{
+          background:
+            "linear-gradient(to right, transparent 0%, rgba(18,0,197,0.35) 40%, rgba(106,99,242,0.25) 60%, transparent 100%)",
+        }}
+      />
       <div className="site-shell relative z-10">
-        <div className="py-14 lg:py-20">
-          <div className="grid grid-cols-2 gap-12 md:grid-cols-6 lg:gap-8">
+        <div className="py-4 lg:py-5">
+          <div className="grid grid-cols-2 gap-6 md:grid-cols-6 lg:gap-6">
             <div className="col-span-2">
-              <Link href={lp(siteRoutes.home)} className="mb-6 inline-flex items-center">
-                <NoonLogo variant="wordmark" height={30} />
+              <Link href={lp(siteRoutes.home)} className="mb-3 inline-flex items-center">
+                <NoonLogo variant="wordmark" height={24} />
               </Link>
 
-              <p className="mb-8 max-w-xs leading-relaxed text-muted-foreground">
-                {t.tagline}
-              </p>
+              <p className="mb-4 max-w-xs text-sm leading-relaxed text-muted-foreground">{t.tagline}</p>
 
-              <div className="flex gap-6">
+              <div className="flex gap-4">
                 {footerSocialLinks.map((link) =>
                   link.href ? (
                     <a
@@ -132,20 +170,16 @@ export function FooterSection() {
 
             {Object.entries(footerLinkGroups).map(([title, links]) => (
               <div key={title}>
-                <h3 className="mb-6 text-sm font-medium">{title}</h3>
-                <ul className="space-y-4">
+                <h3 className="mb-3 text-sm font-medium">{title}</h3>
+                <ul className="space-y-2">
                   {links.map((link) => (
                     <li key={link.name}>
-                      {link.href ? (
-                        <Link
-                          href={link.href}
-                          className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                        >
-                          {link.name}
-                        </Link>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">{link.name}</span>
-                      )}
+                      <Link
+                        href={link.href}
+                        className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {link.name}
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -154,8 +188,8 @@ export function FooterSection() {
           </div>
         </div>
 
-<div className="flex flex-col items-center justify-between gap-4 border-t border-foreground/10 py-6 md:flex-row">
-          <p className="text-sm text-muted-foreground">{t.rights}</p>
+        <div className="flex flex-col items-center justify-between gap-1 border-t border-foreground/10 pt-0.5 pb-0 md:flex-row">
+          <p className="text-sm leading-none text-muted-foreground">{t.rights}</p>
         </div>
       </div>
     </footer>

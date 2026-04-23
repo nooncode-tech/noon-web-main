@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   description: legalNoticeDocument.summary,
 };
 
-export default function LegalNoticePage() {
-  return <LegalDocumentPage document={legalNoticeDocument} />;
+type LegalNoticePageProps = {
+  params: Promise<{ locale: string }>;
+};
+
+export default async function LegalNoticePage({ params }: LegalNoticePageProps) {
+  const { locale } = await params;
+
+  return <LegalDocumentPage document={legalNoticeDocument} locale={locale} />;
 }

@@ -1,22 +1,24 @@
 import { Globe, Sparkles } from "lucide-react";
 
 const LOOP = "10s";
-const BRAND = "#6a63f2";
-const BRAND_DEEP = "#3347ef";
+const BRAND = "#4155ef";
+const BRAND_DEEP = "#1200c5";
 
 export function UpgradeHero() {
   return (
     <div
       aria-hidden="true"
-      className="relative hidden h-[420px] w-full lg:block"
+      className="relative h-[420px] w-full"
     >
-      {/* Gradient bloom — sits behind both cards */}
-      <div
-        className="pointer-events-none absolute inset-0 -z-10"
-        style={{
-          background: `radial-gradient(60% 70% at 55% 45%, ${BRAND}33 0%, ${BRAND}00 65%)`,
-        }}
-      />
+      {/* Technical guide rails behind the audit cards */}
+      <div className="pointer-events-none absolute inset-x-[6%] top-[18%] h-px bg-foreground/10" />
+      <div className="pointer-events-none absolute bottom-[20%] left-[8%] right-[4%] grid grid-cols-3 gap-2">
+        {["crawl", "rewrite", "handoff"].map((item) => (
+          <div key={item} className="rounded-md border border-foreground/8 bg-background/35 px-3 py-2">
+            <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-foreground/45">{item}</span>
+          </div>
+        ))}
+      </div>
 
       {/* ─── Back card — site mockup (gets "upgraded") ───────────────── */}
       <div

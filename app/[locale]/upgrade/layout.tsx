@@ -1,15 +1,10 @@
 import type { ReactNode } from "react";
-import { Navigation } from "@/components/landing/navigation";
+import { UpgradeLayoutChrome } from "@/components/upgrade/upgrade-layout-chrome";
 
 /**
- * /upgrade layout — uses the site navigation but no footer.
- * Clean, focused layout for the audit flow.
+ * /upgrade uses the site navigation but no footer.
+ * The flow should feel like a focused product workspace.
  */
 export default function UpgradeLayout({ children }: { children: ReactNode }) {
-  return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      <main className="pt-28 lg:pt-32 pb-16">{children}</main>
-    </div>
-  );
+  return <UpgradeLayoutChrome>{children}</UpgradeLayoutChrome>;
 }

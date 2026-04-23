@@ -83,7 +83,7 @@ export default async function TemplateDetailPage({ params }: TemplateDetailPageP
             <h1 className="text-3xl font-medium tracking-tight text-foreground lg:text-4xl mb-4">
               {template.name}
             </h1>
-            <p className="text-base text-muted-foreground leading-relaxed mb-6">
+            <p className="site-hero-copy mb-6 text-muted-foreground">
               {template.summary}
             </p>
 
@@ -174,7 +174,7 @@ export default async function TemplateDetailPage({ params }: TemplateDetailPageP
         {/* Promise */}
         <div className="rounded-xl border border-border bg-secondary/20 p-6 lg:p-8 mb-16">
           <h2 className="text-sm font-medium text-foreground mb-3">What this baseline delivers</h2>
-          <p className="text-base text-muted-foreground leading-relaxed">
+          <p className="site-section-copy text-muted-foreground">
             {template.baselinePromise}
           </p>
         </div>

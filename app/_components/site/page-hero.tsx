@@ -35,12 +35,12 @@ export function PageHero({
     <section className="site-hero-section relative">
       <div className="site-shell">
         <div className="max-w-4xl">
-          <span className="mb-6 inline-flex items-center gap-3 text-xs font-mono text-muted-foreground">
+          <span className="site-meta-label mb-6 inline-flex items-center gap-3 font-mono text-muted-foreground">
             <span className="h-px w-8 bg-foreground/30" />
             {eyebrow}
           </span>
-          <h1 className="mb-6 text-4xl font-display tracking-tight lg:text-5xl">{title}</h1>
-          <p className="max-w-3xl text-base leading-relaxed text-muted-foreground lg:text-[17px]">{description}</p>
+          <h1 className="site-hero-title mb-6">{title}</h1>
+          <p className="site-hero-copy max-w-3xl text-muted-foreground">{description}</p>
           {(primaryAction || secondaryAction) && (
             <div className="mt-8 flex flex-col items-start gap-4 sm:flex-row">
               {primaryAction && (

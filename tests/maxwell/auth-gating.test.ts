@@ -10,8 +10,8 @@ describe("normalizeInternalRedirect", () => {
   });
 
   it("rejects external urls", () => {
-    expect(normalizeInternalRedirect("https://evil.example")).toBe("/maxwell");
-    expect(normalizeInternalRedirect("//evil.example")).toBe("/maxwell");
+    expect(normalizeInternalRedirect("https://evil.example")).toBe("/maxwell/studio");
+    expect(normalizeInternalRedirect("//evil.example")).toBe("/maxwell/studio");
   });
 
   it("falls back when missing", () => {

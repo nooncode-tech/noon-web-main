@@ -14,7 +14,7 @@ export default async function SignInPage({ searchParams }: Props) {
     auth(),
   ]);
 
-  const redirectTo = normalizeInternalRedirect(rawRedirectTo, "/maxwell");
+  const redirectTo = normalizeInternalRedirect(rawRedirectTo, "/maxwell/studio");
 
   if (session?.user?.email) {
     redirect(redirectTo);

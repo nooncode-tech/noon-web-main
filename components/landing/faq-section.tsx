@@ -70,7 +70,7 @@ function FAQItem({
         />
       </button>
       <div className={`overflow-hidden transition-all duration-300 ${isOpen ? "max-h-48" : "max-h-0"}`}>
-        <p className="px-5 pb-4 text-sm leading-relaxed text-muted-foreground">
+        <p className="site-card-copy px-5 pb-4 text-muted-foreground">
           {faq.answer}
         </p>
       </div>
@@ -88,19 +88,19 @@ export function FaqSection() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
           {/* Left */}
           <div>
-            <span className="mb-6 liquid-glass-pill inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">
+            <span className="mb-4 liquid-glass-pill inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: siteTones.brand.accent }} />
               FAQ
             </span>
             <h2
-              className={`mb-5 text-3xl lg:text-4xl font-display tracking-tight transition-all duration-700 ${
+              className={`site-section-title mb-4 transition-all duration-700 ${
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               }`}
             >
               Common questions
             </h2>
             <p
-              className={`mb-8 text-muted-foreground leading-relaxed transition-all duration-700 ${
+              className={`site-section-copy mb-8 text-muted-foreground transition-all duration-700 ${
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               }`}
               style={{ transitionDelay: "100ms" }}
@@ -109,7 +109,7 @@ export function FaqSection() {
               Can&apos;t find what you&apos;re looking for? Start a conversation with Maxwell.
             </p>
             <Link
-              href={siteRoutes.maxwell}
+              href={siteRoutes.maxwellStudio}
               className={`inline-flex items-center gap-2.5 rounded-full border border-foreground/10 bg-secondary/50 px-4 py-2 text-sm font-medium transition-all duration-300 hover:border-foreground/20 hover:bg-secondary ${
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               }`}

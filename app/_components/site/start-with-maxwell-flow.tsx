@@ -106,7 +106,7 @@ export function StartWithMaxwellFlow({ initialPrompt }: StartWithMaxwellFlowProp
           </div>
 
           <h2 className="mb-3 text-2xl font-display lg:text-3xl">Describe what you want to build.</h2>
-          <p className="mb-6 max-w-2xl text-sm leading-relaxed text-muted-foreground lg:text-base">
+          <p className="site-section-copy mb-6 max-w-2xl text-muted-foreground">
             Start with your idea. Maxwell helps structure the request, clarify what needs to be built, and move the conversation toward the right next step.
           </p>
 

@@ -157,9 +157,9 @@ export function StudioHeader({
     >
       {/* Back */}
       <Link
-        href={siteRoutes.maxwell}
+        href={siteRoutes.home}
         className="flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-background/60 text-muted-foreground hover:text-foreground hover:bg-background transition-colors shrink-0"
-        aria-label="Back to Maxwell"
+        aria-label="Back to Noon"
       >
         <ArrowLeft className="w-3.5 h-3.5" />
       </Link>

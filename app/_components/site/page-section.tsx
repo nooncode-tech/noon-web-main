@@ -22,16 +22,16 @@ export function PageSection({
     <section id={id} className={cn("site-section relative", className)}>
       <div className="site-shell">
         {(eyebrow || title || description) && (
-          <div className="mb-10 max-w-3xl lg:mb-12">
+          <div className="mb-8 max-w-3xl lg:mb-10">
             {eyebrow && (
-              <span className="mb-5 inline-flex items-center gap-3 text-sm font-mono text-muted-foreground">
+              <span className="site-meta-label mb-4 inline-flex items-center gap-3 font-mono text-muted-foreground">
                 <span className="h-px w-8 bg-foreground/30" />
                 {eyebrow}
               </span>
             )}
-            {title && <h2 className="mb-4 text-3xl font-display tracking-tight lg:text-4xl">{title}</h2>}
+            {title && <h2 className="site-section-title mb-4">{title}</h2>}
             {description && (
-              <p className="text-base leading-relaxed text-muted-foreground lg:text-[17px]">{description}</p>
+              <p className="site-section-copy text-muted-foreground">{description}</p>
             )}
           </div>
         )}

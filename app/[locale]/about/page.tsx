@@ -96,60 +96,55 @@ export default function AboutPage() {
   return (
     <SitePageFrame>
       {/* Hero */}
-      <section ref={headerRef} className="site-hero-section">
+      <section ref={headerRef} className="site-hero-section pb-4 lg:pb-5">
         <div className="site-shell">
-          <div className="max-w-3xl">
-            <span
-              className={`inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-6 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-            >
-              <span className="w-8 h-px" style={{ backgroundColor: siteTones.brand.accent }} />
-              {t("hero.eyebrow")}
-            </span>
-            <h1
-              className={`text-4xl lg:text-5xl font-display tracking-tight mb-6 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-              style={{ transitionDelay: "100ms" }}
-            >
-              {t("hero.headline")}
-              <br />
-              <span className="text-muted-foreground">{t("hero.headlineMuted")}</span>
-            </h1>
-            <p
-              className={`text-base lg:text-lg text-muted-foreground leading-relaxed mb-8 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-              style={{ transitionDelay: "200ms" }}
-            >
-              {t("hero.description")}
-            </p>
-            <div
-              className={`flex flex-wrap gap-4 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-              style={{ transitionDelay: "300ms" }}
-            >
-              <Link
-                href={siteRoutes.maxwell}
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
+          <div className="w-full">
+            <div className="rounded-[9px] bg-[#f9f9f9]/95 p-6 text-center shadow-[0_0_0_1px_rgba(0,0,0,0.06)] backdrop-blur-sm dark:bg-[#131313]/92 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.06)] sm:p-8 lg:p-10">
+              <h1
+                className={`site-hero-title mx-auto mb-5 max-w-4xl transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+                style={{ transitionDelay: "100ms" }}
               >
-                {t("hero.startWithMaxwell")}
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
-                href={lp(siteRoutes.services)}
-                className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium transition-colors hover:bg-secondary"
+                {t("hero.headline")}{" "}
+                <span className="text-muted-foreground">{t("hero.headlineMuted")}</span>
+              </h1>
+              <p
+                className={`site-hero-copy mx-auto mb-8 max-w-4xl text-muted-foreground transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+                style={{ transitionDelay: "200ms" }}
               >
-                {t("cta.viewServices")}
-              </Link>
+                {t("hero.description")}
+              </p>
+              <div
+                className={`flex flex-wrap justify-center gap-4 transition-all duration-700 ${headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+                style={{ transitionDelay: "300ms" }}
+              >
+                <Link
+                  href={lp(siteRoutes.maxwellStudio)}
+                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
+                >
+                  {t("hero.startWithMaxwell")}
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link
+                  href={lp(siteRoutes.services)}
+                  className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium transition-colors hover:bg-secondary"
+                >
+                  {t("cta.viewServices")}
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Thesis - Bento Grid */}
-      <section className="site-section-lg">
+      <section className="site-section">
         <div className="site-shell">
           <div className="max-w-3xl mb-12">
             <span className="mb-6 liquid-glass-pill inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: siteTones.brand.accent }} />
               {t("thesis.eyebrow")}
             </span>
-            <h2 className="text-2xl lg:text-3xl font-display tracking-tight">
+            <h2 className="site-section-title">
               {t("thesis.headline")}
             </h2>
           </div>
@@ -162,10 +157,10 @@ export default function AboutPage() {
               <span className="inline-block text-xs font-mono text-muted-foreground bg-secondary/50 px-3 py-1 rounded-full mb-4">
                 {t("thesis.productionGrade")}
               </span>
-              <h3 className="text-2xl lg:text-3xl font-display mb-4">
+              <h3 className="site-section-title mb-4">
                 {t("thesis.mainTitle")}
               </h3>
-              <p className="text-base lg:text-[17px] text-muted-foreground leading-relaxed max-w-xl mb-6">
+              <p className="site-section-copy max-w-xl mb-6 text-muted-foreground">
                 {t("thesis.mainDescription")}
               </p>
               <div className="bg-foreground/5 rounded-xl p-4 lg:p-5 font-mono text-sm border border-border">
@@ -189,7 +184,7 @@ export default function AboutPage() {
                 <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
                   <Route className="w-5 h-5" />
                 </div>
-                <h3 className="text-lg lg:text-xl font-display mb-3">{t("thesis.clearProcess")}</h3>
+                <h3 className="site-card-title mb-3">{t("thesis.clearProcess")}</h3>
                 <p className="text-muted-foreground leading-relaxed text-sm mb-6">{t("thesis.clearProcessDescription")}</p>
                 <div className="flex items-center gap-2">
                   {[1, 2, 3, 4, 5].map((step) => (
@@ -202,7 +197,7 @@ export default function AboutPage() {
                 <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
                   <Zap className="w-5 h-5" />
                 </div>
-                <h3 className="text-lg lg:text-xl font-display mb-3">{t("thesis.aiAccelerated")}</h3>
+                <h3 className="site-card-title mb-3">{t("thesis.aiAccelerated")}</h3>
                 <p className="text-muted-foreground leading-relaxed text-sm mb-6">{t("thesis.aiAcceleratedDescription")}</p>
                 <div className="flex items-center gap-3">
                   <div className="relative">
@@ -220,7 +215,7 @@ export default function AboutPage() {
                   <Shield className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-display">{t("thesis.enterpriseReady")}</h3>
+                  <h3 className="site-card-title">{t("thesis.enterpriseReady")}</h3>
                   <p className="text-sm text-muted-foreground">{t("thesis.enterpriseReadyDescription")}</p>
                 </div>
               </div>
@@ -232,7 +227,7 @@ export default function AboutPage() {
                   <Code2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-display">{t("thesis.codeOwnership")}</h3>
+                  <h3 className="site-card-title">{t("thesis.codeOwnership")}</h3>
                   <p className="text-sm text-muted-foreground">{t("thesis.codeOwnershipDescription")}</p>
                 </div>
               </div>
@@ -242,14 +237,14 @@ export default function AboutPage() {
       </section>
 
       {/* Criteria */}
-      <section className="site-section-lg bg-secondary/30">
+      <section className="site-section bg-secondary/30">
         <div className="site-shell">
           <div className="max-w-2xl mb-10">
             <span className="mb-6 liquid-glass-pill inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: siteTones.brand.accent }} />
               {t("criteria.eyebrow")}
             </span>
-            <h2 className="text-2xl lg:text-3xl font-display tracking-tight">
+            <h2 className="site-section-title">
               {t("criteria.headline")}
             </h2>
           </div>
@@ -262,7 +257,7 @@ export default function AboutPage() {
       </section>
 
       {/* Operating Model */}
-      <section className="site-section-lg">
+      <section className="site-section">
         <div className="site-shell">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
             <div>
@@ -270,7 +265,7 @@ export default function AboutPage() {
                 <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: siteTones.brand.accent }} />
                 {t("operatingModel.eyebrow")}
               </span>
-              <h2 className="text-2xl lg:text-3xl font-display tracking-tight mb-8">
+              <h2 className="site-section-title mb-8">
                 {t("operatingModel.headline")}
               </h2>
               <div className="space-y-8">
@@ -285,7 +280,7 @@ export default function AboutPage() {
                 <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: siteTones.brand.accent }} />
                 {t("operatingModel.boundariesEyebrow")}
               </span>
-              <h2 className="text-2xl lg:text-3xl font-display tracking-tight mb-8">
+              <h2 className="site-section-title mb-8">
                 {t("operatingModel.boundariesHeadline")}
               </h2>
               <div className="space-y-4">
@@ -299,14 +294,14 @@ export default function AboutPage() {
       </section>
 
       {/* Technology Stack */}
-      <section id="technology" className="site-section-lg bg-secondary/30">
+      <section id="technology" className="site-section bg-secondary/30">
         <div className="site-shell">
           <div className="max-w-2xl">
             <span className="mb-6 liquid-glass-pill inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: siteTones.brand.accent }} />
               {t("stack.eyebrow")}
             </span>
-            <h2 className="text-2xl lg:text-3xl font-display tracking-tight mb-4">
+            <h2 className="site-section-title mb-4">
               {t("stack.headline")}
             </h2>
             <p className="text-muted-foreground">{t("stack.description")}</p>
@@ -325,8 +320,8 @@ export default function AboutPage() {
       <SiteCtaBlock
         title={t("cta.headline")}
         description={t("cta.description")}
-        primaryAction={{ label: t("cta.startWithMaxwell"), href: siteRoutes.maxwell }}
-        secondaryAction={{ label: t("cta.viewServices"), href: lp(siteRoutes.services) }}
+        blockHref={lp(siteRoutes.home)}
+        className="!pt-8 !pb-10 lg:!pt-10 lg:!pb-12"
       />
     </SitePageFrame>
   );
@@ -416,14 +411,14 @@ function TechCard({ group, index, inStack, tools }: {
           style={{ color: group.tone.accent }}
         >
           <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: group.tone.accent }} />
-          <span className="text-[9px] font-mono">{inStack}</span>
+          <span className="text-xs font-mono">{inStack}</span>
         </span>
       </div>
       <div className="flex flex-wrap gap-1.5">
         {group.items.map((item, i) => (
           <span
             key={item}
-            className="rounded-md border px-2.5 py-1 text-[11px] font-medium transition-all duration-300"
+            className="rounded-md border px-2.5 py-1 text-xs font-medium transition-all duration-300"
             style={{
               transitionDelay: `${i * 50}ms`,
               borderColor: isHovered ? group.tone.border : "color-mix(in srgb, var(--foreground) 8%, transparent)",
@@ -443,7 +438,7 @@ function TechCard({ group, index, inStack, tools }: {
               style={{ width: isHovered ? `${60 + index * 10}%` : "0%", backgroundColor: group.tone.accent }}
             />
           </div>
-          <span className="text-[9px] text-muted-foreground font-mono">{group.items.length} {tools}</span>
+          <span className="text-xs text-muted-foreground font-mono">{group.items.length} {tools}</span>
         </div>
       </div>
     </div>

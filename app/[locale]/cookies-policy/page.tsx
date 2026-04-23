@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   description: cookiesPolicyDocument.summary,
 };
 
-export default function CookiesPolicyPage() {
-  return <LegalDocumentPage document={cookiesPolicyDocument} />;
+type CookiesPolicyPageProps = {
+  params: Promise<{ locale: string }>;
+};
+
+export default async function CookiesPolicyPage({ params }: CookiesPolicyPageProps) {
+  const { locale } = await params;
+
+  return <LegalDocumentPage document={cookiesPolicyDocument} locale={locale} />;
 }

@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   description: termsAndConditionsDocument.summary,
 };
 
-export default function TermsAndConditionsPage() {
-  return <LegalDocumentPage document={termsAndConditionsDocument} />;
+type TermsAndConditionsPageProps = {
+  params: Promise<{ locale: string }>;
+};
+
+export default async function TermsAndConditionsPage({ params }: TermsAndConditionsPageProps) {
+  const { locale } = await params;
+
+  return <LegalDocumentPage document={termsAndConditionsDocument} locale={locale} />;
 }

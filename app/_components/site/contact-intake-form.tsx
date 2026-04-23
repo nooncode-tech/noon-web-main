@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { PageCard } from "@/app/_components/site/page-card";
+import { cn } from "@/lib/utils";
 import {
   contactInbox,
   contactTypeLabels,
@@ -33,6 +34,8 @@ type ContactIntakeFormProps = {
   initialInquiry?: string;
   initialDraft?: string;
   initialSource?: string;
+  layout?: "split" | "stacked";
+  showGuidance?: boolean;
 };
 
 type SubmissionState = "idle" | "loading" | "success" | "error";
@@ -45,6 +48,8 @@ export function ContactIntakeForm({
   initialInquiry,
   initialDraft = "",
   initialSource,
+  layout = "split",
+  showGuidance = true,
 }: ContactIntakeFormProps) {
   const normalizedInitialInquiry = normalizeContactInquiry(initialInquiry) ?? "general";
   const advancedOptionsId = "contact-advanced-options";
@@ -168,12 +173,17 @@ export function ContactIntakeForm({
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+    <div
+      className={cn(
+        "grid w-full gap-5",
+        showGuidance && (layout === "stacked" ? "2xl:grid-cols-[1.08fr_0.92fr]" : "xl:grid-cols-[1.1fr_0.9fr]")
+      )}
+    >
       <form
         onSubmit={handleSubmit}
-        className="min-w-0 rounded-[10px] border border-foreground/8 bg-card/80 p-6 lg:p-8"
+        className="liquid-glass-card min-w-0 w-full rounded-[10px] p-5"
       >
-        <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
+        <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-secondary/50 px-3 py-1 text-xs font-mono text-muted-foreground">
           <Sparkles className="h-3 w-3" style={{ color: siteTones.brand.accent }} />
           Structured inquiry
         </span>
@@ -204,139 +214,168 @@ export function ContactIntakeForm({
           </div>
         ) : null}
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              left: "-10000px",
-              top: "auto",
-              width: "1px",
-              height: "1px",
-              overflow: "hidden",
-            }}
-          >
-            <Label htmlFor="contact-company-website">Company website</Label>
-            <Input
-              id="contact-company-website"
-              name="companyWebsite"
-              autoComplete="off"
-              tabIndex={-1}
-              value={companyWebsite}
-              onChange={(event) => setCompanyWebsite(event.target.value)}
-              placeholder="Leave this blank"
-            />
-          </div>
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            left: "-10000px",
+            top: "auto",
+            width: "1px",
+            height: "1px",
+            overflow: "hidden",
+          }}
+        >
+          <Label htmlFor="contact-company-website">Company website</Label>
+          <Input
+            id="contact-company-website"
+            name="companyWebsite"
+            autoComplete="off"
+            tabIndex={-1}
+            value={companyWebsite}
+            onChange={(event) => setCompanyWebsite(event.target.value)}
+            placeholder="Leave this blank"
+          />
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="contact-name">Full name</Label>
-            <Input
-              id="contact-name"
-              name="fullName"
-              autoComplete="name"
-              value={name}
-              onChange={(event) => {
-                setName(event.target.value);
-                clearFieldError("name");
-                clearSubmissionStatus();
-              }}
-              placeholder="Your full name"
-              className="h-11 rounded-[10px]"
-              aria-invalid={Boolean(fieldErrors.name?.length)}
-            />
-            {fieldErrors.name?.[0] ? (
-              <p className="text-xs text-destructive">{fieldErrors.name[0]}</p>
-            ) : null}
-          </div>
+        <div className="space-y-4">
+          <section className="space-y-3">
+            <div>
+              <p className="text-xs font-mono uppercase tracking-[0.14em] text-muted-foreground">
+                1. Route
+              </p>
+              <p className="site-hero-copy mt-1 text-muted-foreground">
+                Choose the closest path. Noon can adjust it after review.
+              </p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="contact-type">Request category</Label>
+                <Select value={contactType} onValueChange={(value) => updateContactType(value as ContactTypeOption)}>
+                  <SelectTrigger
+                    id="contact-type"
+                    className="w-full rounded-[10px]"
+                    aria-invalid={Boolean(fieldErrors.contactType?.length)}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(contactTypeLabels).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {fieldErrors.contactType?.[0] ? (
+                  <p className="text-xs text-destructive">{fieldErrors.contactType[0]}</p>
+                ) : null}
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="contact-email">Email</Label>
-            <Input
-              id="contact-email"
-              name="email"
-              autoComplete="email"
-              type="email"
-              value={email}
-              onChange={(event) => {
-                setEmail(event.target.value);
-                clearFieldError("email");
-                clearSubmissionStatus();
-              }}
-              placeholder="you@company.com"
-              className="h-11 rounded-[10px]"
-              aria-invalid={Boolean(fieldErrors.email?.length)}
-            />
-            {fieldErrors.email?.[0] ? (
-              <p className="text-xs text-destructive">{fieldErrors.email[0]}</p>
-            ) : null}
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="contact-specific-inquiry">Specific route</Label>
+                <Select value={inquiry} onValueChange={(value) => updateInquiry(value as ContactInquiryKey)}>
+                  <SelectTrigger
+                    id="contact-specific-inquiry"
+                    className="w-full rounded-[10px]"
+                    aria-invalid={Boolean(fieldErrors.inquiry?.length)}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {contactTypeToInquiryMap[contactType].map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {getContactInquiryDetail(option).label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {fieldErrors.inquiry?.[0] ? (
+                  <p className="text-xs text-destructive">{fieldErrors.inquiry[0]}</p>
+                ) : null}
+              </div>
+            </div>
+          </section>
 
-          <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="contact-brief">What do you need?</Label>
-            <Textarea
-              id="contact-brief"
-              name="brief"
-              autoComplete="off"
-              value={projectBrief}
-              onChange={(event) => {
-                setProjectBrief(event.target.value);
-                clearFieldError("brief");
-                clearSubmissionStatus();
-              }}
-              placeholder="Describe the business problem, the desired outcome, and the kind of software or support you need."
-              className="min-h-[180px] rounded-[10px] px-4 py-3 leading-relaxed"
-              aria-invalid={Boolean(fieldErrors.brief?.length)}
-            />
-            {fieldErrors.brief?.[0] ? (
-              <p className="text-xs text-destructive">{fieldErrors.brief[0]}</p>
-            ) : null}
-          </div>
+          <section className="space-y-3">
+            <p className="text-xs font-mono uppercase tracking-[0.14em] text-muted-foreground">
+              2. Contact
+            </p>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="contact-name">Full name</Label>
+                <Input
+                  id="contact-name"
+                  name="fullName"
+                  autoComplete="name"
+                  value={name}
+                  onChange={(event) => {
+                    setName(event.target.value);
+                    clearFieldError("name");
+                    clearSubmissionStatus();
+                  }}
+                  placeholder="Your full name"
+                  className="h-11 rounded-[10px]"
+                  aria-invalid={Boolean(fieldErrors.name?.length)}
+                />
+                {fieldErrors.name?.[0] ? (
+                  <p className="text-xs text-destructive">{fieldErrors.name[0]}</p>
+                ) : null}
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="contact-type">Contact type</Label>
-            <Select value={contactType} onValueChange={(value) => updateContactType(value as ContactTypeOption)}>
-              <SelectTrigger
-                id="contact-type"
-                className="w-full rounded-[10px]"
-                aria-invalid={Boolean(fieldErrors.contactType?.length)}
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(contactTypeLabels).map(([value, label]) => (
-                  <SelectItem key={value} value={value}>
-                    {label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {fieldErrors.contactType?.[0] ? (
-              <p className="text-xs text-destructive">{fieldErrors.contactType[0]}</p>
-            ) : null}
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="contact-email">Email</Label>
+                <Input
+                  id="contact-email"
+                  name="email"
+                  autoComplete="email"
+                  type="email"
+                  value={email}
+                  onChange={(event) => {
+                    setEmail(event.target.value);
+                    clearFieldError("email");
+                    clearSubmissionStatus();
+                  }}
+                  placeholder="you@company.com"
+                  className="h-11 rounded-[10px]"
+                  aria-invalid={Boolean(fieldErrors.email?.length)}
+                />
+                {fieldErrors.email?.[0] ? (
+                  <p className="text-xs text-destructive">{fieldErrors.email[0]}</p>
+                ) : null}
+              </div>
+            </div>
+          </section>
 
-          <div className="space-y-2">
-            <Label htmlFor="contact-specific-inquiry">Mapped inquiry path</Label>
-            <Select value={inquiry} onValueChange={(value) => updateInquiry(value as ContactInquiryKey)}>
-              <SelectTrigger
-                id="contact-specific-inquiry"
-                className="w-full rounded-[10px]"
-                aria-invalid={Boolean(fieldErrors.inquiry?.length)}
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {contactTypeToInquiryMap[contactType].map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {getContactInquiryDetail(option).label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {fieldErrors.inquiry?.[0] ? (
-              <p className="text-xs text-destructive">{fieldErrors.inquiry[0]}</p>
-            ) : null}
-          </div>
+          <section className="space-y-3">
+            <div>
+              <p className="text-xs font-mono uppercase tracking-[0.14em] text-muted-foreground">
+                3. Request
+              </p>
+              <p className="site-hero-copy mt-1 text-muted-foreground">
+                Focus on the problem, outcome, and any deadline or constraint.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="contact-brief">What do you need?</Label>
+              <Textarea
+                id="contact-brief"
+                name="brief"
+                autoComplete="off"
+                value={projectBrief}
+                onChange={(event) => {
+                  setProjectBrief(event.target.value);
+                  clearFieldError("brief");
+                  clearSubmissionStatus();
+                }}
+                placeholder="Describe the business problem, the desired outcome, and the kind of software or support you need."
+                className="min-h-[118px] rounded-[10px] px-4 py-3 leading-relaxed lg:min-h-[126px]"
+                aria-invalid={Boolean(fieldErrors.brief?.length)}
+              />
+              {fieldErrors.brief?.[0] ? (
+                <p className="text-xs text-destructive">{fieldErrors.brief[0]}</p>
+              ) : null}
+            </div>
+          </section>
         </div>
 
         <div className="mt-4">
@@ -400,7 +439,7 @@ export function ContactIntakeForm({
           </div>
         ) : null}
 
-        <div className="mt-6 flex flex-col items-start gap-4 sm:flex-row">
+        <div className="mt-5 flex flex-col items-start gap-4 sm:flex-row">
           <Button
             type="submit"
             size="lg"
@@ -429,7 +468,7 @@ export function ContactIntakeForm({
           ) : null}
         </div>
 
-        <p className="mt-4 text-sm text-muted-foreground">
+        <p className="site-hero-copy mt-3 text-muted-foreground">
           Prefer email instead? You can still reach Noon directly at{" "}
           <a className="underline-offset-4 hover:underline" href={`mailto:${contactInbox}`}>
             {contactInbox}
@@ -438,46 +477,48 @@ export function ContactIntakeForm({
         </p>
       </form>
 
-      <div className="min-w-0 grid gap-6">
-        <PageCard
-          eyebrow="Routing"
-          title={selectedInquiry.label}
-          description="This is the inquiry path Noon will review first before the next step is confirmed."
-          tone={siteTones.brand}
-        >
-          <div className="space-y-3 text-sm text-muted-foreground" aria-live="polite">
-            <p>
-              <span className="font-medium text-foreground">Contact type:</span>{" "}
-              {contactTypeLabels[contactType]}
-            </p>
-            <p>
-              <span className="font-medium text-foreground">Subject:</span> {selectedInquiry.subject}
-            </p>
-            {formattedSource ? (
+      {showGuidance ? (
+        <div className="min-w-0 grid gap-6">
+          <PageCard
+            eyebrow="Routing"
+            title={selectedInquiry.label}
+            description="This is the inquiry path Noon will review first before the next step is confirmed."
+            tone={siteTones.brand}
+          >
+            <div className="space-y-3 text-sm text-muted-foreground" aria-live="polite">
               <p>
-                <span className="font-medium text-foreground">Source:</span> {formattedSource}
+                <span className="font-medium text-foreground">Contact type:</span>{" "}
+                {contactTypeLabels[contactType]}
               </p>
-            ) : null}
-          </div>
-        </PageCard>
+              <p>
+                <span className="font-medium text-foreground">Subject:</span> {selectedInquiry.subject}
+              </p>
+              {formattedSource ? (
+                <p>
+                  <span className="font-medium text-foreground">Source:</span> {formattedSource}
+                </p>
+              ) : null}
+            </div>
+          </PageCard>
 
-        <PageCard
-          eyebrow="What Happens Next"
-          title="Noon reviews the inquiry first."
-          description="We usually respond within 1-2 business days after reviewing the route, message, and any context already captured."
-          tone={siteStatusTones.success}
-        >
-          <div className="space-y-3 text-sm text-muted-foreground">
-            <p>If the request fits an active build path, Noon can follow up with clarification, proposal, or next-step guidance.</p>
-            <p>Advanced fields such as budget range and timeline help route the inquiry sooner, but they are optional.</p>
-            {trimmedProjectBrief ? (
-              <p>
-                If you came from Maxwell, your current prompt can still travel back with you without losing context.
-              </p>
-            ) : null}
-          </div>
-        </PageCard>
-      </div>
+          <PageCard
+            eyebrow="What Happens Next"
+            title="Noon reviews the inquiry first."
+            description="We usually respond within 1-2 business days after reviewing the route, message, and any context already captured."
+            tone={siteStatusTones.success}
+          >
+            <div className="space-y-3 text-sm text-muted-foreground">
+              <p>If the request fits an active build path, Noon can follow up with clarification, proposal, or next-step guidance.</p>
+              <p>Advanced fields such as budget range and timeline help route the inquiry sooner, but they are optional.</p>
+              {trimmedProjectBrief ? (
+                <p>
+                  If you came from Maxwell, your current prompt can still travel back with you without losing context.
+                </p>
+              ) : null}
+            </div>
+          </PageCard>
+        </div>
+      ) : null}
     </div>
   );
 }
