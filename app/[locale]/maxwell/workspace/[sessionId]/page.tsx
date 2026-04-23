@@ -191,7 +191,7 @@ export default async function WorkspacePage({ params }: Props) {
           </p>
           <Link
             href={contactHref}
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="site-primary-action inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium"
           >
             Contact Noon team
           </Link>

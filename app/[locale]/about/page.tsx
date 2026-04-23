@@ -119,7 +119,7 @@ export default function AboutPage() {
               >
                 <Link
                   href={lp(siteRoutes.maxwellStudio)}
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
+                  className="site-primary-action inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium"
                 >
                   {t("hero.startWithMaxwell")}
                   <ArrowRight className="w-4 h-4" />

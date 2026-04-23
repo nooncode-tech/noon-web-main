@@ -144,7 +144,7 @@ export function Navigation() {
               <Button
                 asChild
                 size="sm"
-                className={`bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-500 ${
+                className={`transition-[background-color,box-shadow,height,padding,font-size] duration-300 ${
                   isScrolled ? "px-4 h-8 text-xs" : "px-6"
                 }`}
                 style={{ borderRadius: "10px", boxShadow: `inset 0 0 0 1px ${navigationTone.border}` }}
@@ -213,7 +213,7 @@ export function Navigation() {
           <div className="px-4 pb-4 pt-1 space-y-3">
             <Button
               asChild
-              className="w-full bg-primary text-primary-foreground rounded-[8px] h-11 text-sm font-medium hover:bg-primary/90"
+              className="h-11 w-full rounded-[8px] text-sm font-medium"
             >
               <Link href={localHref(getStartWithMaxwellHref())} onClick={() => setIsMobileMenuOpen(false)}>
                 {navLabels.startWithMaxwell}

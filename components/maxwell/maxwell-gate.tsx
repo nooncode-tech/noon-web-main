@@ -152,7 +152,7 @@ export function MaxwellGate({
                 onClick={submit}
                 disabled={!trimmedPrompt}
                 aria-label="Start with Maxwell"
-                className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40"
+                className="site-primary-action flex h-9 w-9 items-center justify-center rounded-lg disabled:opacity-40"
               >
                 <ArrowRight className="h-4 w-4" />
               </button>
@@ -208,7 +208,7 @@ export function MaxwellGate({
           <div className="flex flex-col gap-3">
             <Link
               href={signInHref}
-              className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              className="site-primary-action inline-flex h-12 items-center justify-center rounded-full px-6 text-sm font-medium"
             >
               Continue with Google
             </Link>

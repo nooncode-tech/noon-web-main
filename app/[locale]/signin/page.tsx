@@ -58,7 +58,7 @@ export default async function SignInPage({ searchParams }: Props) {
                 <input type="hidden" name="redirectTo" value={redirectTo} />
                 <button
                   type="submit"
-                  className="inline-flex h-12 w-full items-center justify-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                  className="site-primary-action inline-flex h-12 w-full items-center justify-center rounded-full px-6 text-sm font-medium"
                 >
                   Continue with Google
                 </button>

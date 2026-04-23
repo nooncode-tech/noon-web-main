@@ -16,7 +16,7 @@ export function MaxwellGlobal() {
     <Link
       href={siteRoutes.maxwellStudio}
       aria-label="Start with Maxwell"
-      className="fixed bottom-6 right-6 z-[99] flex items-center gap-2.5 rounded-full border border-border pl-4 pr-5 py-3 shadow-xl transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"
+      className="fixed bottom-6 right-6 z-[99] flex items-center gap-2.5 rounded-full border border-border py-3 pl-4 pr-5 shadow-xl transition-[background-color,border-color,box-shadow] duration-300 ease-out hover:border-primary/30"
       style={{
         backgroundColor: "var(--background)",
         boxShadow: "0 8px 32px -4px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06)",

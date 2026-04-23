@@ -33,7 +33,7 @@ function ActionButton({
 }) {
   const cls = {
     default: "border border-border bg-background hover:bg-secondary/50 text-foreground",
-    primary: "bg-primary text-primary-foreground hover:bg-primary/90",
+    primary: "site-primary-action",
     danger: "border border-red-500/30 bg-red-500/10 text-red-600 hover:bg-red-500/20",
     ghost: "text-muted-foreground hover:text-foreground hover:bg-secondary/40",
   }[variant];
@@ -43,7 +43,7 @@ function ActionButton({
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-40 ${cls}`}
+      className={`rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-40 ${cls}`}
     >
       {label}
     </button>

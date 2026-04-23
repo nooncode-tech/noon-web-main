@@ -154,7 +154,7 @@ export default function ServicesPage() {
               >
                 <Link
                   href="#services-offer"
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] hover:bg-primary/90 active:scale-[0.98]"
+                  className="site-primary-action inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium"
                 >
                   Review services
                   <ArrowRight className="h-4 w-4" />

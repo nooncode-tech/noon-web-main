@@ -104,7 +104,7 @@ export default async function LegalPage({ params }: LegalPageProps) {
           </p>
           <Link
             href={lp(siteRoutes.contact)}
-            className="mt-5 inline-flex h-11 items-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="site-primary-action mt-5 inline-flex h-11 items-center rounded-full px-6 text-sm font-medium"
           >
             Contact Noon
           </Link>

@@ -145,7 +145,7 @@ function ContactPageContent() {
               >
                 <a
                   href={`mailto:${contactInbox}`}
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-transform hover:scale-[1.02] active:scale-[0.98] hover:bg-primary/90"
+                  className="site-primary-action inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-medium"
                 >
                   <Mail className="h-4 w-4" />
                   {contactInbox}

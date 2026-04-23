@@ -52,7 +52,7 @@ export function ReviewLogin({ reason, redirectTo, viewerEmail }: Props) {
             <input type="hidden" name="redirectTo" value={redirectTo} />
             <button
               type="submit"
-              className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              className="site-primary-action w-full rounded-lg px-4 py-2.5 text-sm font-medium"
             >
               {copy.cta}
             </button>

@@ -30,19 +30,24 @@ export function SiteCtaBlock({
   const content = (
     <div
       className={cn(
-        "relative flex min-h-[168px] items-center justify-center overflow-hidden rounded-[9px] px-6 py-10 text-center text-white sm:min-h-[176px] lg:px-12 lg:py-12",
-        blockHref &&
-          "block transition-transform duration-200 hover:scale-[1.005] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.998]",
+        "site-primary-action relative flex min-h-[168px] items-center justify-center overflow-hidden rounded-[9px] px-6 py-10 text-center sm:min-h-[176px] lg:px-12 lg:py-12",
       )}
-      style={{ backgroundColor: "#1200c5" }}
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute right-0 top-0 h-[400px] w-[400px] translate-x-1/3 -translate-y-1/3 rounded-full opacity-[0.12] blur-[80px]"
+        className={cn(
+          "pointer-events-none absolute right-0 top-0 h-[400px] w-[400px] translate-x-1/3 -translate-y-1/3 rounded-full opacity-[0.12] blur-[80px] transition-opacity duration-300 ease-out",
+          blockHref && "group-hover:opacity-[0.16]",
+        )}
         style={{ background: `radial-gradient(circle, ${accentColor} 0%, transparent 70%)` }}
       />
       <div className="relative z-10">
-        <h2 className="site-section-title mb-4">
+        <h2
+          className={cn(
+            "site-section-title",
+            description || primaryAction || secondaryAction ? "mb-4" : "translate-y-1",
+          )}
+        >
           {title}
         </h2>
         {description ? (
@@ -60,7 +65,7 @@ export function SiteCtaBlock({
             {primaryAction ? (
               <Link
                 href={primaryAction.href}
-                className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-[#1200c5] transition-transform hover:scale-[1.02] hover:bg-white/90 active:scale-[0.98]"
+                className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-[#1200c5] transition-colors duration-300 ease-out hover:bg-white/90 active:bg-white/80"
               >
                 {primaryAction.label}
                 <ArrowRight className="h-4 w-4" />
@@ -83,7 +88,16 @@ export function SiteCtaBlock({
   return (
     <section className={cn("site-section-lg relative", className)}>
       <div className="site-shell">
-        {blockHref ? <Link href={blockHref}>{content}</Link> : content}
+        {blockHref ? (
+          <Link
+            href={blockHref}
+            className="group block rounded-[9px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            {content}
+          </Link>
+        ) : (
+          content
+        )}
       </div>
     </section>
   );
