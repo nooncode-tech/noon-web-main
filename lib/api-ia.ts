@@ -187,7 +187,7 @@ export type V0StatusResult = {
  * Consulta el estado actual de un chat/prototipo en V0
  */
 export async function getV0PrototypeStatus(chatId: string): Promise<V0StatusResult> {
-  const result = await v0.chats.getById(chatId) as { latestVersion?: { status: "pending" | "completed" | "failed"; demoUrl?: string } };
+  const result = await v0.chats.getById({ chatId }) as { latestVersion?: { status: "pending" | "completed" | "failed"; demoUrl?: string } };
   
   if (!result.latestVersion) {
     return { status: "pending" };
