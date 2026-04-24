@@ -387,73 +387,96 @@ export function StudioShell({
         },
       ]);
     } else {
-      if (currentVersion) {
+      // ACÁ LA CORRECCIÓN: Usamos prev para leer siempre la versión correcta
+      setPrototypeVersions((prev) => {
+        const lastVersion = prev[prev.length - 1];
+        if (!lastVersion) return prev;
+
         const updatedVersion: PrototypeVersion = {
-          chatId: data.chatId || currentVersion.chatId,
+          chatId: data.chatId || lastVersion.chatId,
           demoUrl: data.demoUrl,
-          versionNumber: data.version_number ?? currentVersion.versionNumber + 1,
+          versionNumber: data.version_number ?? lastVersion.versionNumber + 1,
         };
-        setPrototypeVersions((prev) => [...prev, updatedVersion]);
-      }
+        return [...prev, updatedVersion];
+      });
 
       if (data.corrections_used !== undefined) {
-         setCorrectionsUsed(data.corrections_used);
+        setCorrectionsUsed(data.corrections_used);
       }
       setPhase("prototype_ready");
 
-      const remaining = MAX_CORRECTIONS - (data.corrections_used ?? correctionsUsed + 1);
+      setMessages((prev) => {
+        // Calculamos el restante dinámicamente
+        const currentUsed = data.corrections_used ?? (correctionsUsed + 1);
+        const remaining = MAX_CORRECTIONS - currentUsed;
+
+        return [
+          ...prev,
+          {
+            role: "assistant",
+            content:
+              remaining > 0
+                ? `Here's the updated version. You have ${remaining} adjustment${remaining === 1 ? "" : "s"} remaining.`
+                : "Here's the final adjusted version. Adjustments are complete — approve to move forward or request the formal proposal.",
+          },
+        ];
+      });
+    }
+  }
+
+  function handlePollError(action: string) {
+    if (action === "create") {
+      setPhase("clarifying");
+      setPrototypeFailed(true);
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
           content:
-            remaining > 0
-              ? `Here's the updated version (Version ${data.version_number ?? (currentVersion?.versionNumber ?? 0) + 1}). You have ${remaining} adjustment${remaining === 1 ? "" : "s"} remaining.`
-              : "Here's the final adjusted version. Adjustments are complete — approve to move forward or request the formal proposal.",
+            "I wasn't able to generate the preview right now — it may be a temporary issue. You can try again or continue chatting to refine the idea.",
+        },
+      ]);
+    } else {
+      // Si falla una actualización, devolvemos al estado 'prototype_ready'
+      setPhase("prototype_ready");
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "The adjustment didn't go through due to a temporary error. Your session is intact — please try again.",
         },
       ]);
     }
   }
 
-  function handlePollError() {
-    setPhase("clarifying");
-    setPrototypeFailed(true);
-    setMessages((prev) => [
-      ...prev,
-      {
-        role: "assistant",
-        content:
-          "I wasn't able to generate the preview right now — it may be a temporary issue. You can try again or continue chatting to refine the idea.",
-      },
-    ]);
-  }
-
   async function pollV0Status(chatId: string, pollSessionId: string, action: string, prompt?: string) {
     try {
       const params = new URLSearchParams({
-         chatId,
-         session_id: pollSessionId,
-         action,
+        chatId,
+        session_id: pollSessionId,
+        action,
       });
       if (prompt) {
-         params.set("prompt", prompt);
+        // Limitamos a 500 caracteres para evitar el error 414 URI Too Long
+        params.set("prompt", prompt.substring(0, 500));
       }
       const res = await fetch(`/api/maxwell/prototype/poll?${params.toString()}`);
       if (!res.ok) {
-         return handlePollError();
+        return handlePollError(action);
       }
       const data = await res.json();
 
       if (data.status === "pending") {
-         setTimeout(() => pollV0Status(chatId, pollSessionId, action, prompt), 5000);
+        setTimeout(() => pollV0Status(chatId, pollSessionId, action, prompt), 5000);
       } else if (data.status === "completed") {
-         handlePollSuccess(data, action);
+        handlePollSuccess(data, action);
       } else {
-         // failed or error
-         handlePollError();
+        // failed or error
+        handlePollError(action);
       }
     } catch {
-       handlePollError();
+      handlePollError(action);
     }
   }
 

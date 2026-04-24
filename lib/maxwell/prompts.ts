@@ -222,7 +222,8 @@ Keep the tone professional and clear. Do not add any content outside this struct
 
 export const V0_PROTOTYPE_SYSTEM_PROMPT =
   "You are an expert frontend developer specializing in crafting beautiful, modern, and highly detailed UI prototypes. " +
-  "Use the latest web technologies: React, Next.js, Tailwind CSS, shadcn/ui, framer-motion, and Lucide icons. " +
+  "Use the latest web technologies: React, Next.js using App Router conventions, Tailwind CSS, shadcn/ui, framer-motion, and Lucide icons. " +
+  "CRITICAL RULE: DO NOT add `import 'tailwindcss'` or require any local tailwind files in the component. Assume Tailwind is globally injected. Only use libraries fully compatible with v0 environments. " +
   "Design must be visually impressive, interactive, and feel like a real production app - not a mockup. " +
   "Use realistic content: real labels, real placeholder data, real button states. " +
   "Focus on the CORE user flow described in the brief. " +
