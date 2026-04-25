@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedViewer } from "@/lib/auth/session";
 import { viewerOwnsStudioSession } from "@/lib/auth/ownership";
-import { getStudioSession, getStudioMessages, getStudioVersions } from "@/lib/maxwell/repositories";
+import { getStudioSession, getStudioMessagesForViewer, getStudioVersions } from "@/lib/maxwell/repositories";
 import type { MessageType } from "@/lib/maxwell/repositories";
 
 export const runtime = "nodejs";
@@ -39,14 +39,17 @@ export async function GET(request: Request) {
     return NextResponse.json({ message: "Forbidden." }, { status: 403 });
   }
 
-  const dbMessages = await getStudioMessages(sessionId);
+  const dbMessages = await getStudioMessagesForViewer(sessionId, viewer.email);
   const dbVersions = await getStudioVersions(sessionId);
 
   const messages = dbMessages
     .filter((message) => message.role !== "system")
     .map((message) => ({
+      id: message.id,
       role: message.role,
       content: message.content,
+      createdAt: message.createdAt,
+      ...(message.feedback ? { feedback: message.feedback } : {}),
       ...(toUiType(message.messageType)
         ? { type: toUiType(message.messageType) }
         : {}),

@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import {
   Monitor, ExternalLink, CheckCircle, RotateCcw,
   FileText, User, ArrowRight, Loader2, AlertCircle, RefreshCw, Smartphone,
 } from "lucide-react";
-import { siteTones } from "@/lib/site-tones";
 import type { StudioPhase, PrototypeVersion } from "./studio-shell";
 
 // ============================================================================
@@ -16,19 +15,110 @@ import type { StudioPhase, PrototypeVersion } from "./studio-shell";
 function PreviewPlaceholder({ phase }: { phase: StudioPhase }) {
   const isGenerating = phase === "generating_prototype";
 
+  if (isGenerating) {
+    const steps = [
+      { label: "Product direction", status: "done" },
+      { label: "Prototype workspace", status: "active" },
+      { label: "Interactive preview", status: "queued" },
+    ];
+
+    return (
+      <div className="flex h-full flex-col bg-background">
+        <div className="flex h-11 shrink-0 items-center justify-between border-b border-border/70 bg-background px-4">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+            <span>Building preview</span>
+          </div>
+          <span className="hidden rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground sm:inline-flex">
+            live workspace
+          </span>
+        </div>
+
+        <div className="flex min-h-0 flex-1 items-center justify-center p-5 xl:p-8">
+          <div className="grid w-full max-w-5xl gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="overflow-hidden rounded-2xl border border-border/70 bg-[#070707] shadow-2xl shadow-black/30">
+              <div className="flex h-10 items-center gap-2 border-b border-border/70 px-3">
+                <span className="h-2.5 w-2.5 rounded-full bg-foreground/25" />
+                <span className="h-2.5 w-2.5 rounded-full bg-foreground/18" />
+                <span className="h-2.5 w-2.5 rounded-full bg-foreground/12" />
+                <div className="ml-3 h-5 flex-1 rounded-full border border-border/70 bg-background/80 px-3 text-[10px] leading-5 text-muted-foreground/60">
+                  preview.noon.local
+                </div>
+              </div>
+
+              <div className="space-y-5 p-5 sm:p-7">
+                <div className="space-y-3">
+                  <div className="h-4 w-28 rounded-full bg-foreground/12" />
+                  <div className="h-9 w-4/5 rounded-xl bg-foreground/15" />
+                  <div className="h-9 w-2/3 rounded-xl bg-foreground/10" />
+                  <div className="h-3 w-3/4 rounded-full bg-foreground/10" />
+                  <div className="h-3 w-1/2 rounded-full bg-foreground/10" />
+                </div>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {[0, 1, 2].map((item) => (
+                    <div
+                      key={item}
+                      className="h-28 rounded-2xl border border-border/70 bg-foreground/[0.06]"
+                    />
+                  ))}
+                </div>
+                <div className="grid gap-3 sm:grid-cols-[1.2fr_0.8fr]">
+                  <div className="h-24 rounded-2xl border border-border/70 bg-foreground/[0.05]" />
+                  <div className="h-24 rounded-2xl border border-border/70 bg-foreground/[0.08]" />
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-border/70 bg-[#0c0c0c] p-5">
+              <div className="mb-5 flex items-start gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border/70 bg-[#131313] text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">Building prototype</p>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    Maxwell is turning the conversation into a usable first version.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2.5">
+                {steps.map((step) => (
+                  <div key={step.label} className="flex items-center gap-2 text-xs text-muted-foreground">
+                    {step.status === "done" ? (
+                      <CheckCircle className="h-3.5 w-3.5 shrink-0 text-foreground/60" />
+                    ) : step.status === "active" ? (
+                      <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-foreground/60" />
+                    ) : (
+                      <span className="h-3.5 w-3.5 shrink-0 rounded-full border border-border" />
+                    )}
+                    <span>{step.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 h-1.5 overflow-hidden rounded-full bg-foreground/10">
+                <div className="h-full w-2/3 rounded-full bg-foreground/45" />
+              </div>
+              <p className="mt-3 text-[11px] leading-5 text-muted-foreground/80">
+                The preview will open here automatically when the first version is ready.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div
-      className="flex flex-col items-center justify-center h-full text-center px-8"
-      style={{ backgroundColor: siteTones.brand.mutedSurface ?? "var(--secondary)" }}
-    >
+    <div className="flex h-full flex-col items-center justify-center bg-background px-8 text-center">
       <div
-        className={`w-16 h-16 rounded-2xl border flex items-center justify-center mb-5 transition-all duration-500 ${isGenerating ? "scale-110" : "scale-100"}`}
-        style={{ backgroundColor: siteTones.brand.surface, borderColor: siteTones.brand.border }}
+        className={`w-16 h-16 rounded-2xl border border-border/70 bg-[#131313] flex items-center justify-center mb-5 text-muted-foreground transition-all duration-500 ${isGenerating ? "scale-110" : "scale-100"}`}
       >
         {isGenerating ? (
-          <Loader2 className="w-7 h-7 animate-spin" style={{ color: siteTones.brand.accent }} />
+          <Loader2 className="w-7 h-7 animate-spin" />
         ) : (
-          <Monitor className="w-7 h-7" style={{ color: siteTones.brand.accent }} />
+          <Monitor className="w-7 h-7" />
         )}
       </div>
 
@@ -48,7 +138,7 @@ function PreviewPlaceholder({ phase }: { phase: StudioPhase }) {
               key={i}
               className="rounded-full animate-pulse transition-all duration-300"
               style={{
-                backgroundColor: siteTones.brand.accent,
+                backgroundColor: "var(--muted-foreground)",
                 width: i === 2 ? "10px" : "6px",
                 height: i === 2 ? "10px" : "6px",
                 animationDelay: `${i * 150}ms`,
@@ -79,27 +169,22 @@ function PreviewFailed({
   agentHref: string;
 }) {
   return (
-    <div
-      className="flex flex-col items-center justify-center h-full text-center px-8"
-      style={{ backgroundColor: siteTones.brand.mutedSurface ?? "var(--secondary)" }}
-    >
+    <div className="flex h-full flex-col items-center justify-center bg-background px-8 text-center">
       <div
-        className="w-16 h-16 rounded-2xl border flex items-center justify-center mb-5"
-        style={{ backgroundColor: siteTones.services.surface, borderColor: siteTones.services.border }}
+        className="w-16 h-16 rounded-2xl border border-border/70 bg-[#131313] flex items-center justify-center mb-5 text-muted-foreground"
       >
-        <AlertCircle className="w-7 h-7" style={{ color: siteTones.services.accent }} />
+        <AlertCircle className="w-7 h-7" />
       </div>
       <p className="text-base font-display mb-2">Preview not available</p>
       <p className="text-sm text-muted-foreground max-w-xs leading-relaxed mb-6">
-        The interactive preview couldn't be generated right now. This is usually temporary.
+        The interactive preview could not be generated right now. This is usually temporary.
         You can try again or continue chatting to refine the idea.
       </p>
       <div className="flex flex-wrap gap-3 justify-center">
         <button
           type="button"
           onClick={onRetry}
-          className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
-          style={{ backgroundColor: siteTones.brand.accent, color: siteTones.brand.contrast }}
+          className="inline-flex items-center gap-2 rounded-full bg-[#131313] px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-foreground/10"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           Try again
@@ -150,15 +235,15 @@ function VersionSwitcher({
             className="flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-mono transition-all"
             style={
               isSelected
-                ? { backgroundColor: siteTones.brand.accent, color: siteTones.brand.contrast }
-                : { backgroundColor: siteTones.brand.surface, color: "var(--muted-foreground)", border: `1px solid ${siteTones.brand.border}` }
+                ? { backgroundColor: "#131313", color: "var(--foreground)", border: "1px solid var(--border)" }
+                : { backgroundColor: "transparent", color: "var(--muted-foreground)", border: "1px solid var(--border)" }
             }
           >
             v{v.versionNumber}
             {isLatest && (
               <span
                 className="w-1.5 h-1.5 rounded-full"
-                style={{ backgroundColor: isSelected ? siteTones.brand.contrast : siteTones.brand.accent }}
+                style={{ backgroundColor: isSelected ? "var(--foreground)" : "var(--muted-foreground)" }}
               />
             )}
           </button>
@@ -185,7 +270,7 @@ function CorrectionInput({
     <div className="px-4 py-3 border-t border-border">
       <p className="text-xs text-muted-foreground mb-2">
         What would you like adjusted?{" "}
-        <span style={{ color: siteTones.brand.accent }}>
+        <span className="text-foreground/80">
           {remaining} {remaining === 1 ? "adjustment" : "adjustments"} remaining
         </span>
       </p>
@@ -213,8 +298,7 @@ function CorrectionInput({
             }
           }}
           disabled={!value.trim()}
-          className="w-9 h-9 rounded-xl flex items-center justify-center disabled:opacity-40 self-end shrink-0"
-          style={{ backgroundColor: siteTones.brand.accent, color: siteTones.brand.contrast }}
+          className="w-9 h-9 rounded-xl flex items-center justify-center bg-[#131313] text-foreground disabled:opacity-40 self-end shrink-0 transition-colors hover:bg-foreground/10"
         >
           <ArrowRight className="w-4 h-4" />
         </button>
@@ -268,18 +352,11 @@ export function StudioPreviewPane({
   const isRevising = phase === "revision_requested";
   const isPendingReview = phase === "proposal_pending_review" || phase === "proposal_sent";
   const correctionsExhausted = correctionsUsed >= maxCorrections;
-
-  // Reset correction input when phase leaves prototype_ready
-  useEffect(() => {
-    if (phase !== "prototype_ready") setShowCorrectionInput(false);
-  }, [phase]);
+  const shouldShowCorrectionInput = canApprove && showCorrectionInput;
 
   if (!currentVersion) {
     return (
-      <div
-        className="h-full"
-        style={{ backgroundColor: siteTones.brand.mutedSurface ?? "var(--secondary)" }}
-      >
+      <div className="h-full">
         {prototypeFailed ? (
           <PreviewFailed onRetry={onRetryPrototype} agentHref={agentHref} />
         ) : (
@@ -294,7 +371,7 @@ export function StudioPreviewPane({
       {/* Preview bar */}
       <div
         className="flex items-center justify-between px-4 py-2.5 border-b shrink-0 gap-3"
-        style={{ backgroundColor: siteTones.brand.surface, borderColor: siteTones.brand.border }}
+        style={{ backgroundColor: "#050505", borderColor: "var(--border)" }}
       >
         {/* Left: traffic lights + version switcher or status */}
         <div className="flex items-center gap-3 min-w-0">
@@ -307,7 +384,7 @@ export function StudioPreviewPane({
           {isRevising ? (
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-mono text-muted-foreground">Applying adjustment...</span>
-              <Loader2 className="w-3 h-3 animate-spin" style={{ color: siteTones.brand.accent }} />
+              <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
             </div>
           ) : (
             <VersionSwitcher
@@ -339,14 +416,7 @@ export function StudioPreviewPane({
 
       {/* Corrections exhausted banner */}
       {correctionsExhausted && canApprove && (
-        <div
-          className="flex items-center gap-2.5 px-4 py-2.5 border-b shrink-0 text-xs"
-          style={{
-            backgroundColor: siteTones.services.surface,
-            borderColor: siteTones.services.border,
-            color: siteTones.services.accent,
-          }}
-        >
+        <div className="flex shrink-0 items-center gap-2.5 border-b border-border/70 bg-[#050505] px-4 py-2.5 text-xs text-muted-foreground">
           <AlertCircle className="w-3.5 h-3.5 shrink-0" />
           <span>Adjustments complete — approve to move forward or request the formal proposal.</span>
         </div>
@@ -357,7 +427,7 @@ export function StudioPreviewPane({
         {isRevising && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-sm">
             <div className="flex flex-col items-center gap-3 text-center">
-              <Loader2 className="w-8 h-8 animate-spin" style={{ color: siteTones.brand.accent }} />
+              <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
               <p className="text-sm text-muted-foreground">Applying adjustment...</p>
             </div>
           </div>
@@ -371,13 +441,11 @@ export function StudioPreviewPane({
         {/* Mobile: open-in-browser card */}
         <div
           className="flex lg:hidden flex-col items-center justify-center h-full px-8 text-center"
-          style={{ backgroundColor: siteTones.brand.mutedSurface ?? "var(--secondary)" }}
         >
           <div
-            className="w-16 h-16 rounded-2xl border flex items-center justify-center mb-5"
-            style={{ backgroundColor: siteTones.brand.surface, borderColor: siteTones.brand.border }}
+            className="w-16 h-16 rounded-2xl border border-border/70 bg-[#131313] flex items-center justify-center mb-5 text-muted-foreground"
           >
-            <Smartphone className="w-7 h-7" style={{ color: siteTones.brand.accent }} />
+            <Smartphone className="w-7 h-7" />
           </div>
           <p className="text-base font-display mb-2">
             Version {selectedVersion.versionNumber} ready
@@ -389,8 +457,7 @@ export function StudioPreviewPane({
             href={selectedVersion.demoUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-opacity hover:opacity-90"
-            style={{ backgroundColor: siteTones.brand.accent, color: siteTones.brand.contrast }}
+            className="inline-flex items-center gap-2 rounded-full bg-[#131313] px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-foreground/10"
           >
             <ExternalLink className="w-4 h-4" />
             Open prototype
@@ -405,19 +472,18 @@ export function StudioPreviewPane({
       {(canApprove || canRequestProposal || isPendingReview) && (
         <div
           className="shrink-0 border-t"
-          style={{ borderColor: siteTones.brand.border }}
+          style={{ borderColor: "var(--border)" }}
         >
           {/* Prototype ready — approve or adjust */}
-          {canApprove && !showCorrectionInput && (
+          {canApprove && !shouldShowCorrectionInput && (
             <div
               className="flex flex-wrap items-center gap-3 px-4 py-3"
-              style={{ backgroundColor: siteTones.brand.surface }}
+              style={{ backgroundColor: "#050505" }}
             >
               <button
                 type="button"
                 onClick={onApprove}
-                className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
-                style={{ backgroundColor: siteTones.brand.accent, color: siteTones.brand.contrast }}
+                className="inline-flex items-center gap-2 rounded-full bg-[#131313] px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-foreground/10"
               >
                 <CheckCircle className="w-3.5 h-3.5" />
                 Approve prototype
@@ -432,8 +498,7 @@ export function StudioPreviewPane({
                   <RotateCcw className="w-3.5 h-3.5" />
                   Request adjustment
                   <span
-                    className="text-xs rounded-full px-1.5 py-0.5 font-mono"
-                    style={{ backgroundColor: siteTones.brand.surface, color: siteTones.brand.accent }}
+                    className="rounded-full border border-border/70 bg-[#131313] px-1.5 py-0.5 font-mono text-xs text-muted-foreground"
                   >
                     {maxCorrections - correctionsUsed} left
                   </span>
@@ -451,7 +516,7 @@ export function StudioPreviewPane({
           )}
 
           {/* Correction input */}
-          {canApprove && showCorrectionInput && (
+          {shouldShowCorrectionInput && (
             <CorrectionInput
               remaining={maxCorrections - correctionsUsed}
               onSubmit={(prompt) => {
@@ -465,9 +530,9 @@ export function StudioPreviewPane({
           {canRequestProposal && (
             <div
               className="px-4 py-4"
-              style={{ backgroundColor: siteTones.brand.surface }}
+              style={{ backgroundColor: "#050505" }}
             >
-              <p className="text-sm font-medium mb-1" style={{ color: siteTones.brandDeep.accent }}>
+              <p className="text-sm font-medium mb-1">
                 Prototype approved
               </p>
               <p className="text-xs text-muted-foreground mb-3">
@@ -477,8 +542,7 @@ export function StudioPreviewPane({
                 <button
                   type="button"
                   onClick={onRequestProposal}
-                  className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium"
-                  style={{ backgroundColor: siteTones.brand.accent, color: siteTones.brand.contrast }}
+                  className="inline-flex items-center gap-2 rounded-full bg-[#131313] px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-foreground/10"
                 >
                   <FileText className="w-3.5 h-3.5" />
                   Request formal proposal
@@ -498,18 +562,17 @@ export function StudioPreviewPane({
           {isPendingReview && (
             <div
               className="flex items-start gap-3 px-4 py-4"
-              style={{ backgroundColor: siteTones.brand.surface }}
+              style={{ backgroundColor: "#050505" }}
             >
               <div
-                className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                style={{ backgroundColor: siteTones.brand.accent }}
+                className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 border border-border/70 bg-[#131313] text-muted-foreground"
               >
-                <User className="w-4 h-4" style={{ color: siteTones.brand.contrast }} />
+                <User className="w-4 h-4" />
               </div>
               <div>
                 <p className="text-sm font-medium mb-0.5">Proposal under review</p>
                 <p className="text-xs text-muted-foreground">
-                  A Noon Project Manager is reviewing this before sending it to you. You'll receive it shortly.
+                  A Noon Project Manager is reviewing this before sending it to you. You will receive it shortly.
                 </p>
               </div>
             </div>

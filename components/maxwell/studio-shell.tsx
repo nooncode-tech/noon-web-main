@@ -12,9 +12,20 @@ import { getContactHref, siteRoutes } from "@/lib/site-config";
 // ============================================================================
 
 export type ChatMessage = {
+  id?: string;
   role: "user" | "assistant";
   content: string;
-  type?: "chat" | "thinking" | "system_event";
+  type?: "chat" | "thinking" | "system_event" | "error";
+  createdAt?: string;
+  durationMs?: number;
+  feedback?: MessageFeedback | null;
+};
+
+export type MessageFeedback = "up" | "down";
+
+export type ReplyTarget = {
+  messageId: string;
+  excerpt: string;
 };
 
 export type StudioPhase =
@@ -35,9 +46,52 @@ export type PrototypeVersion = {
   versionNumber: number;
 };
 
+type PrototypePollResult = {
+  chatId: string;
+  demoUrl: string;
+  version_number?: number;
+  corrections_used?: number;
+  max_corrections?: number;
+};
+
 export type ActiveView = "chat" | "preview";
 
-const MAX_CORRECTIONS = 2;
+const DEFAULT_MAX_CORRECTIONS = 2;
+
+function createMessageId() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function createMessage(
+  message: Omit<ChatMessage, "id" | "createdAt"> &
+    Partial<Pick<ChatMessage, "id" | "createdAt">>,
+): ChatMessage {
+  return {
+    id: message.id ?? createMessageId(),
+    createdAt: message.createdAt ?? new Date().toISOString(),
+    ...message,
+  };
+}
+
+function normalizeMessage(message: ChatMessage): ChatMessage {
+  return {
+    ...message,
+    id: message.id ?? createMessageId(),
+    createdAt: message.createdAt ?? new Date().toISOString(),
+  };
+}
+
+function isAbortError(error: unknown) {
+  return error instanceof DOMException && error.name === "AbortError";
+}
+
+function elapsedMs(startedAt: number) {
+  return Math.max(0, Math.round(performance.now() - startedAt));
+}
 
 // ============================================================================
 // StudioShell
@@ -56,31 +110,27 @@ export function StudioShell({
 }: StudioShellProps) {
   const router = useRouter();
 
-  // Phase & state
   const [phase, setPhase] = useState<StudioPhase>("intake");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isThinking, setIsThinking] = useState(false);
   const [isRehydrating, setIsRehydrating] = useState(!!initialSessionId);
   const [input, setInput] = useState("");
+  const [replyTarget, setReplyTarget] = useState<ReplyTarget | null>(null);
+  const [stopNotice, setStopNotice] = useState<string | null>(null);
 
-  // Session (persisted in DB)
   const [sessionId, setSessionId] = useState<string | null>(initialSessionId ?? null);
-
-  // Prototype
   const [prototypeVersions, setPrototypeVersions] = useState<PrototypeVersion[]>([]);
-  const [selectedVersionIndex, setSelectedVersionIndex] = useState<number>(0);
+  const [selectedVersionIndex, setSelectedVersionIndex] = useState(0);
   const [correctionsUsed, setCorrectionsUsed] = useState(0);
+  const [maxCorrections, setMaxCorrections] = useState(DEFAULT_MAX_CORRECTIONS);
   const [activeView, setActiveView] = useState<ActiveView>("chat");
   const [prototypeFailed, setPrototypeFailed] = useState(false);
+  const [projectName, setProjectName] = useState("");
 
-  // Project name (Maxwell will eventually extract this)
-  const [projectName, setProjectName] = useState<string>("");
-
-  // Derived
   const currentVersion = prototypeVersions[prototypeVersions.length - 1] ?? null;
-
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const hasStartedRef = useRef(false);
+  const chatAbortRef = useRef<AbortController | null>(null);
 
   const agentHref = getContactHref({
     inquiry: "new-project",
@@ -88,59 +138,53 @@ export function StudioShell({
     source: "maxwell-studio-agent",
   });
 
-  // ── URL persistence: once we have a session_id, embed it in the URL ────────
-
   useEffect(() => {
     if (sessionId && !initialSessionId) {
       router.replace(`${siteRoutes.maxwellStudio}?session_id=${sessionId}`);
     }
-    // Only runs when sessionId is first set from a new session
+    // Only runs when sessionId is first created from a new prompt.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);
-
-  // ── Kick off on mount ──────────────────────────────────────────────────────
 
   useEffect(() => {
     if (hasStartedRef.current) return;
 
-    // Rehydration path: restore from DB
     if (initialSessionId) {
       hasStartedRef.current = true;
       void rehydrateSession(initialSessionId);
       return;
     }
 
-    // Fresh empty Studio path: wait for the first message directly in Studio.
-    if (!initialPrompt.trim()) {
+    const trimmedPrompt = initialPrompt.trim();
+    if (!trimmedPrompt) {
       hasStartedRef.current = true;
+      router.replace(siteRoutes.home);
       return;
     }
 
-    // Fresh session path: start conversation with prompt
     hasStartedRef.current = true;
-    setMessages([{ role: "user", content: initialPrompt }]);
+    const initialUserMessage = createMessage({ role: "user", content: trimmedPrompt });
+    setMessages([initialUserMessage]);
     setPhase("clarifying");
-    void sendToMaxwell(initialPrompt, true);
+    void sendToMaxwell(trimmedPrompt, true, {
+      localUserMessageId: initialUserMessage.id,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialPrompt, initialSessionId]);
 
-  // Switch to preview tab when first prototype arrives (mobile UX)
   useEffect(() => {
     if (prototypeVersions.length > 0) {
       setActiveView("preview");
-      // Always select the latest version when a new one is added
       setSelectedVersionIndex(prototypeVersions.length - 1);
     }
   }, [prototypeVersions.length]);
-
-  // ── Rehydration ─────────────────────────────────────────────────────────────
 
   async function rehydrateSession(id: string) {
     setIsRehydrating(true);
     try {
       const res = await fetch(`/api/maxwell/studio/session?session_id=${id}`);
       if (!res.ok) {
-        router.replace(siteRoutes.maxwellStudio);
+        router.replace(siteRoutes.home);
         return;
       }
 
@@ -160,7 +204,8 @@ export function StudioShell({
       setPhase(data.session.status);
       setProjectName(data.session.goalSummary ?? "");
       setCorrectionsUsed(data.session.correctionsUsed);
-      setMessages(data.messages);
+      setMaxCorrections(data.session.maxCorrections);
+      setMessages(data.messages.map(normalizeMessage));
       setPrototypeVersions(data.versions);
 
       if (data.versions.length > 0) {
@@ -168,18 +213,27 @@ export function StudioShell({
         setActiveView("preview");
       }
     } catch {
-      router.replace(siteRoutes.maxwellStudio);
+      router.replace(siteRoutes.home);
     } finally {
       setIsRehydrating(false);
     }
   }
 
-  // ── Chat ────────────────────────────────────────────────────────────────────
-
-  async function sendToMaxwell(userMessage: string, isFirstMessage = false) {
+  async function sendToMaxwell(
+    userMessage: string,
+    isFirstMessage = false,
+    options?: {
+      replyTarget?: ReplyTarget | null;
+      regenerateAssistantMessageId?: string;
+      localUserMessageId?: string;
+    },
+  ) {
+    const requestStartedAt = performance.now();
     setIsThinking(true);
 
-    // On the first message of a fresh session, pick up any file attached in the hero
+    const controller = new AbortController();
+    chatAbortRef.current = controller;
+
     let imageUrl: string | undefined;
     let effectiveMessage = userMessage;
 
@@ -194,16 +248,17 @@ export function StudioShell({
             dataUrl: string;
             textContent?: string;
           };
+
           if ((file.mimeType.startsWith("image/") || file.mimeType === "image/url") && file.dataUrl) {
             imageUrl = file.dataUrl;
           } else if (file.textContent) {
-            effectiveMessage = `[Attached file: ${file.name}]\n${file.textContent}\n\n${userMessage}`;
+            effectiveMessage = `[Attached file: ${file.name}]\n${file.textContent}\n\n${effectiveMessage}`;
           } else {
-            effectiveMessage = `[Attached file: ${file.name}]\n\n${userMessage}`;
+            effectiveMessage = `[Attached file: ${file.name}]\n\n${effectiveMessage}`;
           }
         }
       } catch {
-        // sessionStorage unavailable — proceed without file
+        // sessionStorage unavailable; continue without attachment context.
       }
     }
 
@@ -211,66 +266,167 @@ export function StudioShell({
       const res = await fetch("/api/maxwell/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           message: effectiveMessage,
           ...(sessionId ? { session_id: sessionId } : {}),
           ...(imageUrl ? { image_url: imageUrl } : {}),
+          ...(options?.replyTarget
+            ? { reply_to_message_id: options.replyTarget.messageId }
+            : {}),
+          ...(options?.regenerateAssistantMessageId
+            ? { regenerate_assistant_message_id: options.regenerateAssistantMessageId }
+            : {}),
         }),
       });
+
+      if (res.status === 499) return;
+
       const data = (await res.json()) as {
         reply?: string;
         thinking?: string | null;
         message?: string;
+        user_message?: ChatMessage;
+        assistant_messages?: ChatMessage[];
         readyForPrototype?: boolean;
         session_id?: string;
+        session_status?: StudioPhase;
         project_name?: string | null;
         corrections_used?: number;
+        max_corrections?: number;
       };
 
-      // Store session_id on first response
+      if (!res.ok) {
+        throw new Error(data.message ?? "Maxwell request failed.");
+      }
+
       const effectiveSessionId = data.session_id ?? sessionId;
       if (data.session_id && !sessionId) setSessionId(data.session_id);
-
-      // Update project name if Maxwell extracted one
-      if (data.project_name && !projectName) {
-        setProjectName(data.project_name);
-      }
+      if (data.session_status) setPhase(data.session_status);
+      if (data.project_name && !projectName) setProjectName(data.project_name);
+      if (data.corrections_used !== undefined) setCorrectionsUsed(data.corrections_used);
+      if (data.max_corrections !== undefined) setMaxCorrections(data.max_corrections);
 
       const reply =
         data.reply ?? data.message ?? "Maxwell couldn't respond right now. Please try again.";
+      const durationMs = elapsedMs(requestStartedAt);
+      const assistantMessages = data.assistant_messages?.length
+        ? data.assistant_messages.map((message) => ({
+            ...normalizeMessage(message),
+            durationMs: message.durationMs ?? durationMs,
+          }))
+        : [
+            ...(data.thinking
+              ? [
+                  createMessage({
+                    role: "assistant" as const,
+                    content: data.thinking,
+                    type: "thinking" as const,
+                    durationMs,
+                  }),
+                ]
+              : []),
+            createMessage({
+              role: "assistant",
+              content: reply,
+              durationMs,
+            }),
+          ];
 
-      // Show thinking block before the reply if present
-      setMessages((prev) => [
-        ...prev,
-        ...(data.thinking ? [{ role: "assistant" as const, content: data.thinking, type: "thinking" as const }] : []),
-        { role: "assistant", content: reply },
-      ]);
+      setMessages((prev) => {
+        let next = prev;
+        if (data.user_message) {
+          const serverUserMessage = normalizeMessage(data.user_message);
+          const localUserMessageId = options?.localUserMessageId;
+
+          if (localUserMessageId) {
+            next = next.map((message) =>
+              message.id === localUserMessageId ? serverUserMessage : message,
+            );
+          } else if (!next.some((message) => message.id === serverUserMessage.id)) {
+            next = [...next, serverUserMessage];
+          }
+        }
+
+        const newAssistantMessages = assistantMessages.filter(
+          (message) => !message.id || !next.some((existing) => existing.id === message.id),
+        );
+        return [...next, ...newAssistantMessages];
+      });
 
       if (data.readyForPrototype) {
         void buildPrototype(userMessage, reply, effectiveSessionId ?? null);
       }
-    } catch {
+    } catch (error) {
+      if (isAbortError(error)) return;
+
       setMessages((prev) => [
         ...prev,
-        {
+        createMessage({
           role: "assistant",
-          content: "Maxwell couldn't respond right now. Your session is preserved — please try again.",
-        },
+          content: "Connection interrupted. Try sending the message again.",
+          type: "error",
+          durationMs: elapsedMs(requestStartedAt),
+        }),
       ]);
     } finally {
+      if (chatAbortRef.current === controller) {
+        chatAbortRef.current = null;
+      }
       setIsThinking(false);
     }
+  }
+
+  function handleStopThinking() {
+    chatAbortRef.current?.abort();
+    chatAbortRef.current = null;
+    setIsThinking(false);
+    setStopNotice("Stopped");
+    window.setTimeout(() => {
+      setStopNotice((current) => (current === "Stopped" ? null : current));
+    }, 1800);
   }
 
   function handleSend() {
     const msg = input.trim();
     if (!msg || isThinking) return;
+
+    const currentReplyTarget = replyTarget;
+    const localUserMessage = createMessage({ role: "user", content: msg });
     setInput("");
-    setMessages((prev) => [...prev, { role: "user", content: msg }]);
-    void sendToMaxwell(msg, !sessionId && messages.length === 0);
+    setReplyTarget(null);
+    setStopNotice(null);
+    setMessages((prev) => [...prev, localUserMessage]);
+    void sendToMaxwell(msg, !sessionId && messages.length === 0, {
+      replyTarget: currentReplyTarget,
+      localUserMessageId: localUserMessage.id,
+    });
   }
 
-  // ── Prototype ────────────────────────────────────────────────────────────────
+  function handleReplyToMessage(target: ReplyTarget) {
+    setReplyTarget(target);
+    setTimeout(() => inputRef.current?.focus(), 0);
+  }
+
+  function handleRegenerateLatest() {
+    if (isThinking) return;
+
+    const latestAssistantIndex = messages.findLastIndex(
+      (message) => message.role === "assistant" && (!message.type || message.type === "chat"),
+    );
+    if (latestAssistantIndex === -1) return;
+
+    const previousUserMessage = messages
+      .slice(0, latestAssistantIndex)
+      .findLast((message) => message.role === "user");
+
+    const assistantMessage = messages[latestAssistantIndex];
+    if (!previousUserMessage || !assistantMessage.id) return;
+
+    void sendToMaxwell(previousUserMessage.content, false, {
+      regenerateAssistantMessageId: assistantMessage.id,
+    });
+  }
 
   async function buildPrototype(
     lastUserMsg: string,
@@ -282,21 +438,20 @@ export function StudioShell({
 
     setMessages((prev) => [
       ...prev,
-      {
+      createMessage({
         role: "assistant",
-        content: "Give me a moment — I'm putting together an initial version based on what we've discussed.",
+        content: "Preparing the first interactive version from this conversation.",
         type: "system_event",
-      },
+      }),
     ]);
 
     try {
-      // Build context from current UI messages
       const contextLines = messages
         .concat(
           { role: "user", content: lastUserMsg },
-          { role: "assistant", content: lastAssistantMsg }
+          { role: "assistant", content: lastAssistantMsg },
         )
-        .map((m) => `${m.role === "user" ? "Client" : "Maxwell"}: ${m.content}`)
+        .map((message) => `${message.role === "user" ? "Client" : "Maxwell"}: ${message.content}`)
         .join("\n");
 
       const res = await fetch("/api/maxwell/prototype", {
@@ -313,6 +468,7 @@ export function StudioShell({
         demoUrl?: string;
         version_number?: number;
         corrections_used?: number;
+        max_corrections?: number;
         message?: string;
         pending?: boolean;
         session_id?: string;
@@ -333,25 +489,27 @@ export function StudioShell({
         };
         setPrototypeVersions((prev) => [...prev, newVersion]);
         if (data.corrections_used !== undefined) setCorrectionsUsed(data.corrections_used);
+        if (data.max_corrections !== undefined) setMaxCorrections(data.max_corrections);
         setPhase("prototype_ready");
         setMessages((prev) => [
           ...prev,
-          {
+          createMessage({
             role: "assistant",
             content:
-              "Here's Version 1 based on everything we've covered. Take a look — you can request up to 2 adjustments before moving to the proposal.",
-          },
+              "Version 1 is ready. Review it, request adjustments if needed, or approve it to move toward the formal proposal.",
+          }),
         ]);
       } else {
         setPhase("clarifying");
         setPrototypeFailed(true);
         setMessages((prev) => [
           ...prev,
-          {
+          createMessage({
             role: "assistant",
             content:
-              "I wasn't able to generate the preview right now — it may be a temporary issue. You can try again or continue chatting to refine the idea.",
-          },
+              data.message ??
+              "I wasn't able to generate the preview right now. You can try again or keep refining the idea.",
+          }),
         ]);
       }
     } catch {
@@ -359,16 +517,16 @@ export function StudioShell({
       setPrototypeFailed(true);
       setMessages((prev) => [
         ...prev,
-        {
+        createMessage({
           role: "assistant",
           content:
-            "The preview couldn't be generated right now. Your session is intact — you can try again or continue chatting.",
-        },
+            "The preview couldn't be generated right now. Your session is intact. You can try again or continue chatting.",
+        }),
       ]);
     }
   }
 
-  function handlePollSuccess(data: any, action: string) {
+  function handlePollSuccess(data: PrototypePollResult, action: string) {
     if (action === "create") {
       const newVersion: PrototypeVersion = {
         chatId: data.chatId,
@@ -377,14 +535,15 @@ export function StudioShell({
       };
       setPrototypeVersions((prev) => [...prev, newVersion]);
       if (data.corrections_used !== undefined) setCorrectionsUsed(data.corrections_used);
+      if (data.max_corrections !== undefined) setMaxCorrections(data.max_corrections);
       setPhase("prototype_ready");
       setMessages((prev) => [
         ...prev,
-        {
+        createMessage({
           role: "assistant",
           content:
-            "Here's Version 1 based on everything we've covered. Take a look — you can request up to 2 adjustments before moving to the proposal.",
-        },
+            "Version 1 is ready. Review it, request adjustments if needed, or approve it to move toward the formal proposal.",
+        }),
       ]);
     } else {
       // ACÁ LA CORRECCIÓN: Usamos prev para leer siempre la versión correcta
@@ -403,22 +562,25 @@ export function StudioShell({
       if (data.corrections_used !== undefined) {
         setCorrectionsUsed(data.corrections_used);
       }
+      if (data.max_corrections !== undefined) {
+        setMaxCorrections(data.max_corrections);
+      }
       setPhase("prototype_ready");
 
       setMessages((prev) => {
-        // Calculamos el restante dinámicamente
         const currentUsed = data.corrections_used ?? (correctionsUsed + 1);
-        const remaining = MAX_CORRECTIONS - currentUsed;
+        const currentMax = data.max_corrections ?? maxCorrections;
+        const remaining = currentMax - currentUsed;
 
         return [
           ...prev,
-          {
+          createMessage({
             role: "assistant",
             content:
               remaining > 0
-                ? `Here's the updated version. You have ${remaining} adjustment${remaining === 1 ? "" : "s"} remaining.`
-                : "Here's the final adjusted version. Adjustments are complete — approve to move forward or request the formal proposal.",
-          },
+                ? `The updated version is ready. You have ${remaining} adjustment${remaining === 1 ? "" : "s"} remaining.`
+                : "The final adjusted version is ready. Adjustments are complete. Approve it to move forward or request the formal proposal.",
+          }),
         ];
       });
     }
@@ -430,22 +592,21 @@ export function StudioShell({
       setPrototypeFailed(true);
       setMessages((prev) => [
         ...prev,
-        {
+        createMessage({
           role: "assistant",
           content:
-            "I wasn't able to generate the preview right now — it may be a temporary issue. You can try again or continue chatting to refine the idea.",
-        },
+            "I wasn't able to generate the preview right now. It may be a temporary issue. You can try again or continue chatting to refine the idea.",
+        }),
       ]);
     } else {
-      // Si falla una actualización, devolvemos al estado 'prototype_ready'
       setPhase("prototype_ready");
       setMessages((prev) => [
         ...prev,
-        {
+        createMessage({
           role: "assistant",
           content:
-            "The adjustment didn't go through due to a temporary error. Your session is intact — please try again.",
-        },
+            "The adjustment didn't go through due to a temporary error. Your session is intact. Please try again.",
+        }),
       ]);
     }
   }
@@ -458,7 +619,6 @@ export function StudioShell({
         action,
       });
       if (prompt) {
-        // Limitamos a 500 caracteres para evitar el error 414 URI Too Long
         params.set("prompt", prompt.substring(0, 500));
       }
       const res = await fetch(`/api/maxwell/prototype/poll?${params.toString()}`);
@@ -469,8 +629,17 @@ export function StudioShell({
 
       if (data.status === "pending") {
         setTimeout(() => pollV0Status(chatId, pollSessionId, action, prompt), 5000);
-      } else if (data.status === "completed") {
-        handlePollSuccess(data, action);
+      } else if (data.status === "completed" && data.chatId && data.demoUrl) {
+        handlePollSuccess(
+          {
+            chatId: data.chatId,
+            demoUrl: data.demoUrl,
+            version_number: data.version_number,
+            corrections_used: data.corrections_used,
+            max_corrections: data.max_corrections,
+          },
+          action,
+        );
       } else {
         // failed or error
         handlePollError(action);
@@ -484,13 +653,13 @@ export function StudioShell({
   // ── Corrections ────────────────────────────────────────────────────────────
 
   async function handleRequestCorrection(correctionPrompt: string) {
-    if (!currentVersion || correctionsUsed >= MAX_CORRECTIONS) return;
+    if (!currentVersion || correctionsUsed >= maxCorrections) return;
 
     setPhase("revision_requested");
     setMessages((prev) => [
       ...prev,
-      { role: "user", content: correctionPrompt },
-      { role: "assistant", content: "Got it — adjusting that for you." },
+      createMessage({ role: "user", content: correctionPrompt }),
+      createMessage({ role: "assistant", content: "Got it. Applying that adjustment now." }),
     ]);
 
     try {
@@ -509,6 +678,7 @@ export function StudioShell({
         demoUrl?: string;
         version_number?: number;
         corrections_used?: number;
+        max_corrections?: number;
         code?: string;
         message?: string;
         pending?: boolean;
@@ -516,12 +686,14 @@ export function StudioShell({
         action?: string;
       };
 
-      // Hard guard hit on server
       if (data.code === "MAX_CORRECTIONS_REACHED") {
         setPhase("prototype_ready");
         setMessages((prev) => [
           ...prev,
-          { role: "assistant", content: data.message ?? "No more adjustments available." },
+          createMessage({
+            role: "assistant",
+            content: data.message ?? "No more adjustments are available.",
+          }),
         ]);
         return;
       }
@@ -533,7 +705,7 @@ export function StudioShell({
 
       if (data.demoUrl && currentVersion) {
         const updatedVersion: PrototypeVersion = {
-          chatId: currentVersion.chatId,
+          chatId: data.chatId ?? currentVersion.chatId,
           demoUrl: data.demoUrl,
           versionNumber: data.version_number ?? currentVersion.versionNumber + 1,
         };
@@ -541,101 +713,99 @@ export function StudioShell({
       }
 
       const newCount = data.corrections_used ?? correctionsUsed + 1;
+      if (data.max_corrections !== undefined) setMaxCorrections(data.max_corrections);
       setCorrectionsUsed(newCount);
       setPhase("prototype_ready");
 
-      const remaining = MAX_CORRECTIONS - newCount;
+      const remaining = maxCorrections - newCount;
       setMessages((prev) => [
         ...prev,
-        {
+        createMessage({
           role: "assistant",
           content:
             remaining > 0
-              ? `Here's the updated version (Version ${data.version_number ?? (currentVersion?.versionNumber ?? 0) + 1}). You have ${remaining} adjustment${remaining === 1 ? "" : "s"} remaining.`
-              : "Here's the final adjusted version. Adjustments are complete — approve to move forward or request the formal proposal.",
-        },
+              ? `The updated version is ready. You have ${remaining} adjustment${remaining === 1 ? "" : "s"} remaining.`
+              : "The final adjusted version is ready. Adjustments are complete. Approve it to move forward or request the formal proposal.",
+        }),
       ]);
     } catch {
       setPhase("prototype_ready");
       setMessages((prev) => [
         ...prev,
-        {
+        createMessage({
           role: "assistant",
-          content: "The adjustment didn't go through. Your session is intact — please try again.",
-        },
+          content: "The adjustment didn't go through. Your session is intact. Please try again.",
+        }),
       ]);
     }
   }
-
-  // ── Approve ────────────────────────────────────────────────────────────────
 
   function handleApprove() {
     setPhase("approved_for_proposal");
     setMessages((prev) => [
       ...prev,
-      {
+      createMessage({
         role: "assistant",
         content:
-          "Prototype approved. Whenever you're ready, request the formal proposal — scope, deliverables, timeline, and investment. The Noon team reviews it before it reaches you.",
-      },
+          "Prototype approved. When you're ready, request the formal proposal with scope, deliverables, timeline, and investment. The Noon team reviews it before it reaches you.",
+      }),
     ]);
   }
 
-  // ── Proposal ───────────────────────────────────────────────────────────────
-
   async function handleRequestProposal() {
+    if (!sessionId) return;
+
     setPhase("proposal_pending_review");
     setMessages((prev) => [
       ...prev,
-      { role: "user", content: "I'd like the formal proposal." },
-      {
+      createMessage({ role: "user", content: "I'd like the formal proposal." }),
+      createMessage({
         role: "assistant",
-        content: "On it — drafting the proposal based on everything we've covered.",
-      },
+        content: "Drafting the proposal based on everything we've covered.",
+      }),
     ]);
 
     try {
-      const body = sessionId
-        ? { session_id: sessionId }
-        : { history: messages, initialPrompt };
-
       const res = await fetch("/api/maxwell/proposal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ session_id: sessionId }),
       });
       const data = (await res.json()) as {
-        // Studio path
         proposal_request_id?: string;
         status?: string;
-        // Legacy path
-        proposal?: string;
         message?: string;
       };
 
-      if (data.proposal_request_id || data.proposal) {
+      if (data.proposal_request_id) {
         setMessages((prev) => [
           ...prev,
-          {
+          createMessage({
             role: "assistant",
             content:
-              "Your proposal has been drafted and is now in review with the Noon team. A Project Manager will verify everything before the formal version is sent by email. For standard cases, that usually happens in under 20 minutes.\n\nIf you'd prefer to speak directly with someone, use the 'Talk to agent' button above.",
-          },
+              "Your proposal has been drafted and is now in review with the Noon team. A Project Manager will verify it before the formal version is sent by email.",
+          }),
+        ]);
+      } else {
+        const proposalMessage = data.message;
+        if (!proposalMessage) return;
+
+        setMessages((prev) => [
+          ...prev,
+          createMessage({ role: "assistant", content: proposalMessage }),
         ]);
       }
     } catch {
       setPhase("approved_for_proposal");
       setMessages((prev) => [
         ...prev,
-        {
+        createMessage({
           role: "assistant",
           content: "Couldn't generate the proposal right now. Please try again.",
-        },
+        }),
       ]);
     }
   }
-
-  // ── Render ─────────────────────────────────────────────────────────────────
 
   if (isRehydrating) {
     return (
@@ -645,12 +815,12 @@ export function StudioShell({
             {[0, 1, 2].map((i) => (
               <span
                 key={i}
-                className="w-2 h-2 rounded-full bg-primary animate-bounce"
+                className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground"
                 style={{ animationDelay: `${i * 150}ms` }}
               />
             ))}
           </div>
-          <p className="text-sm">Restoring your session…</p>
+          <p className="text-sm">Restoring your session...</p>
         </div>
       </div>
     );
@@ -659,31 +829,37 @@ export function StudioShell({
   const canSendMessage =
     phase === "intake" ||
     phase === "clarifying" ||
+    phase === "generating_prototype" ||
     phase === "prototype_ready" ||
     phase === "approved_for_proposal";
 
+  const shouldShowWorkspace =
+    phase === "generating_prototype" ||
+    phase === "revision_requested" ||
+    prototypeFailed ||
+    prototypeVersions.length > 0;
+
   return (
-    <div className="flex flex-col h-[100dvh] bg-background overflow-hidden">
+    <div className="flex h-[100dvh] flex-col overflow-hidden bg-background">
       <StudioHeader
         projectName={projectName}
         phase={phase}
         correctionsUsed={correctionsUsed}
-        maxCorrections={MAX_CORRECTIONS}
+        maxCorrections={maxCorrections}
         agentHref={agentHref}
         viewerEmail={viewerEmail}
         activeView={activeView}
         onToggleView={setActiveView}
         hasPrototype={prototypeVersions.length > 0}
+        hasWorkspace={shouldShowWorkspace}
       />
 
-      {/* Main area */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Chat pane — always visible on desktop; toggled on mobile */}
+      <div className="flex min-h-0 flex-1 overflow-hidden">
         <div
           className={`
-            flex flex-col border-r border-border
-            w-full lg:w-[420px] xl:w-[480px] shrink-0
-            ${activeView === "chat" ? "flex" : "hidden lg:flex"}
+            flex min-h-0 flex-col
+            ${shouldShowWorkspace ? "w-full shrink-0 border-r border-border/70 bg-background lg:w-[440px] xl:w-[500px]" : "w-full border-r-0"}
+            ${shouldShowWorkspace ? (activeView === "chat" ? "flex" : "hidden lg:flex") : "flex"}
           `}
         >
           <StudioChatPane
@@ -692,45 +868,55 @@ export function StudioShell({
             input={input}
             onInputChange={setInput}
             onSend={handleSend}
+            onStop={handleStopThinking}
             inputRef={inputRef}
-            canSend={canSendMessage && !isThinking}
+            canSend={canSendMessage}
             phase={phase}
             correctionsUsed={correctionsUsed}
-            maxCorrections={MAX_CORRECTIONS}
+            maxCorrections={maxCorrections}
             prototypeVersionNumber={currentVersion?.versionNumber ?? 0}
             onApprove={handleApprove}
             onRequestCorrection={handleRequestCorrection}
             onRequestProposal={handleRequestProposal}
             agentHref={agentHref}
+            isWorkspaceVisible={shouldShowWorkspace}
+            replyTarget={replyTarget}
+            onReplyToMessage={handleReplyToMessage}
+            onClearReply={() => setReplyTarget(null)}
+            onRegenerateLatest={handleRegenerateLatest}
+            stopNotice={stopNotice}
           />
         </div>
 
-        {/* Preview pane — fills remaining space on desktop; toggled on mobile */}
-        <div
-          className={`
-            flex-1 flex flex-col
-            ${activeView === "preview" ? "flex" : "hidden lg:flex"}
-          `}
-        >
-          <StudioPreviewPane
-            prototypeVersions={prototypeVersions}
-            selectedVersionIndex={selectedVersionIndex}
-            onSelectVersion={setSelectedVersionIndex}
-            phase={phase}
-            prototypeFailed={prototypeFailed}
-            correctionsUsed={correctionsUsed}
-            maxCorrections={MAX_CORRECTIONS}
-            onApprove={handleApprove}
-            onRequestCorrection={handleRequestCorrection}
-            onRequestProposal={handleRequestProposal}
-            onRetryPrototype={() => {
-              const lastUserMsg = messages.filter((m) => m.role === "user").at(-1)?.content ?? "";
-              const lastAssistantMsg = messages.filter((m) => m.role === "assistant").at(-1)?.content ?? "";
-              void buildPrototype(lastUserMsg, lastAssistantMsg, sessionId);
-            }}
-            agentHref={agentHref}
-          />
-        </div>
+        {shouldShowWorkspace && (
+          <div
+            className={`
+              min-h-0 flex-1 flex-col
+              ${activeView === "preview" ? "flex" : "hidden lg:flex"}
+            `}
+          >
+            <StudioPreviewPane
+              prototypeVersions={prototypeVersions}
+              selectedVersionIndex={selectedVersionIndex}
+              onSelectVersion={setSelectedVersionIndex}
+              phase={phase}
+              prototypeFailed={prototypeFailed}
+              correctionsUsed={correctionsUsed}
+              maxCorrections={maxCorrections}
+              onApprove={handleApprove}
+              onRequestCorrection={handleRequestCorrection}
+              onRequestProposal={handleRequestProposal}
+              onRetryPrototype={() => {
+                const lastUserMsg =
+                  messages.filter((message) => message.role === "user").at(-1)?.content ?? "";
+                const lastAssistantMsg =
+                  messages.filter((message) => message.role === "assistant").at(-1)?.content ?? "";
+                void buildPrototype(lastUserMsg, lastAssistantMsg, sessionId);
+              }}
+              agentHref={agentHref}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

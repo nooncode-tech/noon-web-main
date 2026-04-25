@@ -9,6 +9,11 @@ import {
   updateStudioSessionStatus,
   appendStudioMessage,
   getStudioMessagesForOpenAI,
+  getStudioMessage,
+  getStudioMessages,
+  appendStudioEvent,
+  type StudioMessage,
+  type MessageType,
 } from "@/lib/maxwell/repositories";
 import { canReceiveMessage } from "@/lib/maxwell/state-machine";
 import { MAXWELL_CHAT_SYSTEM_PROMPT } from "@/lib/maxwell/prompts";
@@ -80,10 +85,49 @@ const chatRequestSchema = z
     session_id: z.string().optional(),
     prompt: z.string().trim().min(1).max(4000).optional(),
     image_url: z.string().url().optional(),
+    reply_to_message_id: z.string().min(1).optional(),
+    regenerate_assistant_message_id: z.string().min(1).optional(),
   })
   .refine((data) => data.message || data.prompt, {
     message: "Either 'message' or 'prompt' is required.",
+  })
+  .refine((data) => !(data.reply_to_message_id && data.regenerate_assistant_message_id), {
+    message: "Reply and regenerate cannot be used together.",
   });
+
+function toUiType(messageType: MessageType): "thinking" | "system_event" | undefined {
+  if (messageType === "thinking") return "thinking";
+  if (
+    messageType === "system_event" ||
+    messageType === "prototype_announcement"
+  ) {
+    return "system_event";
+  }
+  return undefined;
+}
+
+function toUiMessage(message: StudioMessage) {
+  const type = toUiType(message.messageType);
+  return {
+    id: message.id,
+    role: message.role,
+    content: message.content,
+    createdAt: message.createdAt,
+    ...(type ? { type } : {}),
+    ...(message.feedback ? { feedback: message.feedback } : {}),
+  };
+}
+
+function isAbortLikeError(error: unknown) {
+  return (
+    error instanceof DOMException && error.name === "AbortError"
+  ) || (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    (error as { name?: unknown }).name === "AbortError"
+  );
+}
 
 export async function POST(request: Request) {
   try {
@@ -144,21 +188,77 @@ export async function POST(request: Request) {
       session = await updateStudioSessionStatus(session.id, "clarifying");
     }
 
-    await appendStudioMessage({
-      studioSessionId: session.id,
-      role: "user",
-      content: userText,
-      messageType: "chat",
-    });
+    let replyContextMessage: StudioMessage | null = null;
+    if (parsed.reply_to_message_id) {
+      replyContextMessage = await getStudioMessage(parsed.reply_to_message_id);
+      if (!replyContextMessage || replyContextMessage.studioSessionId !== session.id) {
+        return NextResponse.json({ message: "Reply target not found." }, { status: 404 });
+      }
+      if (replyContextMessage.role !== "assistant" || replyContextMessage.messageType !== "chat") {
+        return NextResponse.json({ message: "Reply target must be a Maxwell response." }, { status: 400 });
+      }
+    }
 
-    const dbHistory = await getStudioMessagesForOpenAI(session.id);
-    const historyForOpenAI = dbHistory.slice(0, -1);
+    let regenerateSourceMessage: StudioMessage | null = null;
+    if (parsed.regenerate_assistant_message_id) {
+      regenerateSourceMessage = await getStudioMessage(parsed.regenerate_assistant_message_id);
+      if (!regenerateSourceMessage || regenerateSourceMessage.studioSessionId !== session.id) {
+        return NextResponse.json({ message: "Regenerate target not found." }, { status: 404 });
+      }
+      if (regenerateSourceMessage.role !== "assistant" || regenerateSourceMessage.messageType !== "chat") {
+        return NextResponse.json({ message: "Regenerate target must be a Maxwell response." }, { status: 400 });
+      }
+    }
+
+    let userMessage: StudioMessage | undefined;
+    if (!regenerateSourceMessage) {
+      userMessage = await appendStudioMessage({
+        studioSessionId: session.id,
+        role: "user",
+        content: userText,
+        messageType: "chat",
+      });
+    }
+
+    let historyForOpenAI: ChatMessage[];
+    if (regenerateSourceMessage) {
+      const dbMessages = await getStudioMessages(session.id);
+      const targetIndex = dbMessages.findIndex((message) => message.id === regenerateSourceMessage?.id);
+      const latestAssistantMessage = dbMessages
+        .filter((message) => message.role === "assistant" && message.messageType === "chat")
+        .at(-1);
+
+      if (latestAssistantMessage?.id !== regenerateSourceMessage.id) {
+        return NextResponse.json(
+          { message: "Only the latest Maxwell response can be regenerated." },
+          { status: 409 },
+        );
+      }
+
+      historyForOpenAI = dbMessages
+        .slice(0, Math.max(0, targetIndex))
+        .filter((message) => message.role !== "system" && message.messageType === "chat")
+        .map((message) => ({
+          role: message.role as "user" | "assistant",
+          content: message.content,
+        }));
+    } else {
+      const dbHistory = await getStudioMessagesForOpenAI(session.id);
+      historyForOpenAI = dbHistory.slice(0, -1) as ChatMessage[];
+    }
+
+    const promptForOpenAI = replyContextMessage
+      ? `The user is replying to this previous Maxwell response:\n"${replyContextMessage.content}"\n\nUser reply:\n${userText}`
+      : regenerateSourceMessage
+        ? `Regenerate your previous response to the user's last request. Keep the same project context, improve clarity, and avoid repeating the exact same wording.\n\nPrevious response:\n"${regenerateSourceMessage.content}"\n\nUser request:\n${userText}`
+        : userText;
 
     const { reply: rawReply } = await chatWithOpenAI({
-      prompt: userText,
-      history: historyForOpenAI as ChatMessage[],
+      prompt: promptForOpenAI,
+      history: historyForOpenAI,
       systemPrompt: MAXWELL_CHAT_SYSTEM_PROMPT,
       ...(parsed.image_url ? { imageUrl: parsed.image_url } : {}),
+      signal: request.signal,
     });
 
     const {
@@ -170,19 +270,35 @@ export async function POST(request: Request) {
       thinkingHint,
     } = extractSignals(rawReply);
 
-    await appendStudioMessage({
+    const assistantMessages: StudioMessage[] = [];
+
+    if (thinkingHint) {
+      const thinkingMessage = await appendStudioMessage({
+        studioSessionId: session.id,
+        role: "assistant",
+        content: thinkingHint,
+        messageType: "thinking",
+      });
+      assistantMessages.push(thinkingMessage);
+    }
+
+    const assistantMessage = await appendStudioMessage({
       studioSessionId: session.id,
       role: "assistant",
       content: clean,
       messageType: "chat",
     });
+    assistantMessages.push(assistantMessage);
 
-    if (thinkingHint) {
-      await appendStudioMessage({
+    if (regenerateSourceMessage) {
+      await appendStudioEvent({
         studioSessionId: session.id,
-        role: "assistant",
-        content: thinkingHint,
-        messageType: "thinking",
+        eventType: "message_regenerated",
+        actor: viewer.email,
+        payloadJson: {
+          sourceMessageId: regenerateSourceMessage.id,
+          regeneratedMessageId: assistantMessage.id,
+        },
       });
     }
 
@@ -209,6 +325,8 @@ export async function POST(request: Request) {
     return NextResponse.json({
       reply: clean,
       thinking: thinkingHint,
+      user_message: userMessage ? toUiMessage(userMessage) : undefined,
+      assistant_messages: assistantMessages.map(toUiMessage),
       readyForPrototype,
       session_id: session.id,
       session_status: session.status,
@@ -223,6 +341,10 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
+    if (request.signal.aborted || isAbortLikeError(error)) {
+      return NextResponse.json({ message: "Request aborted." }, { status: 499 });
+    }
+
     console.error("Maxwell chat error:", error);
     return NextResponse.json(
       { message: "Maxwell could not respond right now. Please try again." },

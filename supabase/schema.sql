@@ -87,6 +87,23 @@ CREATE TABLE IF NOT EXISTS studio_message (
 
 CREATE INDEX IF NOT EXISTS idx_studio_message_session ON studio_message (studio_session_id, created_at ASC);
 
+-- studio_message_feedback
+CREATE TABLE IF NOT EXISTS studio_message_feedback (
+  id                TEXT PRIMARY KEY,
+  studio_message_id TEXT NOT NULL REFERENCES studio_message(id) ON DELETE CASCADE,
+  studio_session_id TEXT NOT NULL REFERENCES studio_session(id) ON DELETE CASCADE,
+  viewer_email      TEXT NOT NULL,
+  feedback          TEXT NOT NULL,
+  created_at        TIMESTAMPTZ NOT NULL,
+  updated_at        TIMESTAMPTZ NOT NULL,
+
+  CONSTRAINT studio_message_feedback_value_check CHECK (feedback IN ('up', 'down')),
+  CONSTRAINT studio_message_feedback_message_viewer_key UNIQUE (studio_message_id, viewer_email)
+);
+
+CREATE INDEX IF NOT EXISTS idx_studio_message_feedback_session
+  ON studio_message_feedback (studio_session_id, updated_at DESC);
+
 -- studio_brief
 CREATE TABLE IF NOT EXISTS studio_brief (
   id                TEXT PRIMARY KEY,
@@ -286,6 +303,7 @@ CREATE TABLE IF NOT EXISTS studio_event (
     'status_transition',
     'brief_updated',
     'system_recovery',
+    'message_regenerated',
     'proposal_requested',
     'proposal_reviewed',
     'payment_recorded',
@@ -306,6 +324,7 @@ ALTER TABLE IF EXISTS contact_leads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS maxwell_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS studio_session ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS studio_message ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS studio_message_feedback ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS studio_brief ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS studio_version ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS proposal_request ENABLE ROW LEVEL SECURITY;
@@ -319,6 +338,7 @@ REVOKE ALL ON TABLE contact_leads FROM anon, authenticated;
 REVOKE ALL ON TABLE maxwell_sessions FROM anon, authenticated;
 REVOKE ALL ON TABLE studio_session FROM anon, authenticated;
 REVOKE ALL ON TABLE studio_message FROM anon, authenticated;
+REVOKE ALL ON TABLE studio_message_feedback FROM anon, authenticated;
 REVOKE ALL ON TABLE studio_brief FROM anon, authenticated;
 REVOKE ALL ON TABLE studio_version FROM anon, authenticated;
 REVOKE ALL ON TABLE proposal_request FROM anon, authenticated;
@@ -332,6 +352,7 @@ GRANT ALL PRIVILEGES ON TABLE contact_leads TO service_role;
 GRANT ALL PRIVILEGES ON TABLE maxwell_sessions TO service_role;
 GRANT ALL PRIVILEGES ON TABLE studio_session TO service_role;
 GRANT ALL PRIVILEGES ON TABLE studio_message TO service_role;
+GRANT ALL PRIVILEGES ON TABLE studio_message_feedback TO service_role;
 GRANT ALL PRIVILEGES ON TABLE studio_brief TO service_role;
 GRANT ALL PRIVILEGES ON TABLE studio_version TO service_role;
 GRANT ALL PRIVILEGES ON TABLE proposal_request TO service_role;

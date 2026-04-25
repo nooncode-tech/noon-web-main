@@ -12,26 +12,36 @@ export const metadata: Metadata = {
 };
 
 type Props = {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ prompt?: string; session_id?: string }>;
 };
 
-export default async function MaxwellStudioPage({ searchParams }: Props) {
-  const { prompt = "", session_id } = await searchParams;
+export default async function MaxwellStudioPage({ params, searchParams }: Props) {
+  const [{ locale }, { prompt = "", session_id }] = await Promise.all([
+    params,
+    searchParams,
+  ]);
+  const trimmedPrompt = prompt.trim();
+
+  if (!trimmedPrompt && !session_id) {
+    redirect(`/${locale}`);
+  }
+
   const session = await auth();
   const viewerEmail = session?.user?.email ?? null;
 
   if (!viewerEmail) {
     const redirectTo = session_id
       ? `${siteRoutes.maxwellStudio}?session_id=${encodeURIComponent(session_id)}`
-      : prompt.trim()
-        ? `${siteRoutes.maxwellStudio}?prompt=${encodeURIComponent(prompt)}`
+      : trimmedPrompt
+        ? `${siteRoutes.maxwellStudio}?prompt=${encodeURIComponent(trimmedPrompt)}`
         : siteRoutes.maxwellStudio;
     redirect(buildSignInHref(redirectTo));
   }
 
   return (
     <StudioShell
-      initialPrompt={decodeURIComponent(prompt)}
+      initialPrompt={trimmedPrompt}
       initialSessionId={session_id}
       viewerEmail={viewerEmail}
     />

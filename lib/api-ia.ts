@@ -49,6 +49,8 @@ export type OpenAIParams = {
   systemPrompt?: string;
   /** Modelo a usar (default: gpt-4.1) */
   model?: string;
+  /** Optional abort signal for user-initiated cancellation. */
+  signal?: AbortSignal;
 };
 
 export type OpenAIResult = {
@@ -93,7 +95,7 @@ const DEFAULT_V0_SYSTEM =
  * Llama a OpenAI GPT-4.1 con soporte de texto, imagen e historial.
  */
 export async function chatWithOpenAI(params: OpenAIParams): Promise<OpenAIResult> {
-  const { prompt, imageUrl, history = [], systemPrompt, model = "gpt-4.1" } = params;
+  const { prompt, imageUrl, history = [], systemPrompt, model = "gpt-4.1", signal } = params;
 
   if (!prompt && !imageUrl) {
     throw new Error("Se requiere al menos un prompt o imageUrl.");
@@ -118,7 +120,10 @@ export async function chatWithOpenAI(params: OpenAIParams): Promise<OpenAIResult
     { role: "user", content: userContent },
   ];
 
-  const completion = await getOpenAIClient().chat.completions.create({ model, messages });
+  const completion = await getOpenAIClient().chat.completions.create(
+    { model, messages },
+    { signal },
+  );
 
   const reply =
     completion.choices[0]?.message?.content ?? "No se pudo generar una respuesta.";

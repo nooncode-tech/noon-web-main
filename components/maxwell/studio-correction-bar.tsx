@@ -1,7 +1,6 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { siteTones } from "@/lib/site-tones";
 import type { StudioPhase } from "./studio-shell";
 
 type StudioCorrectionBarProps = {
@@ -21,18 +20,10 @@ export function StudioCorrectionBar({
   const allUsed = correctionsUsed >= maxCorrections;
   const remaining = maxCorrections - correctionsUsed;
 
-  const tone = allUsed ? siteTones.services : siteTones.brand;
-
   return (
-    <div
-      className="flex items-center gap-3 px-4 py-2.5 border-t border-b text-xs"
-      style={{ backgroundColor: tone.surface, borderColor: tone.border }}
-    >
+    <div className="flex items-center gap-3 border-y border-border/70 bg-[#050505] px-4 py-2.5 text-xs">
       {/* Version badge */}
-      <span
-        className="font-mono rounded-md px-2 py-0.5 shrink-0"
-        style={{ backgroundColor: tone.border, color: tone.accent }}
-      >
+      <span className="shrink-0 rounded-md border border-border/70 bg-[#131313] px-2 py-0.5 font-mono text-muted-foreground">
         v{versionNumber}
       </span>
 
@@ -42,16 +33,15 @@ export function StudioCorrectionBar({
           <span
             key={i}
             className="w-2 h-2 rounded-full transition-colors duration-300"
-            style={{ backgroundColor: i < correctionsUsed ? tone.accent : tone.border }}
+            style={{
+              backgroundColor: i < correctionsUsed ? "var(--muted-foreground)" : "var(--border)",
+            }}
           />
         ))}
       </div>
 
       {/* Status label */}
-      <span
-        className="flex-1 min-w-0 truncate"
-        style={{ color: tone.accent }}
-      >
+      <span className="min-w-0 flex-1 truncate text-muted-foreground">
         {isRevising ? (
           <span className="flex items-center gap-1.5">
             <Loader2 className="w-3 h-3 animate-spin inline" />

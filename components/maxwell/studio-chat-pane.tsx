@@ -1,12 +1,27 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { ArrowRight, Sparkles } from "lucide-react";
-import { siteTones } from "@/lib/site-tones";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  AlertCircle,
+  ArrowRight,
+  Check,
+  CheckCircle2,
+  Copy,
+  Loader2,
+  Mic,
+  Plus,
+  RefreshCw,
+  Reply,
+  Sparkles,
+  Square,
+  ThumbsDown,
+  ThumbsUp,
+  X,
+} from "lucide-react";
 import { StudioThinkingBlock } from "./studio-thinking-block";
 import { StudioCorrectionBar } from "./studio-correction-bar";
 import { StudioProposalCta } from "./studio-proposal-cta";
-import type { ChatMessage, StudioPhase } from "./studio-shell";
+import type { ChatMessage, MessageFeedback, ReplyTarget, StudioPhase } from "./studio-shell";
 
 // ============================================================================
 // Message sub-components
@@ -14,54 +29,219 @@ import type { ChatMessage, StudioPhase } from "./studio-shell";
 
 function ThinkingDots() {
   return (
-    <div className="flex justify-start">
-      <div
-        className="w-7 h-7 rounded-lg flex items-center justify-center border shrink-0 mr-3 mt-0.5"
-        style={{ backgroundColor: siteTones.brand.surface, borderColor: siteTones.brand.border }}
+    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+      <span>Thinking</span>
+    </div>
+  );
+}
+
+function formatDuration(durationMs?: number) {
+  if (typeof durationMs !== "number" || Number.isNaN(durationMs)) return null;
+
+  const totalSeconds = Math.max(1, Math.round(durationMs / 1000));
+  if (totalSeconds < 60) return `${totalSeconds}s`;
+
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`;
+}
+
+function formatRelativeTime(createdAt: string | undefined, now: number) {
+  if (!createdAt) return null;
+
+  const timestamp = Date.parse(createdAt);
+  if (Number.isNaN(timestamp)) return null;
+
+  const totalSeconds = Math.max(0, Math.floor((now - timestamp) / 1000));
+  if (totalSeconds < 10) return "now";
+  if (totalSeconds < 60) return `${totalSeconds}s ago`;
+
+  const totalMinutes = Math.floor(totalSeconds / 60);
+  if (totalMinutes < 60) return `${totalMinutes}m ago`;
+
+  const totalHours = Math.floor(totalMinutes / 60);
+  if (totalHours < 24) return `${totalHours}h ago`;
+
+  const totalDays = Math.floor(totalHours / 24);
+  return `${totalDays}d ago`;
+}
+
+function getMessageId(message: ChatMessage, index: number) {
+  return message.id ?? `${message.role}-${index}-${message.content.slice(0, 16)}`;
+}
+
+function getMessageExcerpt(content: string) {
+  const compact = content.replace(/\s+/g, " ").trim();
+  return compact.length > 160 ? `${compact.slice(0, 157)}...` : compact;
+}
+
+async function copyTextToClipboard(text: string) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  document.body.removeChild(textarea);
+}
+
+function AssistantActions({
+  copied,
+  feedback,
+  isLatest,
+  isThinking,
+  onCopy,
+  onFeedback,
+  onReply,
+  onRegenerate,
+}: {
+  copied: boolean;
+  feedback?: MessageFeedback;
+  isLatest: boolean;
+  isThinking: boolean;
+  onCopy: () => void;
+  onFeedback: (value: MessageFeedback) => void;
+  onReply: () => void;
+  onRegenerate: () => void;
+}) {
+  const iconButtonClass =
+    "flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground/70 transition-colors hover:bg-secondary/70 hover:text-foreground disabled:cursor-default disabled:opacity-45 disabled:hover:bg-transparent disabled:hover:text-muted-foreground";
+
+  return (
+    <div className="flex items-center gap-0.5 opacity-80 transition-opacity hover:opacity-100">
+      <button
+        type="button"
+        aria-label={copied ? "Copied" : "Copy response"}
+        title={copied ? "Copied" : "Copy"}
+        onClick={onCopy}
+        className={iconButtonClass}
       >
-        <Sparkles className="w-3.5 h-3.5" style={{ color: siteTones.brand.accent }} />
+        {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+      </button>
+      <button
+        type="button"
+        aria-label="Good response"
+        title="Good response"
+        onClick={() => onFeedback("up")}
+        className={`${iconButtonClass} ${feedback === "up" ? "bg-secondary/70 text-foreground" : ""}`}
+      >
+        <ThumbsUp className="h-3.5 w-3.5" />
+      </button>
+      <button
+        type="button"
+        aria-label="Poor response"
+        title="Poor response"
+        onClick={() => onFeedback("down")}
+        className={`${iconButtonClass} ${feedback === "down" ? "bg-secondary/70 text-foreground" : ""}`}
+      >
+        <ThumbsDown className="h-3.5 w-3.5" />
+      </button>
+      <button
+        type="button"
+        aria-label="Reply to this response"
+        title="Reply"
+        onClick={onReply}
+        className={iconButtonClass}
+      >
+        <Reply className="h-3.5 w-3.5" />
+      </button>
+      {isLatest && (
+        <button
+          type="button"
+          aria-label="Regenerate response"
+          title="Regenerate"
+          disabled={isThinking}
+          onClick={onRegenerate}
+          className={iconButtonClass}
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+function AssistantMessage({
+  content,
+  durationMs,
+  createdAt,
+  now,
+  isLatest,
+  isThinking,
+  copied,
+  feedback,
+  onCopy,
+  onFeedback,
+  onReply,
+  onRegenerate,
+}: {
+  content: string;
+  durationMs?: number;
+  createdAt?: string;
+  now: number;
+  isLatest: boolean;
+  isThinking: boolean;
+  copied: boolean;
+  feedback?: MessageFeedback;
+  onCopy: () => void;
+  onFeedback: (value: MessageFeedback) => void;
+  onReply: () => void;
+  onRegenerate: () => void;
+}) {
+  const durationLabel = formatDuration(durationMs);
+  const relativeTime = formatRelativeTime(createdAt, now);
+
+  return (
+    <div className="group max-w-[70ch] space-y-2">
+      {durationLabel && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Sparkles className="h-3.5 w-3.5" />
+          <span>Maxwell mapped this</span>
+        </div>
+      )}
+      <div className="whitespace-pre-wrap text-[13.5px] leading-7 text-foreground/90">
+        {content}
       </div>
-      <div
-        className="flex items-center gap-1.5 rounded-2xl rounded-bl-md px-4 py-3"
-        style={{
-          backgroundColor: siteTones.brand.surface,
-          border: `1px solid ${siteTones.brand.border}`,
-        }}
-      >
-        {[0, 1, 2].map((i) => (
-          <span
-            key={i}
-            className="w-2 h-2 rounded-full animate-bounce"
-            style={{
-              backgroundColor: siteTones.brand.accent,
-              animationDelay: `${i * 150}ms`,
-            }}
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-muted-foreground">
+        {(durationLabel || relativeTime) && (
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-3.5 w-3.5" />
+            <span>
+              {durationLabel ? `Ready in ${durationLabel}` : "Ready"}
+              {relativeTime ? ` - ${relativeTime}` : ""}
+            </span>
+          </div>
+        )}
+        <div>
+          <AssistantActions
+            copied={copied}
+            feedback={feedback}
+            isLatest={isLatest}
+            isThinking={isThinking}
+            onCopy={onCopy}
+            onFeedback={onFeedback}
+            onReply={onReply}
+            onRegenerate={onRegenerate}
           />
-        ))}
+        </div>
       </div>
     </div>
   );
 }
 
-function AssistantMessage({ content }: { content: string }) {
+function ErrorNotice({ content }: { content: string }) {
   return (
-    <div className="flex justify-start">
-      <div
-        className="w-7 h-7 rounded-lg flex items-center justify-center border shrink-0 mr-3 mt-0.5"
-        style={{ backgroundColor: siteTones.brand.surface, borderColor: siteTones.brand.border }}
-      >
-        <Sparkles className="w-3.5 h-3.5" style={{ color: siteTones.brand.accent }} />
-      </div>
-      <div
-        className="max-w-[80%] rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap"
-        style={{
-          backgroundColor: siteTones.brand.surface,
-          border: `1px solid ${siteTones.brand.border}`,
-          color: siteTones.brandDeep.accent,
-        }}
-      >
-        {content}
-      </div>
+    <div className="flex max-w-[70ch] items-center gap-2 text-xs text-muted-foreground">
+      <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+      <span>{content}</span>
     </div>
   );
 }
@@ -69,10 +249,35 @@ function AssistantMessage({ content }: { content: string }) {
 function UserMessage({ content }: { content: string }) {
   return (
     <div className="flex justify-end">
-      <div className="max-w-[80%] rounded-2xl rounded-br-md px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap bg-primary text-primary-foreground">
+      <div className="max-w-[62%] rounded-[18px] rounded-tr-sm bg-[#131313] px-4 py-2 text-[13.5px] leading-relaxed text-foreground shadow-sm whitespace-pre-wrap">
         {content}
       </div>
     </div>
+  );
+}
+
+function ComposerIconButton({
+  children,
+  label,
+  disabled = false,
+  onClick,
+}: {
+  children: ReactNode;
+  label: string;
+  disabled?: boolean;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={disabled ? `${label} unavailable` : label}
+      disabled={disabled}
+      onClick={onClick}
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:cursor-default disabled:opacity-60 disabled:hover:bg-transparent disabled:hover:text-muted-foreground"
+    >
+      {children}
+    </button>
   );
 }
 
@@ -86,6 +291,12 @@ type StudioChatPaneProps = {
   input: string;
   onInputChange: (value: string) => void;
   onSend: () => void;
+  onStop: () => void;
+  replyTarget: ReplyTarget | null;
+  onReplyToMessage: (target: ReplyTarget) => void;
+  onClearReply: () => void;
+  onRegenerateLatest: () => void;
+  stopNotice: string | null;
   inputRef: React.RefObject<HTMLTextAreaElement | null>;
   canSend: boolean;
   // Phase-aware props
@@ -97,7 +308,47 @@ type StudioChatPaneProps = {
   onRequestCorrection: (prompt: string) => void;
   onRequestProposal: () => void;
   agentHref: string;
+  isWorkspaceVisible: boolean;
 };
+
+function StudioActivityBlock({ content, phase }: { content: string; phase: StudioPhase }) {
+  const isActive = phase === "generating_prototype" || phase === "revision_requested";
+  const steps = [
+    "Structuring the product direction",
+    "Preparing the prototype workspace",
+    "Generating the first interactive version",
+  ];
+
+  return (
+    <div className="max-w-[68ch] space-y-2.5">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        {isActive ? (
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+        ) : (
+          <CheckCircle2 className="h-3.5 w-3.5 text-foreground/70" />
+        )}
+        <span>{isActive ? "Building workspace" : "Checkpoint"}</span>
+      </div>
+      <p className="text-[13px] leading-6 text-foreground/90">{content}</p>
+      <div className="space-y-1.5 pl-0.5">
+        {steps.map((step, index) => {
+          const complete = !isActive || index < 1;
+
+          return (
+            <div key={step} className="flex items-center gap-2 text-xs text-muted-foreground">
+              {complete ? (
+                <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-foreground/60" />
+              ) : (
+                <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-muted-foreground" />
+              )}
+              <span>{step}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export function StudioChatPane({
   messages,
@@ -105,6 +356,12 @@ export function StudioChatPane({
   input,
   onInputChange,
   onSend,
+  onStop,
+  replyTarget,
+  onReplyToMessage,
+  onClearReply,
+  onRegenerateLatest,
+  stopNotice,
   inputRef,
   canSend,
   phase,
@@ -115,44 +372,177 @@ export function StudioChatPane({
   onRequestCorrection,
   onRequestProposal,
   agentHref,
+  isWorkspaceVisible,
 }: StudioChatPaneProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const shouldStickToBottomRef = useRef(true);
+  const [now, setNow] = useState(() => Date.now());
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [feedbackByMessageId, setFeedbackByMessageId] = useState<
+    Record<string, MessageFeedback | null>
+  >({});
 
   const showActionZone =
     phase === "prototype_ready" ||
-    phase === "revision_requested" ||
     phase === "approved_for_proposal" ||
     phase === "proposal_pending_review" ||
-    phase === "proposal_sent" ||
-    phase === "generating_prototype";
+    phase === "proposal_sent";
 
   const showCorrectionBar =
     prototypeVersionNumber > 0 &&
     (phase === "prototype_ready" ||
       phase === "revision_requested" ||
       phase === "approved_for_proposal");
+  const contentFrameClass = isWorkspaceVisible ? "w-full" : "mx-auto w-full max-w-[820px]";
+  const hasDraft = input.trim().length > 0;
+  const canSubmit = hasDraft && !isThinking;
+  const messageStackClass = isWorkspaceVisible
+    ? `${contentFrameClass} space-y-5 pb-5 pt-5`
+    : `${contentFrameClass} flex min-h-full flex-col justify-end gap-5 pb-10 pt-20 sm:pb-12 sm:pt-24`;
+  const composerShellClass = isWorkspaceVisible
+    ? "shrink-0 px-3 pb-4 pt-2"
+    : "shrink-0 px-3 pb-6 pt-3 sm:px-4 sm:pb-7";
+  const composerSurfaceClass = isWorkspaceVisible
+    ? "rounded-2xl bg-[#131313] px-3 pb-2.5 pt-3 shadow-sm"
+    : "rounded-[22px] bg-[#131313] px-4 pb-3 pt-4 shadow-sm";
+  const composerInputWrapperClass = isWorkspaceVisible ? "min-h-[52px]" : "min-h-[72px]";
+  const composerTextAreaClass = isWorkspaceVisible
+    ? "max-h-28 min-h-[38px] w-full resize-none bg-transparent px-1 py-1 text-[13px] leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/55"
+    : "max-h-36 min-h-[56px] w-full resize-none bg-transparent px-1 py-1 text-[13.5px] leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/55";
+  const latestAssistantIndex = messages.findLastIndex(
+    (message) => message.role === "assistant" && (!message.type || message.type === "chat"),
+  );
 
-  // Scroll to bottom on new messages or phase change
+  function handleCopyMessage(messageId: string, content: string) {
+    void copyTextToClipboard(content).then(() => {
+      setCopiedMessageId(messageId);
+      window.setTimeout(() => {
+        setCopiedMessageId((current) => (current === messageId ? null : current));
+      }, 1400);
+    });
+  }
+
+  function handleFeedback(
+    messageId: string,
+    value: MessageFeedback,
+    persistedFeedback?: MessageFeedback | null,
+  ) {
+    const previous =
+      Object.prototype.hasOwnProperty.call(feedbackByMessageId, messageId)
+        ? feedbackByMessageId[messageId]
+        : persistedFeedback ?? null;
+    const nextValue = previous === value ? null : value;
+
+    setFeedbackByMessageId((current) => {
+      return { ...current, [messageId]: nextValue };
+    });
+
+    void fetch("/api/maxwell/message-feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message_id: messageId,
+        feedback: nextValue,
+      }),
+    }).then((response) => {
+      if (response.ok) return;
+      setFeedbackByMessageId((current) => {
+        return { ...current, [messageId]: previous };
+      });
+    }).catch(() => {
+      setFeedbackByMessageId((current) => {
+        return { ...current, [messageId]: previous };
+      });
+    });
+  }
+
+  function handleScroll() {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const distanceFromBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight;
+    shouldStickToBottomRef.current = distanceFromBottom < 160;
+  }
+
+  // Keep the latest exchange visible without yanking the user away while reading older messages.
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isThinking, phase]);
+    if (shouldStickToBottomRef.current) {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isThinking, phase, stopNotice]);
 
   // Focus input when idle
   useEffect(() => {
     if (canSend) setTimeout(() => inputRef.current?.focus(), 50);
   }, [canSend, inputRef]);
 
+  useEffect(() => {
+    const intervalId = window.setInterval(() => setNow(Date.now()), 30_000);
+    return () => window.clearInterval(intervalId);
+  }, []);
+
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-5 space-y-4">
-        {messages.map((msg, i) => {
-          if (msg.role === "user") return <UserMessage key={i} content={msg.content} />;
-          if (msg.type === "thinking") return <StudioThinkingBlock key={i} content={msg.content} />;
-          return <AssistantMessage key={i} content={msg.content} />;
-        })}
-        {isThinking && <ThinkingDots />}
-        <div ref={bottomRef} />
+      <div
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto px-4 sm:px-6"
+      >
+        <div className={messageStackClass}>
+          {messages.map((msg, i) => {
+            const messageId = getMessageId(msg, i);
+            if (msg.role === "user") return <UserMessage key={messageId} content={msg.content} />;
+            if (msg.type === "thinking") return <StudioThinkingBlock key={messageId} content={msg.content} />;
+            if (msg.type === "error") return <ErrorNotice key={messageId} content={msg.content} />;
+            if (msg.type === "system_event") {
+              return <StudioActivityBlock key={messageId} content={msg.content} phase={phase} />;
+            }
+            const persistedMessageId = msg.id;
+            const feedback =
+              persistedMessageId &&
+              Object.prototype.hasOwnProperty.call(feedbackByMessageId, persistedMessageId)
+                ? feedbackByMessageId[persistedMessageId] ?? undefined
+                : msg.feedback ?? undefined;
+            return (
+              <AssistantMessage
+                key={messageId}
+                content={msg.content}
+                durationMs={msg.durationMs}
+                createdAt={msg.createdAt}
+                now={now}
+                isLatest={i === latestAssistantIndex}
+                isThinking={isThinking}
+                copied={copiedMessageId === messageId}
+                feedback={feedback}
+                onCopy={() => handleCopyMessage(messageId, msg.content)}
+                onFeedback={(value) => {
+                  if (persistedMessageId) {
+                    handleFeedback(persistedMessageId, value, msg.feedback);
+                  }
+                }}
+                onReply={() =>
+                  persistedMessageId &&
+                  onReplyToMessage({
+                    messageId: persistedMessageId,
+                    excerpt: getMessageExcerpt(msg.content),
+                  })
+                }
+                onRegenerate={onRegenerateLatest}
+              />
+            );
+          })}
+          {isThinking && <ThinkingDots />}
+          {stopNotice && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Square className="h-3 w-3" />
+              <span>{stopNotice}</span>
+            </div>
+          )}
+          <div ref={bottomRef} />
+        </div>
       </div>
 
       {/* Correction bar — version + dot indicators */}
@@ -167,7 +557,7 @@ export function StudioChatPane({
 
       {/* Action zone — CTAs for prototype_ready, approved, proposal states */}
       {showActionZone && (
-        <div className="shrink-0 px-4 py-3 border-t border-border">
+        <div className="shrink-0 px-4 py-3 border-t border-border/70">
           <StudioProposalCta
             phase={phase}
             correctionsUsed={correctionsUsed}
@@ -182,31 +572,91 @@ export function StudioChatPane({
 
       {/* Text input */}
       {canSend && (
-        <div className="shrink-0 border-t border-border px-3 py-3 sm:px-4">
-          <div className="flex gap-3 items-end rounded-xl border border-border bg-secondary/20 px-3 py-2.5 sm:px-4 sm:py-3 focus-within:border-foreground/20 transition-colors">
-            <textarea
-              ref={inputRef}
-              value={input}
-              onChange={(e) => onInputChange(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey && !("ontouchstart" in window)) {
-                  e.preventDefault();
-                  onSend();
-                }
-              }}
-              placeholder={messages.length === 0 ? "Describe what you want to build..." : "Reply to Maxwell..."}
-              rows={1}
-              className="flex-1 resize-none bg-transparent text-sm leading-relaxed outline-none placeholder:text-muted-foreground/50 max-h-32"
-            />
-            <button
-              type="button"
-              onClick={onSend}
-              disabled={!input.trim()}
-              className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-40 shrink-0"
-              style={{ backgroundColor: siteTones.brand.accent, color: siteTones.brand.contrast }}
-            >
-              <ArrowRight className="w-4 h-4" />
-            </button>
+        <div className={composerShellClass}>
+          <div className={contentFrameClass}>
+            <div className={composerSurfaceClass}>
+              {replyTarget && (
+                <div className="mb-3 flex items-start justify-between gap-3 rounded-xl bg-black/30 px-3 py-2.5 text-xs text-muted-foreground">
+                  <div className="min-w-0">
+                    <p className="font-medium text-foreground/85">Replying to Maxwell</p>
+                    <p className="mt-1 max-h-10 overflow-hidden leading-relaxed text-muted-foreground">
+                      {replyTarget.excerpt}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    aria-label="Cancel reply"
+                    onClick={onClearReply}
+                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-secondary hover:text-foreground"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
+              <div className={composerInputWrapperClass}>
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => onInputChange(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey && !("ontouchstart" in window)) {
+                      e.preventDefault();
+                      onSend();
+                    }
+                  }}
+                  placeholder={messages.length === 0 ? "Describe what you want to build..." : "Ask a follow-up..."}
+                  rows={1}
+                  className={composerTextAreaClass}
+                />
+              </div>
+              <div className="mt-1 flex items-center justify-between">
+                <div className="flex shrink-0 items-center gap-1">
+                  <ComposerIconButton
+                    label="Add context"
+                    onClick={() => inputRef.current?.focus()}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </ComposerIconButton>
+                  <div className="inline-flex h-8 items-center gap-2 rounded-lg px-2 text-xs text-muted-foreground">
+                    <Sparkles className="h-3.5 w-3.5" />
+                    <span>Maxwell</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  aria-label={
+                    isThinking
+                      ? "Stop response"
+                      : hasDraft
+                      ? "Send message"
+                      : "Voice input unavailable"
+                  }
+                  title={
+                    isThinking
+                      ? "Stop response"
+                      : hasDraft
+                      ? "Send message"
+                      : "Voice input unavailable"
+                  }
+                  onClick={() => {
+                    if (isThinking) {
+                      onStop();
+                    } else if (canSubmit) {
+                      onSend();
+                    }
+                  }}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-foreground/10 text-foreground transition-colors hover:bg-foreground/15"
+                >
+                  {isThinking ? (
+                    <Square className="h-3.5 w-3.5 fill-current" />
+                  ) : hasDraft ? (
+                    <ArrowRight className="w-4 h-4" />
+                  ) : (
+                    <Mic className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

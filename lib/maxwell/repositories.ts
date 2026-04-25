@@ -28,6 +28,7 @@ export type StudioStatus =
   | "converted";
 
 export type MessageRole = "user" | "assistant" | "system";
+export type MessageFeedback = "up" | "down";
 
 export type MessageType =
   | "chat"
@@ -90,6 +91,7 @@ export type StudioMessage = {
   messageType: MessageType;
   content: string;
   createdAt: string;
+  feedback?: MessageFeedback | null;
 };
 
 export type StudioBrief = {
@@ -125,6 +127,7 @@ export type StudioEventType =
   | "status_transition"
   | "brief_updated"
   | "system_recovery"
+  | "message_regenerated"
   | "proposal_requested"
   | "proposal_reviewed"
   | "payment_recorded"
@@ -231,6 +234,10 @@ type SessionRow = {
 type MessageRow = {
   id: string; studio_session_id: string; role: string;
   message_type: string; content: string; created_at: string | Date;
+};
+
+type MessageWithFeedbackRow = MessageRow & {
+  viewer_feedback: string | null;
 };
 
 type BriefRow = {
@@ -356,6 +363,18 @@ function mapMessage(r: MessageRow): StudioMessage {
     id: r.id, studioSessionId: r.studio_session_id,
     role: r.role as MessageRole, messageType: r.message_type as MessageType,
     content: r.content, createdAt: toIsoTimestamp(r.created_at)!,
+  };
+}
+
+function mapMessageWithFeedback(r: MessageWithFeedbackRow): StudioMessage {
+  const feedback =
+    r.viewer_feedback === "up" || r.viewer_feedback === "down"
+      ? r.viewer_feedback
+      : null;
+
+  return {
+    ...mapMessage(r),
+    feedback,
   };
 }
 
@@ -578,6 +597,33 @@ export async function getStudioMessages(studioSessionId: string): Promise<Studio
   return rows.map(mapMessage);
 }
 
+export async function getStudioMessage(id: string): Promise<StudioMessage | null> {
+  const sql = getDb();
+  const rows = await sql<MessageRow[]>`
+    SELECT * FROM studio_message
+    WHERE id = ${id}
+    LIMIT 1
+  `;
+  return rows[0] ? mapMessage(rows[0]) : null;
+}
+
+export async function getStudioMessagesForViewer(
+  studioSessionId: string,
+  viewerEmail: string,
+): Promise<StudioMessage[]> {
+  const sql = getDb();
+  const rows = await sql<MessageWithFeedbackRow[]>`
+    SELECT sm.*, smf.feedback AS viewer_feedback
+    FROM studio_message sm
+    LEFT JOIN studio_message_feedback smf
+      ON smf.studio_message_id = sm.id
+      AND smf.viewer_email = ${viewerEmail.trim().toLowerCase()}
+    WHERE sm.studio_session_id = ${studioSessionId}
+    ORDER BY sm.created_at ASC
+  `;
+  return rows.map(mapMessageWithFeedback);
+}
+
 export async function getStudioMessagesForOpenAI(
   studioSessionId: string
 ): Promise<{ role: "user" | "assistant"; content: string }[]> {
@@ -585,6 +631,41 @@ export async function getStudioMessagesForOpenAI(
   return messages
     .filter((m) => m.role !== "system" && m.messageType === "chat")
     .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
+}
+
+export async function setStudioMessageFeedback(input: {
+  studioMessageId: string;
+  studioSessionId: string;
+  viewerEmail: string;
+  feedback: MessageFeedback | null;
+}): Promise<MessageFeedback | null> {
+  const sql = getDb();
+  const viewerEmail = input.viewerEmail.trim().toLowerCase();
+
+  if (!input.feedback) {
+    await sql`
+      DELETE FROM studio_message_feedback
+      WHERE studio_message_id = ${input.studioMessageId}
+        AND viewer_email = ${viewerEmail}
+    `;
+    return null;
+  }
+
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
+  await sql`
+    INSERT INTO studio_message_feedback (
+      id, studio_message_id, studio_session_id, viewer_email,
+      feedback, created_at, updated_at
+    ) VALUES (
+      ${id}, ${input.studioMessageId}, ${input.studioSessionId}, ${viewerEmail},
+      ${input.feedback}, ${now}, ${now}
+    )
+    ON CONFLICT (studio_message_id, viewer_email)
+    DO UPDATE SET feedback = EXCLUDED.feedback, updated_at = EXCLUDED.updated_at
+  `;
+
+  return input.feedback;
 }
 
 // ============================================================================
