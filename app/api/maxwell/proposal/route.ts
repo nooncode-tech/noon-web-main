@@ -7,10 +7,14 @@ import {
   getStudioSession,
   getStudioMessagesForOpenAI,
   getStudioVersions,
+  getLatestProposalRequest,
   createProposalRequest,
   updateStudioSessionStatus,
   appendStudioMessage,
   appendProposalReviewEvent,
+  type ProposalRequest,
+  type StudioSession,
+  type StudioVersion,
 } from "@/lib/maxwell/repositories";
 import { assertCanRequestProposal, MaxwellGuardError } from "@/lib/maxwell/studio-guards";
 import { MAXWELL_PROPOSAL_SYSTEM_PROMPT } from "@/lib/maxwell/prompts";
@@ -21,6 +25,10 @@ import {
 } from "@/lib/maxwell/proposal-rules";
 import { classifyProposalCase } from "@/lib/maxwell/proposal-lifecycle";
 import { stripInternalReviewFlags } from "@/lib/maxwell/proposal-content";
+import {
+  NoonAppIntegrationError,
+  sendInboundProposalToNoonApp,
+} from "@/lib/noon-app-integration";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -28,6 +36,45 @@ export const dynamic = "force-dynamic";
 const proposalRequestSchema = z.object({
   session_id: z.string(),
 });
+
+async function sendProposalForNoonAppReview(input: {
+  session: StudioSession;
+  proposal: ProposalRequest;
+  versions: StudioVersion[];
+}) {
+  try {
+    await sendInboundProposalToNoonApp(input);
+
+    await appendProposalReviewEvent({
+      proposalRequestId: input.proposal.id,
+      action: "noon_app_inbound_sent",
+      actor: "website",
+      notes: "Inbound proposal sent to Noon App PM queue.",
+    });
+
+    return null;
+  } catch (error) {
+    await appendProposalReviewEvent({
+      proposalRequestId: input.proposal.id,
+      action: "noon_app_inbound_failed",
+      actor: "website",
+      notes: error instanceof Error ? error.message : "Unknown Noon App handoff error.",
+    });
+
+    if (error instanceof NoonAppIntegrationError) {
+      return NextResponse.json(
+        {
+          message: "Proposal was created but could not be sent to Noon App for PM review.",
+          proposal_request_id: input.proposal.id,
+          code: "NOON_APP_HANDOFF_FAILED",
+        },
+        { status: error.status },
+      );
+    }
+
+    throw error;
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -52,6 +99,39 @@ export async function POST(request: Request) {
     }
     if (!viewerOwnsStudioSession(viewer, session)) {
       return NextResponse.json({ message: "Forbidden." }, { status: 403 });
+    }
+
+    if (session.status === "proposal_pending_review") {
+      const [latestProposal, dbVersions] = await Promise.all([
+        getLatestProposalRequest(session.id),
+        getStudioVersions(session.id),
+      ]);
+
+      if (!latestProposal || latestProposal.status !== "pending_review") {
+        return NextResponse.json(
+          {
+            message: "This session is already waiting for PM review and cannot create another proposal.",
+            code: "PROPOSAL_ALREADY_PENDING_REVIEW",
+          },
+          { status: 409 },
+        );
+      }
+
+      const handoffError = await sendProposalForNoonAppReview({
+        session,
+        proposal: latestProposal,
+        versions: dbVersions,
+      });
+      if (handoffError) return handoffError;
+
+      return NextResponse.json({
+        proposal_request_id: latestProposal.id,
+        status: latestProposal.status,
+        session_id: session.id,
+        session_status: "proposal_pending_review",
+        review_flags: null,
+        resent_to_noon_app: true,
+      });
     }
 
     try {
@@ -117,6 +197,13 @@ export async function POST(request: Request) {
       content: "Formal proposal requested.",
       messageType: "proposal_request",
     });
+
+    const handoffError = await sendProposalForNoonAppReview({
+      session,
+      proposal: proposalRequest,
+      versions: dbVersions,
+    });
+    if (handoffError) return handoffError;
 
     return NextResponse.json({
       proposal_request_id: proposalRequest.id,

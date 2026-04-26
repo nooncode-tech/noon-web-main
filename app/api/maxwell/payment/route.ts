@@ -10,8 +10,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getReviewRequestAccess } from "@/lib/auth/review";
 import {
+  appendProposalReviewEvent,
   getProposalRequest,
   getStudioSession,
+  getStudioVersions,
   updateStudioSessionStatus,
   getClientWorkspaceBySession,
   createClientWorkspace,
@@ -24,6 +26,11 @@ import {
   assertWorkspaceNotProvisioned,
   MaxwellGuardError,
 } from "@/lib/maxwell/studio-guards";
+import {
+  NoonAppIntegrationError,
+  sendPaymentConfirmedToNoonApp,
+} from "@/lib/noon-app-integration";
+import type { ProposalRequest, StudioSession } from "@/lib/maxwell/repositories";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -68,6 +75,40 @@ const paymentSchema = z.discriminatedUnion("action", [
   expireProposalSchema,
   confirmPaymentSchema,
 ]);
+
+async function notifyNoonAppPaymentConfirmed(input: {
+  session: StudioSession;
+  proposal: ProposalRequest;
+  paymentReference?: string | null;
+  summary?: string | null;
+}) {
+  const versions = await getStudioVersions(input.session.id);
+
+  try {
+    await sendPaymentConfirmedToNoonApp({
+      session: input.session,
+      proposal: input.proposal,
+      versions,
+      paymentReference: input.paymentReference,
+      summary: input.summary,
+    });
+
+    await appendProposalReviewEvent({
+      proposalRequestId: input.proposal.id,
+      action: "noon_app_payment_sent",
+      actor: "website",
+      notes: "Payment confirmation sent to Noon App.",
+    });
+  } catch (error) {
+    await appendProposalReviewEvent({
+      proposalRequestId: input.proposal.id,
+      action: "noon_app_payment_failed",
+      actor: "website",
+      notes: error instanceof Error ? error.message : "Unknown Noon App payment handoff error.",
+    });
+    throw error;
+  }
+}
 
 export async function GET(request: Request) {
   const access = await getReviewRequestAccess(request);
@@ -171,6 +212,13 @@ export async function POST(request: Request) {
         assertWorkspaceNotProvisioned(existingWorkspace);
       } catch (error) {
         if (error instanceof MaxwellGuardError) {
+          await notifyNoonAppPaymentConfirmed({
+            session,
+            proposal,
+            paymentReference: payload.payment_reference,
+            summary: payload.summary,
+          });
+
           return NextResponse.json({
             message: "Workspace already provisioned.",
             code: error.code,
@@ -194,6 +242,13 @@ export async function POST(request: Request) {
         workspaceToActivate.id,
         payload.summary ?? `Payment verified. Reference: ${payload.payment_reference ?? "N/A"}`,
       );
+
+      await notifyNoonAppPaymentConfirmed({
+        session,
+        proposal,
+        paymentReference: payload.payment_reference,
+        summary: payload.summary,
+      });
 
       return NextResponse.json({
         message: "Payment verified. Workspace activated.",
@@ -220,11 +275,26 @@ export async function POST(request: Request) {
       }
 
       const existingWorkspace = await getClientWorkspaceBySession(session.id);
+      const proposal = await getLatestProposalRequest(session.id);
+
+      if (!proposal) {
+        return NextResponse.json(
+          { message: "A proposal is required before payment can activate a project." },
+          { status: 409 },
+        );
+      }
 
       try {
         assertWorkspaceNotProvisioned(existingWorkspace);
       } catch (error) {
         if (error instanceof MaxwellGuardError) {
+          await notifyNoonAppPaymentConfirmed({
+            session,
+            proposal,
+            paymentReference: payload.payment_reference,
+            summary: payload.summary,
+          });
+
           return NextResponse.json({
             message: "Workspace already provisioned.",
             code: error.code,
@@ -252,6 +322,9 @@ export async function POST(request: Request) {
         throw error;
       }
 
+      await updateProposalRequestStatus(proposal.id, "paid", {
+        reviewerId: actor,
+      });
       await updateStudioSessionStatus(session.id, "converted");
       const workspaceToActivate =
         existingWorkspace ??
@@ -260,6 +333,13 @@ export async function POST(request: Request) {
         workspaceToActivate.id,
         payload.summary ?? `Project activated. Reference: ${payload.payment_reference ?? "N/A"}`,
       );
+
+      await notifyNoonAppPaymentConfirmed({
+        session,
+        proposal,
+        paymentReference: payload.payment_reference,
+        summary: payload.summary,
+      });
 
       return NextResponse.json({
         message: "Payment confirmed. Workspace activated.",
@@ -270,6 +350,13 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ message: "Unsupported action." }, { status: 400 });
   } catch (error) {
+    if (error instanceof NoonAppIntegrationError) {
+      return NextResponse.json(
+        { message: error.message, code: "NOON_APP_PAYMENT_HANDOFF_FAILED" },
+        { status: error.status },
+      );
+    }
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { message: "Invalid request.", fieldErrors: error.flatten().fieldErrors },

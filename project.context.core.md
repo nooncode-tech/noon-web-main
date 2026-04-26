@@ -4,6 +4,16 @@
 > **Sesión:** Fase 0 — Especificación y audit  
 > **Modo recomendado:** Recovery / FULL
 
+## 2026-04-26 integration note
+
+- Noon Website and Noon App remain separate products.
+- Website owns Maxwell, proposal visibility, and payment.
+- Noon App owns inbound PM review and post-payment operational handoff.
+- Website sends pending proposals to Noon App via signed webhooks.
+- Noon App returns review decisions to `POST /api/integrations/noon-app/proposal-review-decision`.
+- Legacy website review mutations are disabled; `POST /api/maxwell/review` no longer approves/sends proposals.
+- Payment confirmation still originates from the website and is sent to Noon App only after the website has a paid/confirmed session.
+
 ---
 
 ## 1. Identidad
