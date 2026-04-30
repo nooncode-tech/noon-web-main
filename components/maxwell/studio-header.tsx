@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -7,10 +8,13 @@ import {
   CircleDashed,
   MessageSquare,
   Monitor,
+  Plus,
   Share2,
   Sparkles,
+  Trash2,
   User,
 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { siteRoutes } from "@/lib/site-config";
 import { STUDIO_STATUS_META } from "@/lib/maxwell/studio-status";
 import type { StudioPhase, ActiveView } from "./studio-shell";
@@ -120,6 +124,12 @@ function ViewToggle({
 // StudioHeader
 // ============================================================================
 
+export type StudioDraftSession = {
+  id: string;
+  title: string;
+  updatedAt: string;
+};
+
 type StudioHeaderProps = {
   projectName: string;
   phase: StudioPhase;
@@ -131,6 +141,11 @@ type StudioHeaderProps = {
   onToggleView: (v: ActiveView) => void;
   hasPrototype: boolean;
   hasWorkspace: boolean;
+  draftSessions?: StudioDraftSession[];
+  currentSessionId?: string | null;
+  onSelectDraftSession?: (id: string) => void;
+  onNewDraftChat?: () => void;
+  onDeleteDraftSession?: (id: string) => void;
 };
 
 export function StudioHeader({
@@ -144,7 +159,13 @@ export function StudioHeader({
   onToggleView,
   hasPrototype,
   hasWorkspace,
+  draftSessions = [],
+  currentSessionId = null,
+  onSelectDraftSession,
+  onNewDraftChat,
+  onDeleteDraftSession,
 }: StudioHeaderProps) {
+  const [draftsOpen, setDraftsOpen] = useState(false);
   const isProcessing = phaseIsActive(phase);
   const label = phaseLabels[phase];
   const displayName = projectName || "Maxwell Studio";
@@ -179,16 +200,87 @@ export function StudioHeader({
 
       <div className="hidden min-w-0 items-center gap-2 text-xs text-muted-foreground sm:flex">
         <CircleDashed className={`h-3.5 w-3.5 ${isProcessing ? "animate-spin" : ""}`} />
-        <span>Drafts</span>
-        <span>/</span>
-        <button
-          type="button"
-          className="inline-flex max-w-[220px] items-center gap-1 truncate rounded-md px-1 py-0.5 transition-colors hover:bg-secondary hover:text-foreground"
-          title={displayName}
-        >
-          <span className="truncate">{displayName}</span>
-          <ChevronDown className="h-3 w-3 shrink-0" />
-        </button>
+        <Popover open={draftsOpen} onOpenChange={setDraftsOpen}>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              className="inline-flex max-w-[min(280px,42vw)] items-center gap-1 truncate rounded-md px-1.5 py-0.5 transition-colors hover:bg-secondary hover:text-foreground"
+              title="Conversations"
+            >
+              <span className="shrink-0">Drafts</span>
+              <span className="text-muted-foreground/50">/</span>
+              <span className="truncate font-medium text-foreground/90">{displayName}</span>
+              <ChevronDown className="h-3 w-3 shrink-0 opacity-60" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent align="center" className="w-80 max-h-[min(320px,50vh)] overflow-hidden p-0">
+            <div className="flex items-center justify-between border-b border-border px-3 py-2">
+              <span className="text-[11px] font-mono uppercase tracking-wide text-muted-foreground">
+                Your chats
+              </span>
+              {onNewDraftChat && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDraftsOpen(false);
+                    onNewDraftChat();
+                  }}
+                  className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-foreground transition-colors hover:bg-secondary"
+                >
+                  <Plus className="h-3 w-3" />
+                  New chat
+                </button>
+              )}
+            </div>
+            <ul className="max-h-[min(260px,42vh)] overflow-y-auto py-1">
+              {draftSessions.length === 0 ? (
+                <li className="px-3 py-6 text-center text-xs text-muted-foreground">
+                  No saved conversations yet. Start a new chat or return tomorrow to pick up where you left off.
+                </li>
+              ) : (
+                draftSessions.map((row) => {
+                  const active = row.id === currentSessionId;
+                  return (
+                    <li
+                      key={row.id}
+                      className={`flex items-stretch gap-0.5 border-b border-border/40 last:border-b-0 ${
+                        active ? "bg-secondary/60" : ""
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDraftsOpen(false);
+                          onSelectDraftSession?.(row.id);
+                        }}
+                        className="min-w-0 flex-1 px-3 py-2.5 text-left text-xs transition-colors hover:bg-secondary/80"
+                      >
+                        <span className="line-clamp-2 text-foreground">{row.title}</span>
+                        <span className="mt-0.5 block font-mono text-[10px] text-muted-foreground/80">
+                          {row.updatedAt.slice(0, 10)}
+                        </span>
+                      </button>
+                      {onDeleteDraftSession && (
+                        <button
+                          type="button"
+                          aria-label="Delete conversation"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDraftsOpen(false);
+                            onDeleteDraftSession(row.id);
+                          }}
+                          className="flex w-9 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </li>
+                  );
+                })
+              )}
+            </ul>
+          </PopoverContent>
+        </Popover>
       </div>
 
       <div className="flex min-w-0 items-center justify-end gap-2">

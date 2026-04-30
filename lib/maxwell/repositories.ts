@@ -5,7 +5,7 @@
  * Todas las funciones son async.
  */
 
-import { getDb } from "@/lib/server/db";
+import { ensureStudioSessionDeletedAtColumn, getDb } from "@/lib/server/db";
 import { assertValidTransition } from "./state-machine";
 import { buildProposalReviewTimeline, deriveProposalExpiry } from "./proposal-lifecycle";
 import type { WorkspaceStatus } from "./workspace-status";
@@ -81,6 +81,15 @@ export type StudioSession = {
   maxCorrections: number;
   proposalRequestedAt: string | null;
   createdAt: string;
+  updatedAt: string;
+};
+
+/** Lightweight row for studio history picker (non-deleted sessions only). */
+export type StudioSessionListItem = {
+  id: string;
+  initialPrompt: string;
+  status: StudioStatus;
+  goalSummary: string | null;
   updatedAt: string;
 };
 
@@ -229,6 +238,7 @@ type SessionRow = {
   complexity_hint: string | null; language: string;
   corrections_used: number; max_corrections: number;
   proposal_requested_at: string | Date | null; created_at: string | Date; updated_at: string | Date;
+  deleted_at?: string | Date | null;
 };
 
 type MessageRow = {
@@ -514,9 +524,64 @@ export async function createStudioSession(input: {
 }
 
 export async function getStudioSession(id: string): Promise<StudioSession | null> {
+  await ensureStudioSessionDeletedAtColumn();
   const sql = getDb();
-  const rows = await sql<SessionRow[]>`SELECT * FROM studio_session WHERE id = ${id}`;
+  const rows = await sql<SessionRow[]>`
+    SELECT * FROM studio_session
+    WHERE id = ${id}
+      AND deleted_at IS NULL
+  `;
   return rows[0] ? mapSession(rows[0]) : null;
+}
+
+export async function listStudioSessionsForOwner(
+  ownerEmail: string,
+  limit = 80,
+): Promise<StudioSessionListItem[]> {
+  await ensureStudioSessionDeletedAtColumn();
+  const sql = getDb();
+  const email = ownerEmail.trim().toLowerCase();
+  type ListRow = {
+    id: string;
+    initial_prompt: string;
+    status: string;
+    goal_summary: string | null;
+    updated_at: string | Date;
+  };
+  const rows = await sql<ListRow[]>`
+    SELECT id, initial_prompt, status, goal_summary, updated_at
+    FROM studio_session
+    WHERE lower(owner_email) = ${email}
+      AND deleted_at IS NULL
+    ORDER BY updated_at DESC
+    LIMIT ${limit}
+  `;
+  return rows.map((r) => ({
+    id: r.id,
+    initialPrompt: r.initial_prompt,
+    status: r.status as StudioStatus,
+    goalSummary: r.goal_summary,
+    updatedAt: toIsoTimestamp(r.updated_at)!,
+  }));
+}
+
+export async function softDeleteStudioSession(
+  id: string,
+  ownerEmail: string,
+): Promise<boolean> {
+  await ensureStudioSessionDeletedAtColumn();
+  const sql = getDb();
+  const now = new Date().toISOString();
+  const email = ownerEmail.trim().toLowerCase();
+  const rows = await sql<{ id: string }[]>`
+    UPDATE studio_session
+    SET deleted_at = ${now}, updated_at = ${now}
+    WHERE id = ${id}
+      AND lower(owner_email) = ${email}
+      AND deleted_at IS NULL
+    RETURNING id
+  `;
+  return rows.length > 0;
 }
 
 export async function updateStudioSessionStatus(

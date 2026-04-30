@@ -12,6 +12,7 @@ import {
   appendStudioMessage,
 } from "@/lib/maxwell/repositories";
 import { assertCanRequestCorrection, MaxwellGuardError } from "@/lib/maxwell/studio-guards";
+import { evaluateInitialPrototypeCreate } from "@/lib/maxwell/prototype-quota";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -57,6 +58,21 @@ export async function POST(request: Request) {
     }
 
     if (payload.action === "create") {
+      const quota = await evaluateInitialPrototypeCreate(viewer.email, session.id);
+      if (quota) {
+        const contactAgent =
+          quota.code === "USER_MONTHLY_PROTOTYPE_QUOTA" ||
+          quota.code === "GLOBAL_MONTHLY_PROTOTYPE_QUOTA";
+        return NextResponse.json(
+          {
+            message: quota.message,
+            code: quota.code,
+            contact_agent: contactAgent,
+          },
+          { status: 403 },
+        );
+      }
+
       await updateStudioSessionStatus(session.id, "generating_prototype");
 
       let result: Awaited<ReturnType<typeof createV0Prototype>>;

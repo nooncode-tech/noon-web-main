@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { StudioHeader } from "./studio-header";
 import { StudioChatPane } from "./studio-chat-pane";
 import { StudioPreviewPane } from "./studio-preview-pane";
-import { getContactHref, siteRoutes } from "@/lib/site-config";
+import { getContactHref } from "@/lib/site-config";
 
 // ============================================================================
 // Types
@@ -126,6 +126,14 @@ function buildPrototypeBrief(messages: ChatMessage[], lastUserMsg: string, lastA
 // StudioShell
 // ============================================================================
 
+type SessionSummary = {
+  id: string;
+  initial_prompt: string;
+  status: StudioPhase;
+  goal_summary: string | null;
+  updated_at: string;
+};
+
 type StudioShellProps = {
   initialPrompt: string;
   initialSessionId?: string;
@@ -138,6 +146,7 @@ export function StudioShell({
   viewerEmail,
 }: StudioShellProps) {
   const router = useRouter();
+  const pathname = usePathname();
 
   const [phase, setPhase] = useState<StudioPhase>("intake");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -155,50 +164,82 @@ export function StudioShell({
   const [activeView, setActiveView] = useState<ActiveView>("chat");
   const [prototypeFailed, setPrototypeFailed] = useState(false);
   const [projectName, setProjectName] = useState("");
+  const [sessionSummaries, setSessionSummaries] = useState<SessionSummary[]>([]);
 
   const currentVersion = prototypeVersions[prototypeVersions.length - 1] ?? null;
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const hasStartedRef = useRef(false);
   const chatAbortRef = useRef<AbortController | null>(null);
+  const rehydrateAbortRef = useRef<AbortController | null>(null);
 
   const agentHref = getContactHref({
     inquiry: "new-project",
-    draft: initialPrompt,
+    draft: initialPrompt || projectName,
     source: "maxwell-studio-agent",
   });
 
+  const quotaAgentHref = getContactHref({
+    inquiry: "new-project",
+    draft: projectName || initialPrompt,
+    source: "maxwell-studio-prototype-quota",
+  });
+
+  async function refreshSessionSummaries() {
+    try {
+      const res = await fetch("/api/maxwell/studio/sessions", { cache: "no-store" });
+      if (!res.ok) return;
+      const data = (await res.json()) as { sessions: SessionSummary[] };
+      setSessionSummaries(data.sessions);
+    } catch {
+      // ignore
+    }
+  }
+
   useEffect(() => {
     if (sessionId && !initialSessionId) {
-      router.replace(`${siteRoutes.maxwellStudio}?session_id=${sessionId}`);
+      const qs = new URLSearchParams({ session_id: sessionId });
+      router.replace(`${pathname}?${qs.toString()}`);
     }
-    // Only runs when sessionId is first created from a new prompt.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionId]);
+  }, [sessionId, initialSessionId, pathname, router]);
 
   useEffect(() => {
-    if (hasStartedRef.current) return;
-
     if (initialSessionId) {
-      hasStartedRef.current = true;
       void rehydrateSession(initialSessionId);
+      void refreshSessionSummaries();
       return;
     }
 
-    const trimmedPrompt = initialPrompt.trim();
-    if (!trimmedPrompt) {
+    if (initialPrompt.trim()) {
+      if (hasStartedRef.current) return;
       hasStartedRef.current = true;
-      router.replace(siteRoutes.home);
+      const trimmedPrompt = initialPrompt.trim();
+      const initialUserMessage = createMessage({ role: "user", content: trimmedPrompt });
+      setMessages([initialUserMessage]);
+      setPhase("clarifying");
+      void refreshSessionSummaries();
+      void sendToMaxwell(trimmedPrompt, true, {
+        localUserMessageId: initialUserMessage.id,
+      });
       return;
     }
 
-    hasStartedRef.current = true;
-    const initialUserMessage = createMessage({ role: "user", content: trimmedPrompt });
-    setMessages([initialUserMessage]);
-    setPhase("clarifying");
-    void sendToMaxwell(trimmedPrompt, true, {
-      localUserMessageId: initialUserMessage.id,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    rehydrateAbortRef.current?.abort();
+    hasStartedRef.current = false;
+    setSessionId(null);
+    setMessages([]);
+    setPhase("intake");
+    setPrototypeVersions([]);
+    setSelectedVersionIndex(0);
+    setCorrectionsUsed(0);
+    setMaxCorrections(DEFAULT_MAX_CORRECTIONS);
+    setActiveView("chat");
+    setPrototypeFailed(false);
+    setProjectName("");
+    setInput("");
+    setReplyTarget(null);
+    setStopNotice(null);
+    setIsRehydrating(false);
+    void refreshSessionSummaries();
   }, [initialPrompt, initialSessionId]);
 
   useEffect(() => {
@@ -209,11 +250,17 @@ export function StudioShell({
   }, [prototypeVersions.length]);
 
   async function rehydrateSession(id: string) {
+    rehydrateAbortRef.current?.abort();
+    const controller = new AbortController();
+    rehydrateAbortRef.current = controller;
+
     setIsRehydrating(true);
     try {
-      const res = await fetch(`/api/maxwell/studio/session?session_id=${id}`);
+      const res = await fetch(`/api/maxwell/studio/session?session_id=${id}`, {
+        signal: controller.signal,
+      });
       if (!res.ok) {
-        router.replace(siteRoutes.home);
+        router.replace(pathname);
         return;
       }
 
@@ -241,10 +288,13 @@ export function StudioShell({
         setSelectedVersionIndex(data.versions.length - 1);
         setActiveView("preview");
       }
-    } catch {
-      router.replace(siteRoutes.home);
+    } catch (error) {
+      if (isAbortError(error)) return;
+      router.replace(pathname);
     } finally {
-      setIsRehydrating(false);
+      if (rehydrateAbortRef.current === controller) {
+        setIsRehydrating(false);
+      }
     }
   }
 
@@ -335,6 +385,7 @@ export function StudioShell({
       if (data.project_name && !projectName) setProjectName(data.project_name);
       if (data.corrections_used !== undefined) setCorrectionsUsed(data.corrections_used);
       if (data.max_corrections !== undefined) setMaxCorrections(data.max_corrections);
+      if (data.session_id) void refreshSessionSummaries();
 
       const reply =
         data.reply ?? data.message ?? "Maxwell couldn't respond right now. Please try again.";
@@ -465,15 +516,6 @@ export function StudioShell({
     setPhase("generating_prototype");
     setPrototypeFailed(false);
 
-    setMessages((prev) => [
-      ...prev,
-      createMessage({
-        role: "assistant",
-        content: "Preparing the first interactive version from this conversation.",
-        type: "system_event",
-      }),
-    ]);
-
     try {
       const prototypeBrief = buildPrototypeBrief(messages, lastUserMsg, lastAssistantMsg);
 
@@ -486,7 +528,7 @@ export function StudioShell({
           ...(effectiveSessionId ? { session_id: effectiveSessionId } : {}),
         }),
       });
-      const data = (await res.json()) as {
+      const data = (await res.json().catch(() => ({}))) as {
         chatId?: string;
         demoUrl?: string;
         version_id?: string | null;
@@ -497,7 +539,62 @@ export function StudioShell({
         pending?: boolean;
         session_id?: string;
         action?: string;
+        contact_agent?: boolean;
+        code?: string;
       };
+
+      if (res.status === 403) {
+        setPhase("clarifying");
+        setPrototypeFailed(true);
+        const msg =
+          typeof data.message === "string"
+            ? data.message
+            : "Prototype generation is not available right now.";
+        const showAgent = Boolean(data.contact_agent);
+        setMessages((prev) => [
+          ...prev,
+          createMessage({
+            role: "assistant",
+            content: msg,
+            type: showAgent ? "system_event" : "error",
+          }),
+          ...(showAgent
+            ? [
+                createMessage({
+                  role: "assistant",
+                  content: `Talk with a Noon agent: ${quotaAgentHref}`,
+                  type: "system_event",
+                }),
+              ]
+            : []),
+        ]);
+        return;
+      }
+
+      if (!res.ok) {
+        setPhase("clarifying");
+        setPrototypeFailed(true);
+        setMessages((prev) => [
+          ...prev,
+          createMessage({
+            role: "assistant",
+            content:
+              typeof data.message === "string"
+                ? data.message
+                : "I wasn't able to start the preview. You can try again or keep refining the idea.",
+          }),
+        ]);
+        return;
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        createMessage({
+          role: "assistant",
+          content: "Preparing the first interactive version from this conversation.",
+          type: "system_event",
+        }),
+      ]);
 
       if (data.pending && data.chatId && data.session_id) {
         // Start polling
@@ -881,6 +978,39 @@ export function StudioShell({
     }
   }
 
+  async function handleDeleteSessionList(id: string) {
+    if (!window.confirm("Delete this conversation? You will not be able to open it again.")) return;
+    try {
+      const res = await fetch(
+        `/api/maxwell/studio/sessions?session_id=${encodeURIComponent(id)}`,
+        { method: "DELETE" },
+      );
+      if (!res.ok) return;
+      await refreshSessionSummaries();
+      if (id === sessionId) {
+        router.replace(pathname);
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  function handleSelectSessionFromList(id: string) {
+    const qs = new URLSearchParams({ session_id: id });
+    router.push(`${pathname}?${qs.toString()}`);
+  }
+
+  function handleNewChatFromList() {
+    router.push(pathname);
+  }
+
+  const draftSessionsForHeader = sessionSummaries.map((s) => ({
+    id: s.id,
+    title:
+      (s.goal_summary || s.initial_prompt).replace(/\s+/g, " ").trim().slice(0, 88) || "Conversation",
+    updatedAt: s.updated_at,
+  }));
+
   if (isRehydrating) {
     return (
       <div className="flex h-[100dvh] items-center justify-center bg-background">
@@ -926,6 +1056,11 @@ export function StudioShell({
         onToggleView={setActiveView}
         hasPrototype={prototypeVersions.length > 0}
         hasWorkspace={shouldShowWorkspace}
+        draftSessions={draftSessionsForHeader}
+        currentSessionId={sessionId}
+        onSelectDraftSession={handleSelectSessionFromList}
+        onNewDraftChat={handleNewChatFromList}
+        onDeleteDraftSession={handleDeleteSessionList}
       />
 
       <div className="flex min-h-0 flex-1 overflow-hidden">

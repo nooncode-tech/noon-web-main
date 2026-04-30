@@ -22,20 +22,17 @@ export default async function MaxwellStudioPage({ params, searchParams }: Props)
     searchParams,
   ]);
   const trimmedPrompt = prompt.trim();
-
-  if (!trimmedPrompt && !session_id) {
-    redirect(`/${locale}`);
-  }
+  const studioPath = `/${locale}/maxwell/studio`;
 
   const session = await auth();
   const viewerEmail = session?.user?.email ?? null;
 
   if (!viewerEmail) {
     const redirectTo = session_id
-      ? `${siteRoutes.maxwellStudio}?session_id=${encodeURIComponent(session_id)}`
+      ? `${studioPath}?session_id=${encodeURIComponent(session_id)}`
       : trimmedPrompt
-        ? `${siteRoutes.maxwellStudio}?prompt=${encodeURIComponent(trimmedPrompt)}`
-        : siteRoutes.maxwellStudio;
+        ? `${studioPath}?prompt=${encodeURIComponent(trimmedPrompt)}`
+        : studioPath;
     redirect(buildSignInHref(redirectTo));
   }
 

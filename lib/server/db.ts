@@ -37,3 +37,27 @@ export function getDb(): postgres.Sql {
   }
   return globalForDb.postgresClient;
 }
+
+/** Idempotent guard so local DBs work before migrations are applied manually. */
+let studioSessionDeletedAtPatch: Promise<void> | null = null;
+
+export async function ensureStudioSessionDeletedAtColumn(): Promise<void> {
+  const sql = getDb();
+  if (!studioSessionDeletedAtPatch) {
+    studioSessionDeletedAtPatch = (async () => {
+      await sql`
+        ALTER TABLE studio_session
+        ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ NULL
+      `;
+      await sql`
+        CREATE INDEX IF NOT EXISTS idx_studio_session_owner_active
+        ON studio_session (owner_email, updated_at DESC)
+        WHERE deleted_at IS NULL
+      `;
+    })().catch((err) => {
+      studioSessionDeletedAtPatch = null;
+      throw err;
+    });
+  }
+  await studioSessionDeletedAtPatch;
+}

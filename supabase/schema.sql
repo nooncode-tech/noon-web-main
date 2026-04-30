@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS studio_session (
   corrections_used      INTEGER NOT NULL DEFAULT 0,
   max_corrections       INTEGER NOT NULL DEFAULT 2,
   proposal_requested_at TIMESTAMPTZ,
+  deleted_at            TIMESTAMPTZ,
   created_at            TIMESTAMPTZ NOT NULL,
   updated_at            TIMESTAMPTZ NOT NULL,
 
@@ -68,6 +69,9 @@ CREATE TABLE IF NOT EXISTS studio_session (
 
 CREATE INDEX IF NOT EXISTS idx_studio_session_updated_at ON studio_session (updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_studio_session_owner_email ON studio_session (owner_email, updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_studio_session_owner_active
+  ON studio_session (owner_email, updated_at DESC)
+  WHERE deleted_at IS NULL;
 
 -- studio_message
 CREATE TABLE IF NOT EXISTS studio_message (
