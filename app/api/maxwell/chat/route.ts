@@ -129,6 +129,25 @@ function isAbortLikeError(error: unknown) {
   );
 }
 
+function isDatabaseConnectivityError(error: unknown) {
+  if (!error || typeof error !== "object") return false;
+
+  const maybeCode = "code" in error ? (error as { code?: unknown }).code : undefined;
+  if (typeof maybeCode === "string") {
+    return [
+      "CONNECT_TIMEOUT",
+      "ECONNREFUSED",
+      "ECONNRESET",
+      "ENOTFOUND",
+      "ETIMEDOUT",
+      "57P01",
+    ].includes(maybeCode);
+  }
+
+  const message = "message" in error ? String((error as { message?: unknown }).message ?? "") : "";
+  return /connect_timeout|econnrefused|econnreset|enotfound|etimedout/i.test(message);
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -343,6 +362,16 @@ export async function POST(request: Request) {
     }
     if (request.signal.aborted || isAbortLikeError(error)) {
       return NextResponse.json({ message: "Request aborted." }, { status: 499 });
+    }
+    if (isDatabaseConnectivityError(error)) {
+      return NextResponse.json(
+        {
+          message:
+            "Maxwell is temporarily unavailable because the database connection timed out. Please retry in a moment.",
+          code: "DB_CONNECTIVITY_ERROR",
+        },
+        { status: 503 },
+      );
     }
 
     console.error("Maxwell chat error:", error);

@@ -186,6 +186,7 @@ export async function updateV0Prototype(params: V0SendMessageParams): Promise<V0
 export type V0StatusResult = {
   status: "pending" | "completed" | "failed";
   demoUrl?: string;
+  versionId?: string;
 };
 
 /**
@@ -193,7 +194,9 @@ export type V0StatusResult = {
  */
 export async function getV0PrototypeStatus(chatId: string): Promise<V0StatusResult> {
   try {
-    const result = await v0.chats.getById({ chatId }) as { latestVersion?: { status: "pending" | "completed" | "failed"; demoUrl?: string } };
+    const result = await v0.chats.getById({ chatId }) as {
+      latestVersion?: { id?: string; status: "pending" | "completed" | "failed"; demoUrl?: string };
+    };
     
     if (!result.latestVersion) {
       return { status: "pending" };
@@ -202,6 +205,7 @@ export async function getV0PrototypeStatus(chatId: string): Promise<V0StatusResu
     return {
       status: result.latestVersion.status,
       demoUrl: result.latestVersion.demoUrl,
+      versionId: result.latestVersion.id,
     };
   } catch (error: any) {
     // Manejar latencia/eventual consistency de v0 (el chat tarda unos segundos en aparecer y devuelve 404)

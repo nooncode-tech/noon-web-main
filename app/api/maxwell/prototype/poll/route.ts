@@ -6,12 +6,45 @@ import { viewerOwnsStudioSession } from "@/lib/auth/ownership";
 import {
   getStudioSession,
   createStudioVersion,
+  getLatestStudioVersion,
   updateStudioSessionStatus,
   appendStudioMessage,
 } from "@/lib/maxwell/repositories";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+async function isPreviewUrlReady(url: string): Promise<boolean> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    console.log("Checking preview URL:", url.substring(0, 50) + "...");
+    const response = await fetch(url, {
+      method: "GET",
+      redirect: "follow",
+      signal: controller.signal,
+      cache: "no-store",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+      }
+    });
+
+    console.log("Preview URL response status:", response.status);
+    const contentType = response.headers.get("content-type") ?? "";
+    console.log("Preview URL content-type:", contentType);
+
+    if (!response.ok) return false;
+
+    return contentType.includes("text/html");
+  } catch (err) {
+    console.error("Preview URL fetch error:", err);
+    return false;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
 
 export async function GET(request: Request) {
   try {
@@ -20,6 +53,9 @@ export async function GET(request: Request) {
     const sessionId = searchParams.get("session_id");
     const action = searchParams.get("action");
     const prompt = searchParams.get("prompt");
+    const previousDemoUrl = searchParams.get("previous_demo_url");
+    const previousVersionId = searchParams.get("previous_version_id");
+    const confirmationToken = searchParams.get("confirmation_token");
 
     if (!chatId || !sessionId || !action) {
       return NextResponse.json({ message: "Missing query params" }, { status: 400 });
@@ -61,10 +97,45 @@ export async function GET(request: Request) {
          return NextResponse.json({ status: "failed", message: "Demo URL is missing." });
       }
 
+      const baseDemoUrl = statusResult.demoUrl.split("?")[0];
+      const completionSignature = `${statusResult.versionId ?? "unknown"}|${baseDemoUrl}`;
+
+      // Guardrail: require one extra poll cycle with the same completed signature.
+      // This reduces race conditions where v0 marks completed before the final preview
+      // is fully stabilized for immediate rendering.
+      if (confirmationToken !== completionSignature) {
+        return NextResponse.json({ status: "pending", completion_token: completionSignature });
+      }
+
+      // Even when v0 reports completed, the preview endpoint can still be warming up.
+      // Keep polling until the URL serves a real HTML response.
+      const previewReady = await isPreviewUrlReady(statusResult.demoUrl);
+      if (!previewReady) {
+        return NextResponse.json({ status: "pending", completion_token: completionSignature });
+      }
+
+      // v0 may briefly report "completed" while still serving the previous preview URL.
+      // For updates, wait until the preview URL/version changes before committing a new version.
+      if (
+        action === "update" &&
+        (
+          (previousDemoUrl && baseDemoUrl === previousDemoUrl.split("?")[0]) ||
+          (previousVersionId && statusResult.versionId && statusResult.versionId === previousVersionId)
+        )
+      ) {
+        return NextResponse.json({ status: "pending" });
+      }
+
+      // Additional guard to avoid storing duplicate versions when URL has not changed.
+      const latestVersion = await getLatestStudioVersion(session.id);
+      if (latestVersion && latestVersion.previewUrl.split("?")[0] === baseDemoUrl) {
+        return NextResponse.json({ status: "pending" });
+      }
+
       // Generation successful. Commit to Database.
       const version = await createStudioVersion({
         studioSessionId: session.id,
-        previewUrl: statusResult.demoUrl,
+        previewUrl: statusResult.demoUrl, // Guardamos la URL completa con el token para el iframe
         v0ChatId: chatId,
         changeSummary: action === "update" && prompt ? prompt : undefined,
         source: action === "update" ? "correction" : "initial",
@@ -83,6 +154,7 @@ export async function GET(request: Request) {
           status: "completed",
           chatId: chatId,
           demoUrl: statusResult.demoUrl,
+          version_id: statusResult.versionId ?? null,
           session_id: session.id,
           session_status: "prototype_ready",
           version_number: version.versionNumber,
@@ -106,6 +178,7 @@ export async function GET(request: Request) {
           status: "completed",
           chatId: chatId,
           demoUrl: statusResult.demoUrl,
+          version_id: statusResult.versionId ?? null,
           session_id: session.id,
           session_status: "prototype_ready",
           version_number: version.versionNumber,

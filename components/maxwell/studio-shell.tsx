@@ -44,11 +44,13 @@ export type PrototypeVersion = {
   chatId: string;
   demoUrl: string;
   versionNumber: number;
+  versionId?: string | null;
 };
 
 type PrototypePollResult = {
   chatId: string;
   demoUrl: string;
+  version_id?: string | null;
   version_number?: number;
   corrections_used?: number;
   max_corrections?: number;
@@ -91,6 +93,33 @@ function isAbortError(error: unknown) {
 
 function elapsedMs(startedAt: number) {
   return Math.max(0, Math.round(performance.now() - startedAt));
+}
+
+function buildPrototypeBrief(messages: ChatMessage[], lastUserMsg: string, lastAssistantMsg: string) {
+  const relevantHistory = messages
+    .filter(
+      (message) =>
+        message.type !== "thinking" &&
+        message.type !== "system_event" &&
+        message.type !== "error",
+    )
+    .concat(
+      { role: "user", content: lastUserMsg },
+      { role: "assistant", content: lastAssistantMsg },
+    )
+    .slice(-12)
+    .map((message) => {
+      const speaker = message.role === "user" ? "Client" : "Maxwell";
+      const compact = message.content.replace(/\s+/g, " ").trim().slice(0, 500);
+      return `${speaker}: ${compact}`;
+    });
+
+  return [
+    "Create a high-fidelity frontend-only prototype based on this distilled conversation context.",
+    "Use static mock data for all interactions. No backend code, no dynamic APIs.",
+    "",
+    ...relevantHistory,
+  ].join("\n");
 }
 
 // ============================================================================
@@ -446,26 +475,21 @@ export function StudioShell({
     ]);
 
     try {
-      const contextLines = messages
-        .concat(
-          { role: "user", content: lastUserMsg },
-          { role: "assistant", content: lastAssistantMsg },
-        )
-        .map((message) => `${message.role === "user" ? "Client" : "Maxwell"}: ${message.content}`)
-        .join("\n");
+      const prototypeBrief = buildPrototypeBrief(messages, lastUserMsg, lastAssistantMsg);
 
       const res = await fetch("/api/maxwell/prototype", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "create",
-          prompt: `Based on this conversation, create a prototype:\n\n${contextLines}`,
+          prompt: prototypeBrief,
           ...(effectiveSessionId ? { session_id: effectiveSessionId } : {}),
         }),
       });
       const data = (await res.json()) as {
         chatId?: string;
         demoUrl?: string;
+        version_id?: string | null;
         version_number?: number;
         corrections_used?: number;
         max_corrections?: number;
@@ -485,6 +509,7 @@ export function StudioShell({
         const newVersion: PrototypeVersion = {
           chatId: data.chatId,
           demoUrl: data.demoUrl,
+          versionId: data.version_id ?? null,
           versionNumber: data.version_number ?? 1,
         };
         setPrototypeVersions((prev) => [...prev, newVersion]);
@@ -531,6 +556,7 @@ export function StudioShell({
       const newVersion: PrototypeVersion = {
         chatId: data.chatId,
         demoUrl: data.demoUrl,
+        versionId: data.version_id ?? null,
         versionNumber: data.version_number ?? 1,
       };
       setPrototypeVersions((prev) => [...prev, newVersion]);
@@ -554,6 +580,7 @@ export function StudioShell({
         const updatedVersion: PrototypeVersion = {
           chatId: data.chatId || lastVersion.chatId,
           demoUrl: data.demoUrl,
+          versionId: data.version_id ?? null,
           versionNumber: data.version_number ?? lastVersion.versionNumber + 1,
         };
         return [...prev, updatedVersion];
@@ -611,7 +638,15 @@ export function StudioShell({
     }
   }
 
-  async function pollV0Status(chatId: string, pollSessionId: string, action: string, prompt?: string) {
+  async function pollV0Status(
+    chatId: string,
+    pollSessionId: string,
+    action: string,
+    prompt?: string,
+    previousDemoUrl?: string,
+    previousVersionId?: string | null,
+    confirmationToken?: string,
+  ) {
     try {
       const params = new URLSearchParams({
         chatId,
@@ -621,6 +656,15 @@ export function StudioShell({
       if (prompt) {
         params.set("prompt", prompt.substring(0, 500));
       }
+      if (previousDemoUrl) {
+        params.set("previous_demo_url", previousDemoUrl);
+      }
+      if (previousVersionId) {
+        params.set("previous_version_id", previousVersionId);
+      }
+      if (confirmationToken) {
+        params.set("confirmation_token", confirmationToken);
+      }
       const res = await fetch(`/api/maxwell/prototype/poll?${params.toString()}`);
       if (!res.ok) {
         return handlePollError(action);
@@ -628,17 +672,37 @@ export function StudioShell({
       const data = await res.json();
 
       if (data.status === "pending") {
-        setTimeout(() => pollV0Status(chatId, pollSessionId, action, prompt), 5000);
+        const nextConfirmationToken =
+          typeof data.completion_token === "string" ? data.completion_token : confirmationToken;
+        setTimeout(
+          () => pollV0Status(
+            chatId,
+            pollSessionId,
+            action,
+            prompt,
+            previousDemoUrl,
+            previousVersionId,
+            nextConfirmationToken,
+          ),
+          5000,
+        );
       } else if (data.status === "completed" && data.chatId && data.demoUrl) {
-        handlePollSuccess(
-          {
-            chatId: data.chatId,
-            demoUrl: data.demoUrl,
-            version_number: data.version_number,
-            corrections_used: data.corrections_used,
-            max_corrections: data.max_corrections,
-          },
-          action,
+        // Small client-side buffer to reduce blank iframe race conditions
+        // right after the preview endpoint becomes available.
+        setTimeout(
+          () =>
+            handlePollSuccess(
+              {
+                chatId: data.chatId,
+                demoUrl: data.demoUrl,
+                version_id: data.version_id,
+                version_number: data.version_number,
+                corrections_used: data.corrections_used,
+                max_corrections: data.max_corrections,
+              },
+              action,
+            ),
+          1200,
         );
       } else {
         // failed or error
@@ -676,6 +740,7 @@ export function StudioShell({
       const data = (await res.json()) as {
         chatId?: string;
         demoUrl?: string;
+        version_id?: string | null;
         version_number?: number;
         corrections_used?: number;
         max_corrections?: number;
@@ -684,6 +749,7 @@ export function StudioShell({
         pending?: boolean;
         session_id?: string;
         action?: string;
+        completion_token?: string;
       };
 
       if (data.code === "MAX_CORRECTIONS_REACHED") {
@@ -699,7 +765,14 @@ export function StudioShell({
       }
 
       if (data.pending && data.chatId && data.session_id) {
-        pollV0Status(data.chatId, data.session_id, data.action ?? "update", correctionPrompt);
+        pollV0Status(
+          data.chatId,
+          data.session_id,
+          data.action ?? "update",
+          correctionPrompt,
+          currentVersion.demoUrl,
+          currentVersion.versionId,
+        );
         return;
       }
 
@@ -707,6 +780,7 @@ export function StudioShell({
         const updatedVersion: PrototypeVersion = {
           chatId: data.chatId ?? currentVersion.chatId,
           demoUrl: data.demoUrl,
+          versionId: data.version_id ?? null,
           versionNumber: data.version_number ?? currentVersion.versionNumber + 1,
         };
         setPrototypeVersions((prev) => [...prev, updatedVersion]);
